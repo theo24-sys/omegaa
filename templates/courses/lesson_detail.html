@@ -1,0 +1,137 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ lesson.title }} - {{ course.title }}{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto py-8 px-4">
+    <!-- Breadcrumbs -->
+    <nav class="flex mb-8 text-sm" aria-label="Breadcrumb">
+        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+            <li><a href="{% url 'course_list' %}" class="text-gray-500 hover:text-primary transition">Training</a></li>
+            <li>
+                <div class="flex items-center">
+                    <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd"
+                            d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                            clip-rule="evenodd"></path>
+                    </svg>
+                    <a href="{% url 'course_detail' course.id %}"
+                        class="ml-1 md:ml-2 text-gray-500 hover:text-primary transition">{{ course.title }}</a>
+                </div>
+            </li>
+            <li aria-current="page">
+                <div class="flex items-center">
+                    <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd"
+                            d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                            clip-rule="evenodd"></path>
+                    </svg>
+                    <span class="ml-1 md:ml-2 text-gray-900 font-medium">{{ lesson.title }}</span>
+                </div>
+            </li>
+        </ol>
+    </nav>
+
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        <!-- Sidebar: Lesson List -->
+        <div class="lg:col-span-1 border-r border-gray-100 pr-4">
+            <h3 class="text-lg font-bold text-dark mb-6">Course Lessons</h3>
+            <div class="space-y-2">
+                {% for l in lessons %}
+                <a href="{% url 'lesson_detail' course.id l.id %}"
+                    class="flex items-center p-3 rounded-xl transition {% if l.id == lesson.id %}bg-pink-50 text-primary border border-pink-100{% else %}hover:bg-gray-50 text-gray-700{% endif %}">
+                    <div
+                        class="w-6 h-6 rounded-full {% if l.id == lesson.id %}bg-primary text-white{% else %}bg-gray-200 text-gray-500{% endif %} flex items-center justify-center text-xs font-bold mr-3">
+                        {{ forloop.counter }}
+                    </div>
+                    <span class="text-sm font-medium">{{ l.title }}</span>
+                </a>
+                {% endfor %}
+            </div>
+
+            <div class="mt-8 pt-8 border-t border-gray-100">
+                {% if lesson.quiz_questions.exists %}
+                {% if lesson_quiz_done %}
+                <div
+                    class="w-full flex items-center justify-center gap-2 bg-green-500 text-white font-bold py-3 px-4 rounded-xl border border-green-600 mb-4">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd"
+                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                            clip-rule="evenodd"></path>
+                    </svg>
+                    Quiz Passed
+                </div>
+                {% else %}
+                <a href="{% url 'lesson_quiz' course.id lesson.id %}"
+                    class="w-full flex items-center justify-center gap-2 bg-primary hover:bg-pink-600 text-white font-bold py-3 px-4 rounded-xl transition shadow-lg shadow-pink-100 mb-4">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    Take Lesson Quiz
+                </a>
+                {% endif %}
+                {% endif %}
+
+                <a href="{% url 'course_quiz' course.id %}"
+                    class="w-full flex items-center justify-center gap-2 bg-accent hover:bg-purple-600 text-white font-bold py-3 px-4 rounded-xl transition shadow-lg shadow-purple-100">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    Final Exam
+                </a>
+            </div>
+        </div>
+
+        <!-- Main Content: Video & Text -->
+        <div class="lg:col-span-3">
+            <h1 class="text-3xl font-bold text-gray-900 mb-6 font-serif">{{ lesson.title }}</h1>
+
+            {% if lesson.video_url %}
+            <div class="mb-8 aspect-video bg-black rounded-3xl overflow-hidden shadow-2xl">
+                {% if "youtube.com" in lesson.video_url or "youtu.be" in lesson.video_url %}
+                {% if "watch?v=" in lesson.video_url %}
+                <iframe class="w-full h-full" src="https://www.youtube.com/embed/{{ lesson.video_url|slice:'32:' }}"
+                    frameborder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowfullscreen></iframe>
+                {% else %}
+                <iframe class="w-full h-full" src="https://www.youtube.com/embed/{{ lesson.video_url|slice:'17:' }}"
+                    frameborder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowfullscreen></iframe>
+                {% endif %}
+                {% elif "vimeo.com" in lesson.video_url %}
+                <iframe class="w-full h-full" src="https://player.vimeo.com/video/{{ lesson.video_url|slice:'18:' }}"
+                    frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
+                {% else %}
+                <video class="w-full h-full" controls>
+                    <source src="{{ lesson.video_url }}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            <div
+                class="prose prose-pink max-w-none text-gray-800 leading-relaxed bg-white p-8 rounded-3xl border border-gray-100 shadow-sm">
+                {{ lesson.content|safe }}
+            </div>
+
+            <div class="mt-12 flex justify-between items-center">
+                {% with lessons|first as first_lesson %}
+                {% if lesson == first_lesson %}
+                <span></span>
+                {% else %}
+                <!-- Finding previous lesson logic is complex in template, simple button for now -->
+                {% endif %}
+                {% endwith %}
+
+                <a href="{% url 'course_detail' course.id %}"
+                    class="text-gray-500 hover:text-primary font-medium transition">Back to Overview</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

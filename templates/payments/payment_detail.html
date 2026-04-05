@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+
+{% block title %}Payment #{{ payment.id }} - Charlady{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8 max-w-4xl">
+    <div class="bg-white rounded-2xl shadow-xl border border-pink-100 overflow-hidden">
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-pink-500 to-purple-600 p-8 text-white">
+            <h1 class="text-3xl font-bold mb-2">Payment Details</h1>
+            <p class="text-lg text-pink-100 opacity-90">#{{ payment.id }} • {{ payment.created_at|date:"F j, Y g:i A" }}
+            </p>
+        </div>
+
+        <!-- Content -->
+        <div class="p-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Plan Info -->
+                <div class="space-y-6">
+                    <div>
+                        <h3 class="text-xl font-semibold text-pink-700 mb-4">Plan Purchased</h3>
+                        <div class="bg-pink-50 p-6 rounded-xl">
+                            <h4 class="text-2xl font-bold text-pink-700 mb-2">{{ payment.plan.name }}</h4>
+                            <p class="text-gray-700 mb-4">{{ payment.plan.description|linebreaks }}</p>
+                            <div class="flex justify-between text-lg">
+                                <span class="font-medium">Duration:</span>
+                                <span>{{ payment.plan.duration_days }} days</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment Info -->
+                <div class="space-y-6">
+                    <div>
+                        <h3 class="text-xl font-semibold text-purple-700 mb-4">Payment Summary</h3>
+                        <div class="space-y-4 bg-purple-50 p-6 rounded-xl">
+                            <div class="flex justify-between text-lg">
+                                <span class="font-medium text-gray-700">Amount:</span>
+                                <span class="font-bold text-green-600">KES {{ payment.amount|floatformat:0 }}</span>
+                            </div>
+                            <div class="flex justify-between text-lg">
+                                <span class="font-medium text-gray-700">Method:</span>
+                                <span>{{ payment.get_payment_method_display }}</span>
+                            </div>
+                            <div class="flex justify-between text-lg">
+                                <span class="font-medium text-gray-700">Status:</span>
+                                <span class="px-4 py-1 rounded-full text-sm font-medium 
+                                    {% if payment.status == 'completed' %}bg-green-100 text-green-800
+                                    {% elif payment.status == 'verification_submitted' %}bg-yellow-100 text-yellow-800
+                                    {% elif payment.status == 'failed' %}bg-red-100 text-red-800
+                                    {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                    {{ payment.get_status_display }}
+                                </span>
+                            </div>
+                            <div class="flex justify-between text-lg">
+                                <span class="font-medium text-gray-700">Transaction ID:</span>
+                                <span class="font-mono">{{ payment.transaction_id|default:"—" }}</span>
+                            </div>
+                            <div class="flex justify-between text-lg">
+                                <span class="font-medium text-gray-700">Phone:</span>
+                                <span>{{ payment.phone_number|default:"—" }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notes -->
+            {% if payment.verification_notes or payment.admin_notes %}
+            <div class="mt-10 border-t border-pink-100 pt-8">
+                <h3 class="text-xl font-semibold text-gray-800 mb-6">Notes</h3>
+                {% if payment.verification_notes %}
+                <div class="mb-6">
+                    <h4 class="text-lg font-medium text-gray-700 mb-2">Your Notes</h4>
+                    <div class="bg-gray-50 p-5 rounded-xl">
+                        {{ payment.verification_notes|linebreaks }}
+                    </div>
+                </div>
+                {% endif %}
+                {% if payment.admin_notes %}
+                <div>
+                    <h4 class="text-lg font-medium text-gray-700 mb-2">Admin Response</h4>
+                    <div class="bg-gray-50 p-5 rounded-xl">
+                        {{ payment.admin_notes|linebreaks|default:"No response yet" }}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            <!-- Action -->
+            <div class="mt-10 text-center">
+                {% if payment.status == 'pending' %}
+                <a href="{% url 'mpesa_payment' payment.id %}"
+                    class="inline-block bg-pink-600 hover:bg-pink-700 text-white font-bold py-4 px-10 rounded-xl transition">
+                    Complete Payment Now
+                </a>
+                {% elif payment.status == 'verification_submitted' %}
+                <p class="text-yellow-700 font-medium text-lg">
+                    Your payment is being verified — we'll notify you soon!
+                </p>
+                {% endif %}
+                <div class="mt-6">
+                    <a href="{% url 'payment_history' %}" class="text-pink-600 hover:text-pink-800 font-medium">
+                        Back to Payment History →
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

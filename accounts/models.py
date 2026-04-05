@@ -1,0 +1,106 @@
+from django.db import models
+from django.contrib.auth.models import AbstractUser, UserManager
+from django.contrib.auth import get_user_model
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
+
+
+class CustomUserManager(UserManager):
+    def create_superuser(self, username, email=None, password=None, **extra_fields):
+        extra_fields.setdefault("is_staff", True)
+        extra_fields.setdefault("is_superuser", True)
+        extra_fields.setdefault("is_active", True)
+        if extra_fields.get("user_type") is None:
+            extra_fields["user_type"] = "employer"
+        return self._create_user(username, email, password, **extra_fields)
+
+
+class CustomUser(AbstractUser):
+    USER_TYPE_CHOICES = (
+        ('househelp', 'Househelp'),
+        ('employer', 'Employer'),
+    )
+    objects = CustomUserManager()
+    user_type = models.CharField(max_length=15, choices=USER_TYPE_CHOICES)
+    profile_picture = models.ImageField(upload_to='profile_pics/', blank=True, null=True)
+    bio = models.TextField(blank=True, null=True)
+    phone_number = models.CharField(max_length=15, unique=True)
+    skills = models.CharField(max_length=500, blank=True, null=True, help_text='Comma-separated skills (househelp)')
+    experience = models.TextField(blank=True, null=True, help_text='Experience description (househelp)')
+    county = models.CharField(max_length=50, blank=True, null=True)
+    constituency = models.CharField(max_length=50, blank=True, null=True)
+    major_town = models.CharField(max_length=50, blank=True, null=True)
+    ward = models.CharField(max_length=50, blank=True, null=True)
+    is_verified = models.BooleanField(default=False)
+    mpesa_code = models.CharField(max_length=20, blank=True, null=True, help_text='M-Pesa confirmation code for verification')
+
+    # Document uploads (housekeepers only) - required for job applications
+    id_document = models.FileField(upload_to='worker_docs/%Y/%m/%d/', blank=True, null=True, help_text='ID document (ID/Passport)')
+    agreement_form = models.FileField(upload_to='worker_docs/%Y/%m/%d/', blank=True, null=True, help_text='Signed agreement form')
+    police_clearance = models.FileField(upload_to='worker_docs/%Y/%m/%d/', blank=True, null=True, help_text='Police Clearance Certificate / Good Conduct')
+    documents_verified = models.BooleanField(default=False, help_text='Admin has verified all documents')
+    documents_verified_at = models.DateTimeField(blank=True, null=True, help_text='When admin verified docs (files purged 24h after this)')
+
+    # Worker Badges / Certifications
+    badge_verified_id = models.BooleanField(default=False, verbose_name="Verified ID")
+    badge_cleaning = models.BooleanField(default=False, verbose_name="Cleaning Certified")
+    badge_childcare = models.BooleanField(default=False, verbose_name="Childcare Certified")
+    badge_elder_care = models.BooleanField(default=False, verbose_name="Elder Care Certified")
+    badge_kitchen = models.BooleanField(default=False, verbose_name="Kitchen Certified")
+    badge_professional_standards = models.BooleanField(default=False, verbose_name="Professional Standards Certified")
+    badge_appliance = models.BooleanField(default=False, verbose_name="Appliance Certified")
+
+    last_reminder_sent = models.DateTimeField(blank=True, null=True)
+
+    REQUIRED_FIELDS = ["email", "phone_number"]
+
+    def can_apply_for_jobs(self):
+        """Housekeepers must have paid for membership (is_verified) to apply for jobs."""
+        if self.user_type != 'househelp':
+            return True
+        return self.is_verified
+
+    def get_badges_list(self):
+        """Returns a list of badges with their earned status and metadata."""
+        badges = [
+            ('verified', {'label': 'Verified ID', 'icon': 'verified', 'earned': self.badge_verified_id, 'color': 'purple'}),
+            ('professional_standards', {'label': 'Pro Standards', 'icon': 'professional_standards', 'earned': self.badge_professional_standards, 'color': 'pink'}),
+            ('cleaning', {'label': 'Premium Cleaning', 'icon': 'cleaning', 'earned': self.badge_cleaning, 'color': 'blue'}),
+            ('childcare', {'label': 'Childcare Expert', 'icon': 'childcare', 'earned': self.badge_childcare, 'color': 'amber'}),
+            ('eldercare', {'label': 'Elderly Care', 'icon': 'eldercare', 'earned': self.badge_elder_care, 'color': 'rose'}),
+            ('kitchen', {'label': 'Chef & Kitchen', 'icon': 'kitchen', 'earned': self.badge_kitchen, 'color': 'emerald'}),
+            ('appliance', {'label': 'Appliance Pro', 'icon': 'appliance', 'earned': self.badge_appliance, 'color': 'slate'}),
+        ]
+        return badges
+
+User = get_user_model()
+
+
+class Notification(models.Model):
+    NOTIFICATION_TYPES = (
+        ('job_application', 'Job Application'),
+        ('application_status', 'Application Status'),
+        ('message', 'New Message'),
+        ('review', 'New Review'),
+        ('system', 'System Notification'),
+    )
+    
+    recipient = models.ForeignKey(User, on_delete=models.CASCADE, related_name='account_notifications')
+    notification_type = models.CharField(max_length=20, choices=NOTIFICATION_TYPES)
+    title = models.CharField(max_length=255)
+    message = models.TextField()
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    # Optional relation to object (job, review, etc.)
+    content_type = models.ForeignKey(ContentType, on_delete=models.SET_NULL, null=True, blank=True)
+    object_id = models.PositiveIntegerField(null=True, blank=True)
+    content_object = GenericForeignKey('content_type', 'object_id')
+    
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Notification'
+        verbose_name_plural = 'Notifications'
+    
+    def __str__(self):
+        return f"{self.title} ({self.notification_type}) - {self.recipient.username}"

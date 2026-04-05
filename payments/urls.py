@@ -1,0 +1,18 @@
+from django.urls import path
+from . import views, admin_views
+
+urlpatterns = [
+    path('plans/', views.payment_plans, name='payment_plans'),
+    path('checkout/<int:plan_id>/', views.checkout, name='checkout'),
+    path('course-checkout/<int:course_id>/', views.course_checkout, name='course_checkout'),
+    path('mpesa/<int:payment_id>/', views.mpesa_payment, name='mpesa_payment'),
+    path('verification-submitted/<int:payment_id>/', views.payment_verification_submitted, name='payment_verification_submitted'),
+    path('detail/<int:payment_id>/', views.payment_detail, name='payment_detail'),
+    path('history/', views.payment_history, name='payment_history'),
+    
+    # Admin URLs
+    path('admin/pending/', admin_views.pending_payments, name='admin_pending_payments'),
+    path('admin/verify/<int:payment_id>/', admin_views.verify_payment, name='admin_verify_payment'),
+    path('admin/all/', admin_views.all_payments, name='admin_all_payments'),
+]
+

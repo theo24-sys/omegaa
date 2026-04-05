@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block title %}Premium Plans - Charlady{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8 max-w-6xl">
+    <h1 class="text-4xl md:text-5xl font-bold text-pink-700 mb-12 text-center">Unlock Premium Features</h1>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        {% for plan in plans %}
+        <div
+            class="bg-white rounded-2xl shadow-xl border border-pink-100 overflow-hidden hover:shadow-2xl transition transform hover:-translate-y-2">
+            <div class="bg-gradient-to-br from-pink-500 to-purple-600 p-10 text-white text-center">
+                <h2 class="text-3xl font-bold mb-3">{{ plan.name }}</h2>
+                <div class="text-5xl font-extrabold mb-2">KES {{ plan.price|floatformat:0 }}</div>
+                <p class="text-pink-100 text-xl">for {{ plan.duration_days }} days</p>
+            </div>
+
+            <div class="p-8">
+                <p class="text-gray-700 text-lg mb-8 text-center">{{ plan.description|linebreaks }}</p>
+
+                <ul class="space-y-4 mb-10 text-gray-800">
+                    <li class="flex items-start">
+                        <svg class="w-6 h-6 text-green-500 mr-3 mt-1 flex-shrink-0" fill="currentColor"
+                            viewBox="0 0 20 20">
+                            <path fill-rule="evenodd"
+                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                clip-rule="evenodd" />
+                        </svg>
+                        <span class="text-lg">{{ plan.plan_type|title }} benefits</span>
+                    </li>
+                    <!-- Add more dynamic benefits if needed -->
+                </ul>
+
+                <a href="{% url 'checkout' plan.id %}"
+                    class="block w-full bg-pink-600 hover:bg-pink-700 text-white font-bold text-lg py-4 rounded-xl text-center transition">
+                    Choose This Plan
+                </a>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-span-3 bg-white rounded-2xl shadow-xl p-12 text-center border border-pink-100">
+            <p class="text-2xl text-gray-600 mb-6">No premium plans available right now.</p>
+            <p class="text-gray-500">Check back soon or contact support.</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="mt-12 text-center text-gray-600">
+        <p class="text-lg">Need help choosing? <a href="#" class="text-pink-600 hover:text-pink-800 font-medium">Contact
+                support</a></p>
+    </div>
+</div>
+{% endblock %}

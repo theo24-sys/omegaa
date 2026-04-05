@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ post.title }} - Charlady Blog{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="mb-6">
+        <a href="{% url 'blog_home' %}" class="text-primary hover:underline flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd"
+                    d="M9.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L7.414 9H15a1 1 0 110 2H7.414l2.293 2.293a1 1 0 010 1.414z"
+                    clip-rule="evenodd" />
+            </svg>
+            Back to Blog
+        </a>
+    </div>
+
+    <article class="bg-white rounded-lg shadow-md overflow-hidden">
+        {% if post.featured_image %}
+        <div class="w-full h-80 overflow-hidden">
+            <img src="{{ post.featured_image.url }}" alt="{{ post.title }}" class="w-full h-full object-cover">
+        </div>
+        {% endif %}
+
+        <div class="p-8">
+            <div class="flex items-center mb-4">
+                <span class="text-sm text-white bg-primary px-3 py-1 rounded-full">{{ post.category.name }}</span>
+                <span class="text-sm text-gray-500 ml-3">{{ post.published_date|date:"F j, Y" }}</span>
+            </div>
+
+            <h1 class="text-3xl font-bold mb-6 text-dark">{{ post.title }}</h1>
+
+            <div class="flex items-center mb-6">
+                <div
+                    class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-lg text-gray-600 mr-3">
+                    {% if post.author.profile_picture %}
+                    <img src="{{ post.author.profile_picture.url }}" alt="{{ post.author.get_full_name }}"
+                        class="w-full h-full rounded-full object-cover">
+                    {% else %}
+                    {{ post.author.get_full_name|first|upper }}
+                    {% endif %}
+                </div>
+                <div>
+                    <p class="font-bold">{{ post.author.get_full_name }}</p>
+                    <p class="text-sm text-gray-500">Author</p>
+                </div>
+            </div>
+
+            <div class="prose max-w-none">
+                {{ post.content|linebreaks }}
+            </div>
+        </div>
+    </article>
+
+    <div class="mt-12">
+        <h2 class="text-2xl font-bold mb-6 text-dark">Recent Posts</h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {% for recent_post in recent_posts %}
+            <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                {% if recent_post.featured_image %}
+                <img src="{{ recent_post.featured_image.url }}" alt="{{ recent_post.title }}"
+                    class="w-full h-40 object-cover">
+                {% else %}
+                <div class="w-full h-40 bg-gray-200 flex items-center justify-center">
+                    <span class="text-gray-400">No Image</span>
+                </div>
+                {% endif %}
+                <div class="p-4">
+                    <div class="flex items-center mb-2">
+                        <span class="text-xs text-white bg-primary px-2 py-1 rounded-full">{{ recent_post.category.name
+                            }}</span>
+                        <span class="text-xs text-gray-500 ml-2">{{ recent_post.published_date|date:"M d, Y" }}</span>
+                    </div>
+                    <h3 class="text-lg font-bold mb-2 text-primary">{{ recent_post.title }}</h3>
+                    <a href="{% url 'blog_post_detail' recent_post.slug %}"
+                        class="text-primary hover:text-pink-700 text-sm font-semibold">
+                        Read More →
+                    </a>
+                </div>
+            </div>
+            {% empty %}
+            <p class="text-gray-600">No other posts available.</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

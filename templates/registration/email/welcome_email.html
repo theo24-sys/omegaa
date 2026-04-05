@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Charlady</title>
+    <style type="text/css">
+        /* Reset styles */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: #f9fafb;
+        }
+
+        table {
+            border-collapse: collapse;
+        }
+
+        img {
+            border: 0;
+            display: block;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #d946ef 0%, #c084fc 100%);
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        .content {
+            padding: 40px 30px;
+            color: #374151;
+        }
+
+        .button {
+            display: inline-block;
+            background-color: #d946ef;
+            color: white;
+            font-weight: bold;
+            padding: 16px 36px;
+            border-radius: 50px;
+            margin: 20px 0;
+        }
+
+        .footer {
+            background-color: #f3f4f6;
+            padding: 30px;
+            text-align: center;
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        @media only screen and (max-width: 600px) {
+            .content {
+                padding: 30px 20px !important;
+            }
+
+            .header {
+                padding: 30px 20px !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #f9fafb; padding: 20px 0;">
+        <tr>
+            <td align="center">
+                <table class="container" cellpadding="0" cellspacing="0" border="0">
+                    <!-- Header with Logo & Title -->
+                    <tr>
+                        <td class="header">
+                            <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/logo-OZc2HOWFOzyiQsm3QQBzgTdp8UyUO1.png"
+                                alt="Charlady Logo" width="90" style="margin-bottom: 20px; border-radius: 50%;">
+                            <h1 style="color: white; margin: 0; font-size: 36px; font-family: Georgia, serif;">
+                                Welcome to Charlady
+                            </h1>
+                        </td>
+                    </tr>
+
+                    <!-- Main Content -->
+                    <tr>
+                        <td class="content">
+                            <h2 style="color: #d946ef; font-size: 24px; margin-top: 0;">
+                                Hello {{ user.first_name|default:user.username }},
+                            </h2>
+
+                            <p style="font-size: 16px; line-height: 1.6; margin: 0 0 24px;">
+                                We're thrilled to have you join the Charlady community — Kenya's trusted platform
+                                connecting talented housekeepers with caring employers.
+                            </p>
+
+                            <p style="font-size: 16px; line-height: 1.6; margin: 0 0 32px;">
+                                To get started right away:
+                            </p>
+
+                            <ul
+                                style="font-size: 16px; line-height: 1.8; margin: 0 0 32px; padding-left: 24px; color: #4b5563;">
+                                <li>Complete your profile to stand out</li>
+                                <li>Browse thousands of verified job opportunities</li>
+                                <li>Connect directly with employers in your area</li>
+                            </ul>
+
+                            <div style="text-align: center;">
+                                <a href="{{ login_url|default:'https://charlady.online/login/' }}" class="button"
+                                    style="font-size: 18px;">
+                                    Get Started Now
+                                </a>
+                            </div>
+
+                            <p style="font-size: 15px; color: #6b7280; margin: 32px 0 0; text-align: center;">
+                                If the button doesn't work, copy and paste this link:<br>
+                                <a href="{{ login_url|default:'https://charlady.online/login/' }}"
+                                    style="color: #d946ef;">
+                                    {{ login_url|default:'https://charlady.online/login/' }}
+                                </a>
+                            </p>
+                        </td>
+                    </tr>
+
+                    <!-- Footer -->
+                    <tr>
+                        <td class="footer">
+                            <p style="margin: 0 0 8px;">
+                                © {% now "Y" %} Charlady • Nairobi, Kenya
+                            </p>
+                            <p style="margin: 8px 0 0; font-size: 13px;">
+                                Questions? Reach us at <a href="mailto:info@charlady.online"
+                                    style="color: #d946ef;">info@charlady.online</a>
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+
+</html>

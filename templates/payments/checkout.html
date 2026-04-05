@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+
+{% block title %}Checkout - {{ plan.name }} | Charlady{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8 max-w-3xl">
+    <!-- Back -->
+    <div class="mb-6">
+        <a href="{% url 'payment_plans' %}"
+            class="text-pink-600 hover:text-pink-800 font-medium flex items-center gap-2 transition">
+            ← Back to Plans
+        </a>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-xl border border-pink-100 overflow-hidden">
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-pink-500 to-purple-600 p-8 text-white text-center">
+            <h1 class="text-3xl md:text-4xl font-bold mb-2">Checkout</h1>
+            <p class="text-lg text-pink-100 opacity-90">You're almost there — secure & fast</p>
+        </div>
+
+        <!-- Plan Summary -->
+        <div class="p-8 bg-pink-50 border-b border-pink-100">
+            <div class="text-center">
+                <h2 class="text-2xl md:text-3xl font-bold text-pink-700 mb-3">{{ plan.name }}</h2>
+                <p class="text-gray-700 mb-6 max-w-2xl mx-auto">{{ plan.description|linebreaks }}</p>
+
+                <div class="inline-block bg-white px-8 py-5 rounded-xl shadow-md">
+                    <div class="text-sm text-gray-600 mb-1">Total Amount</div>
+                    <div class="text-5xl font-extrabold text-green-600">
+                        KES {{ plan.price|floatformat:0 }}
+                    </div>
+                    <div class="text-sm text-gray-500 mt-2">
+                        Valid for {{ plan.duration_days }} days
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form -->
+        <form method="post" class="p-8">
+            {% csrf_token %}
+
+            <div class="mb-10">
+                <h3 class="text-xl font-semibold text-gray-800 mb-6 text-center">
+                    Choose Payment Method
+                </h3>
+
+                <div class="max-w-md mx-auto">
+                    <label
+                        class="flex items-center p-6 border-2 border-pink-200 rounded-xl cursor-pointer hover:border-pink-400 transition group bg-white">
+                        <input type="radio" name="payment_method" value="mpesa"
+                            class="w-5 h-5 text-pink-600 focus:ring-pink-500" checked required>
+                        <div class="ml-5 flex-1">
+                            <div class="text-xl font-bold text-gray-900 group-hover:text-pink-700 transition">M-Pesa
+                            </div>
+                            <div class="text-gray-600 mt-1">
+                                Pay instantly via mobile money to Till Number <strong>4567052</strong>
+                            </div>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Summary & Buttons -->
+            <div class="border-t border-pink-100 pt-8">
+                <div class="flex flex-col sm:flex-row justify-between items-center gap-6 text-lg mb-8">
+                    <div class="text-gray-700">
+                        <span class="font-medium">Total due:</span>
+                        <span class="font-bold text-green-600 ml-2">KES {{ plan.price|floatformat:0 }}</span>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+                        <a href="{% url 'payment_plans' %}"
+                            class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-3 px-10 rounded-xl transition text-center">
+                            Cancel
+                        </a>
+                        <button type="submit"
+                            class="bg-pink-600 hover:bg-pink-700 text-white font-bold py-3 px-12 rounded-xl transition focus:outline-none focus:ring-4 focus:ring-pink-300 w-full sm:w-auto">
+                            Proceed to M-Pesa
+                        </button>
+                    </div>
+                </div>
+
+                <p class="text-center text-sm text-gray-500">
+                    Secure • Encrypted • No card details stored
+                </p>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

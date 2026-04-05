@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block title %}My Job Listings - Charlady{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+        <h1 class="text-3xl font-bold text-pink-700">My Job Listings</h1>
+        <a href="{% url 'job_create' %}"
+            class="bg-pink-600 hover:bg-pink-700 text-white font-bold py-3 px-6 rounded-xl transition">
+            Post New Job
+        </a>
+    </div>
+
+    {% if jobs %}
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for job in jobs %}
+        <div class="bg-white rounded-2xl shadow-xl border border-pink-100 overflow-hidden hover:shadow-2xl transition">
+            <div class="p-6">
+                <div class="flex justify-between items-start mb-4">
+                    <h2 class="text-xl font-bold text-pink-700 line-clamp-2">
+                        <a href="{% url 'job_detail' job.pk %}">{{ job.title }}</a>
+                    </h2>
+                    <span
+                        class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-pink-100 text-pink-800">
+                        {{ job.get_job_type_display }}
+                    </span>
+                </div>
+
+                <p class="text-gray-600 mb-4 line-clamp-3">{{ job.description }}</p>
+
+                <div class="flex flex-wrap gap-2 mb-4">
+                    <span class="bg-green-50 text-green-700 px-3 py-1 rounded-full text-sm">
+                        KES {{ job.salary|floatformat:0 }}
+                    </span>
+                    <span class="bg-purple-50 text-purple-700 px-3 py-1 rounded-full text-sm">
+                        {{ job.get_city_display|default:"Any Location" }}
+                    </span>
+                    <span class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm">
+                        {{ job.applications.count }} application{{ job.applications.count|pluralize }}
+                    </span>
+                </div>
+
+                <div class="flex flex-wrap gap-3 mt-6">
+                    <a href="{% url 'job_detail' job.pk %}"
+                        class="bg-pink-600 hover:bg-pink-700 text-white px-5 py-2 rounded-lg transition">
+                        View
+                    </a>
+                    <a href="{% url 'job_edit' job.pk %}"
+                        class="bg-yellow-500 hover:bg-yellow-600 text-white px-5 py-2 rounded-lg transition">
+                        Edit
+                    </a>
+                    <a href="{% url 'job_delete' job.pk %}"
+                        class="bg-red-500 hover:bg-red-600 text-white px-5 py-2 rounded-lg transition">
+                        Delete
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="bg-white rounded-2xl shadow-xl p-12 text-center border border-pink-100">
+        <h2 class="text-2xl font-semibold text-pink-700 mb-4">No jobs posted yet</h2>
+        <p class="text-gray-600 mb-6">Start attracting great housekeepers by posting your first job listing.</p>
+        <a href="{% url 'job_create' %}"
+            class="bg-pink-600 hover:bg-pink-700 text-white font-bold py-3 px-8 rounded-xl transition inline-block">
+            Post Your First Job
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

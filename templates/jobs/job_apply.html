@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Apply for {{ job.title }} - Charlady{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8 max-w-3xl">
+    <!-- Back link -->
+    <div class="mb-6">
+        <a href="{% url 'job_detail' job.pk %}"
+            class="text-pink-600 hover:text-pink-800 font-medium flex items-center gap-2">
+            ← Back to Job Details
+        </a>
+    </div>
+
+    <!-- Card -->
+    <div class="bg-white rounded-2xl shadow-xl border border-pink-100 overflow-hidden">
+        <!-- Header -->
+        <div class="bg-pink-50 p-6 border-b border-pink-200">
+            <h1 class="text-2xl md:text-3xl font-bold text-pink-700">
+                Apply for: {{ job.title }}
+            </h1>
+            <p class="text-pink-600 mt-1">
+                Posted by {{ job.employer.get_full_name|default:job.employer.username }}
+            </p>
+        </div>
+
+        <!-- Job Summary -->
+        <div class="p-6 bg-gray-50 border-b border-pink-100">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                    <h3 class="text-sm font-medium text-gray-600">Location</h3>
+                    <p class="mt-1">{{ job.get_city_display }}{% if job.location %}, {{ job.location }}{% endif %}</p>
+                </div>
+                <div>
+                    <h3 class="text-sm font-medium text-gray-600">Job Type</h3>
+                    <p class="mt-1 font-medium">{{ job.get_job_type_display }}</p>
+                </div>
+                <div>
+                    <h3 class="text-sm font-medium text-gray-600">Salary</h3>
+                    <p class="mt-1 font-bold text-green-600">KES {{ job.salary|floatformat:0 }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form -->
+        <div class="p-6 md:p-8">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ form|crispy }}
+
+                <div class="flex flex-col sm:flex-row gap-4 justify-end mt-8">
+                    <a href="{% url 'job_detail' job.pk %}"
+                        class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-3 px-8 rounded-xl transition text-center">
+                        Cancel
+                    </a>
+                    <button type="submit"
+                        class="bg-pink-600 hover:bg-pink-700 text-white font-bold py-3 px-8 rounded-xl transition focus:outline-none focus:ring-4 focus:ring-pink-300">
+                        Submit Application
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

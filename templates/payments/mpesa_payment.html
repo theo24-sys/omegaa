@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% block title %}Complete M-Pesa Payment - Charlady{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8 max-w-3xl">
+    <div class="bg-white rounded-2xl shadow-xl border border-pink-100 overflow-hidden">
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-pink-500 to-purple-600 p-8 text-white text-center">
+            <h1 class="text-3xl md:text-4xl font-bold mb-2">Complete Your Payment</h1>
+            <p class="text-lg text-pink-100 opacity-90">Follow these easy steps</p>
+        </div>
+
+        <!-- Instructions -->
+        <div class="p-8 md:p-10">
+            <div class="bg-pink-50 rounded-xl p-6 mb-8">
+                <h2 class="text-2xl font-bold text-pink-700 mb-6">M-Pesa Payment Instructions</h2>
+                <ol class="list-decimal pl-6 space-y-4 text-gray-700 text-lg">
+                    <li>Open your M-Pesa menu on your phone</li>
+                    <li>Select <strong>Lipa na M-Pesa</strong></li>
+                    <li>Choose <strong>Buy Goods and Services</strong></li>
+                    <li>Enter Till Number: <strong class="text-pink-700">4567052</strong></li>
+                    <li>Enter Amount: <strong class="text-green-600">KES {{ payment.amount|floatformat:0 }}</strong>
+                    </li>
+                    <li>Enter your M-Pesa PIN to complete</li>
+                    <li>Copy the **Transaction ID** from the confirmation SMS</li>
+                </ol>
+            </div>
+
+            <!-- Form -->
+            <form method="post" class="space-y-6">
+                {% csrf_token %}
+
+                <div>
+                    <label class="block text-lg font-medium text-gray-800 mb-2">
+                        M-Pesa Transaction ID <span class="text-red-600">*</span>
+                    </label>
+                    <input type="text" name="transaction_id" required
+                        class="w-full px-5 py-4 rounded-xl border border-pink-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-200 text-lg"
+                        placeholder="e.g. QJI5HFXPLO">
+                    <p class="text-sm text-gray-500 mt-2">
+                        This is the confirmation code from your M-Pesa SMS
+                    </p>
+                </div>
+
+                <div>
+                    <label class="block text-lg font-medium text-gray-800 mb-2">
+                        Phone Number Used <span class="text-red-600">*</span>
+                    </label>
+                    <input type="tel" name="phone_number" required
+                        class="w-full px-5 py-4 rounded-xl border border-pink-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-200 text-lg"
+                        placeholder="e.g. 0712345678">
+                </div>
+
+                <div>
+                    <label class="block text-lg font-medium text-gray-800 mb-2">
+                        Additional Notes (optional)
+                    </label>
+                    <textarea name="verification_notes" rows="3"
+                        class="w-full px-5 py-4 rounded-xl border border-pink-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-200 text-lg"
+                        placeholder="Any extra information..."></textarea>
+                </div>
+
+                <div class="flex flex-col sm:flex-row gap-4 justify-end pt-6">
+                    <a href="{% url 'payment_plans' %}"
+                        class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-4 px-10 rounded-xl transition text-center">
+                        Cancel
+                    </a>
+                    <button type="submit"
+                        class="bg-pink-600 hover:bg-pink-700 text-white font-bold py-4 px-12 rounded-xl transition focus:outline-none focus:ring-4 focus:ring-pink-300">
+                        Submit Verification
+                    </button>
+                </div>
+            </form>
+
+            <p class="text-center text-sm text-gray-500 mt-8">
+                We'll verify your payment within a few hours during business hours (Mon–Fri, 8 AM–5 PM)
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

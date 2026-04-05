@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-body">
+
+            <h4 class="card-title">Review by {{ review.reviewer.get_full_name|default:review.reviewer.username }}</h4>
+            <p class="text-muted">Written on {{ review.created_at|date:"F j, Y" }}</p>
+
+            <hr>
+
+            <p><strong>Reviewed User:</strong> 
+                {{ review.reviewed_user.get_full_name|default:review.reviewed_user.username }}
+            </p>
+
+            <p><strong>Rating:</strong>
+                {% for i in "12345" %}
+                    {% if forloop.counter <= review.rating %}
+                        ⭐
+                    {% endif %}
+                {% endfor %}
+                ({{ review.rating }}/5)
+            </p>
+
+            <p><strong>Comment:</strong></p>
+            <p>{{ review.comment }}</p>
+
+            <a href="{% url 'reviews:user_reviews' user_id=review.reviewed_user.id %}" class="btn btn-secondary mt-3">
+                ← Back to Reviews
+            </a>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,275 @@
+{% extends 'base.html' %}
+{% load course_extras %}
+
+{% block title %}{{ course.title }} - Charlady{% endblock %}
+
+{% block extra_head %}
+<style>
+    .course-iframe-container {
+        position: relative;
+        overflow: hidden;
+        padding-top: 56.25%;
+        /* 16:9 Aspect Ratio */
+    }
+
+    .course-iframe-container iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+        width: 100%;
+        height: 100%;
+        border: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto py-8 px-4">
+    <div class="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+            <a href="{% url 'course_list' %}"
+                class="text-primary hover:text-pink-600 font-bold flex items-center gap-2 mb-2 transition">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+                Back to Courses
+            </a>
+            <h1 class="text-3xl font-bold text-gray-900">{{ course.title }}</h1>
+            {% if course.is_native %}
+            <div class="mt-2 w-64">
+                <div class="flex justify-between text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">
+                    <span>Progress</span>
+                    <span>{{ course.id|get_course_progress:user }}%</span>
+                </div>
+                <div class="w-full bg-gray-100 h-1.5 rounded-full overflow-hidden">
+                    <div class="bg-primary h-full transition-all duration-700"
+                        style="width: {{ course.id|get_course_progress:user }}%"></div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        {% if course.id in completed_courses %}
+        <div class="flex flex-col sm:flex-row gap-4">
+            <div
+                class="bg-green-100 text-green-700 px-6 py-3 rounded-2xl font-bold flex items-center gap-2 border border-green-200">
+                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                        clip-rule="evenodd"></path>
+                </svg>
+                Course Completed
+            </div>
+            <button onclick="generateCertificate()"
+                class="bg-accent hover:bg-purple-600 text-white font-bold py-3 px-8 rounded-2xl shadow-xl shadow-purple-100 transition transform hover:-translate-y-1 flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4-4v12"></path>
+                </svg>
+                Download Certificate
+            </button>
+        </div>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+        <script>
+            async function generateCertificate() {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF({ orientation: 'landscape' });
+                const userName = "{{ user.get_full_name|default:user.username }}";
+                const courseTitle = "{{ course.title }}";
+                const date = new Date().toLocaleDateString();
+
+                // Professional Border
+                doc.setDrawColor(219, 39, 119); // Primary Pink
+                doc.setLineWidth(5);
+                doc.rect(5, 5, 287, 200);
+
+                doc.setDrawColor(124, 58, 237); // Accent Purple
+                doc.setLineWidth(1);
+                doc.rect(8, 8, 281, 194);
+
+                // Content
+                doc.setFont("helvetica", "bold");
+                doc.setFontSize(40);
+                doc.setTextColor(31, 41, 55); // Gray 800
+                doc.text("CHARLADY ACADEMY", 148, 45, { align: "center" });
+
+                doc.setFontSize(20);
+                doc.setFont("helvetica", "normal");
+                doc.text("CERTIFICATE OF COMPLETION", 148, 65, { align: "center" });
+
+                doc.setFontSize(16);
+                doc.text("This certifies that", 148, 90, { align: "center" });
+
+                doc.setFont("helvetica", "bold");
+                doc.setFontSize(32);
+                doc.setTextColor(219, 39, 119); // Pink
+                doc.text(userName, 148, 110, { align: "center" });
+
+                doc.setFont("helvetica", "normal");
+                doc.setFontSize(16);
+                doc.setTextColor(31, 41, 55);
+                doc.text("has successfully completed the professional course", 148, 130, { align: "center" });
+
+                doc.setFont("helvetica", "bold");
+                doc.setFontSize(24);
+                doc.text(courseTitle, 148, 150, { align: "center" });
+
+                doc.setFont("helvetica", "normal");
+                doc.setFontSize(14);
+                doc.text("Awarded on: " + date, 148, 175, { align: "center" });
+
+                // Footer Seal
+                doc.setFontSize(10);
+                doc.text("Trusted • Verified • Connected", 148, 190, { align: "center" });
+
+                doc.save(`${courseTitle.replace(/\s+/g, '_')}_Certificate.pdf`);
+            }
+        </script>
+        {% elif course.questions.exists %}
+        <a href="{% url 'course_quiz' course.id %}"
+            class="bg-primary hover:bg-pink-600 text-white font-bold py-4 px-10 rounded-2xl shadow-xl shadow-pink-100 transition transform hover:-translate-y-1">
+            Take Quiz & Earn Badge
+        </a>
+        {% else %}
+        <form action="{% url 'complete_course' course.id %}" method="post">
+            {% csrf_token %}
+            <button type="submit"
+                class="bg-primary hover:bg-pink-600 text-white font-bold py-4 px-10 rounded-2xl shadow-xl shadow-pink-100 transition transform hover:-translate-y-1">
+                Complete Course & Earn Badge
+            </button>
+        </form>
+        {% endif %}
+    </div>
+
+    <!-- Course Content Area -->
+    <div class="bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden min-h-[600px] flex flex-col">
+        <div class="bg-gray-900 p-4 border-b border-gray-800 flex items-center justify-between">
+            <div class="flex gap-2">
+                <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                <div class="w-3 h-3 rounded-full bg-green-500"></div>
+            </div>
+            <span class="text-gray-400 text-xs font-mono">charlady.academy/lesson/{{ course.id }}</span>
+        </div>
+
+        <div class="flex-grow course-iframe-container">
+            {% if course.is_native %}
+            <div class="p-8 bg-white h-full overflow-y-auto">
+                <h3 class="text-xl font-bold text-dark mb-6">Course Lessons</h3>
+                <div class="grid gap-4">
+                    {% for lesson in lessons %}
+                    <a href="{% url 'lesson_detail' course.id lesson.id %}"
+                        class="flex items-center p-4 rounded-2xl border border-gray-100 hover:border-primary hover:bg-pink-50 transition group">
+                        <div
+                            class="w-10 h-10 rounded-xl bg-pink-100 text-primary flex items-center justify-center font-bold mr-4 group-hover:bg-primary group-hover:text-white transition">
+                            {{ forloop.counter }}
+                        </div>
+                        <div class="flex-grow">
+                            <h4 class="font-bold text-gray-900">{{ lesson.title }}</h4>
+                            {% if lesson.video_url %}
+                            <span class="text-xs text-gray-500 flex items-center gap-1">
+                                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                    <path
+                                        d="M2 6a2 2 0 012-2h12a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z">
+                                    </path>
+                                </svg>
+                                Video Lesson
+                            </span>
+                            {% endif %}
+                        </div>
+                        <svg class="w-5 h-5 text-gray-300 group-hover:text-primary transition" fill="none"
+                            stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg>
+                    </a>
+                    {% empty %}
+                    <p class="text-gray-500 italic">No lessons added yet for this course.</p>
+                    {% endfor %}
+                </div>
+            </div>
+            {% else %}
+            <iframe src="{{ course.iframe_url }}" allowfullscreen></iframe>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if "Professional Standards" in course.title %}
+    <div class="mt-8 bg-white rounded-3xl p-8 border border-gray-100 shadow-sm">
+        <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+            <div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">Code of Conduct</h3>
+                <p class="text-gray-600">Download a printable version of the Professional Domestic Service Standards to
+                    keep with you.</p>
+            </div>
+            <button onclick="downloadCodeOfConduct()"
+                class="bg-dark hover:bg-black text-white font-bold py-3 px-8 rounded-xl transition flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4-4v12"></path>
+                </svg>
+                Download PDF
+            </button>
+        </div>
+    </div>
+
+    <script>
+        function downloadCodeOfConduct() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            doc.setFontSize(22);
+            doc.setTextColor(219, 39, 119); // Pink
+            doc.text("Professional Domestic Service Standards", 20, 25);
+
+            doc.setFontSize(14);
+            doc.setTextColor(31, 41, 55); // Gray 800
+            doc.setFont("helvetica", "bold");
+            doc.text("Core Principles:", 20, 40);
+
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(11);
+            const principles = [
+                "1. Professionalism: Dress modestly, arrive on time, speak politely.",
+                "2. Reliability: Notify employer early of delays, complete tasks fully.",
+                "3. Respect: Treat all family members with kindness and patience.",
+                "4. Safety: Never leave children/elderly unsupervised near hazards.",
+                "5. Communication: Give daily updates on meals, naps, and chores.",
+                "6. Work Ethic: Avoid personal phone use; take initiative.",
+                "7. Boundaries: No guests or personal visitors without permission."
+            ];
+
+            let y = 50;
+            principles.forEach(p => {
+                doc.text(p, 25, y);
+                y += 10;
+            });
+
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(14);
+            doc.text("Rights & Best Practices (Kenya):", 20, y + 10);
+
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(11);
+            doc.text("- Right to a written contract and minimum wage.", 25, y + 20);
+            doc.text("- Regulated hours and leave protection under Kenya law.", 25, y + 30);
+
+            doc.setFontSize(10);
+            doc.setTextColor(156, 163, 175);
+            doc.text("Certified by Charlady Academy", 105, 280, { align: "center" });
+
+            doc.save("Professional_Standards_Code_of_Conduct.pdf");
+        }
+    </script>
+    {% endif %}
+
+    <div class="mt-12 bg-pink-50 rounded-2xl p-8 border border-pink-100">
+        <h3 class="text-xl font-bold text-gray-900 mb-4">Course Info</h3>
+        <p class="text-gray-700 leading-relaxed">{{ course.description }}</p>
+    </div>
+</div>
+{% endblock %}
