@@ -16,6 +16,8 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 DEBUG = os.getenv('DEBUG', 'True') == 'True'  # Default True for local, set False in Railway vars
 
 ALLOWED_HOSTS = [
+    'charlady.co.ke',
+    'www.charlady.co.ke',
     'charlady.online',
     'www.charlady.online',
     'omega-production-734f.up.railway.app',
@@ -34,6 +36,8 @@ if render_domain:
     ALLOWED_HOSTS.append(render_domain)
 
 CSRF_TRUSTED_ORIGINS = [
+    'https://charlady.co.ke',
+    'https://www.charlady.co.ke',
     'https://charlady.online',
     'https://www.charlady.online',
     'https://omega-production-734f.up.railway.app',
