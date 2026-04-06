@@ -74,7 +74,7 @@
                     </div>
                 </div>
 
-                <a href="{% if p %}{% url 'checkout' p.id %}{% endif %}" class="w-full bg-primary hover:bg-pink-600 text-white font-black py-6 rounded-3xl text-center text-sm tracking-widest uppercase transition shadow-2xl shadow-pink-200">
+                <a href="{% if p %}{% url 'payments:checkout' p.id %}{% endif %}" class="w-full bg-primary hover:bg-pink-600 text-white font-black py-6 rounded-3xl text-center text-sm tracking-widest uppercase transition shadow-2xl shadow-pink-200">
                     GET VERIFIED NOW
                 </a>
             </div>
@@ -104,7 +104,7 @@
                         </div>
                     </div>
 
-                    <a href="{% url 'checkout' p.id %}" class="w-full bg-white hover:bg-pink-50 text-slate-900 font-black py-6 rounded-3xl text-center text-sm tracking-widest uppercase transition shadow-2xl shadow-white/5">
+                    <a href="{% url 'payments:checkout' p.id %}" class="w-full bg-white hover:bg-pink-50 text-slate-900 font-black py-6 rounded-3xl text-center text-sm tracking-widest uppercase transition shadow-2xl shadow-white/5">
                         MASTER EVERYTHING
                     </a>
                 </div>
