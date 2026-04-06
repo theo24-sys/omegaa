@@ -42,16 +42,53 @@ def chat_detail(request, session_id):
             session.save()
             return redirect('chat_detail', session_id=session.id)
             
-    is_pro = False
+    is_gold = False
+    is_standard = False
     if request.user.is_authenticated:
         # Check if they have the 1000 KES active plan (Gold)
-        is_pro = Payment.objects.filter(user=request.user, status='completed', plan__price=1000).exists()
+        is_gold = Payment.objects.filter(user=request.user, status='completed', plan__price=1000).exists()
+        # Check if they have the 300 KES active plan (Standard)
+        is_standard = Payment.objects.filter(user=request.user, status='completed', plan__price=300).exists()
     
     return render(request, 'chat/detail.html', {
         'session': session,
         'chat_messages': chat_messages,
         'other_user': other_user,
-        'is_pro': is_pro
+        'is_gold': is_gold,
+        'is_standard': is_standard
+    })
+
+@login_required
+def video_interview(request, session_id):
+    session = get_object_or_404(ChatSession, id=session_id)
+    if request.user not in session.participants.all() and not request.user.is_superuser:
+        messages.error(request, "You do not have permission to join this interview.")
+        return redirect('inbox')
+
+    # Plan Restrictions
+    is_gold = False
+    is_standard = False
+    if not request.user.is_superuser:
+        is_gold = Payment.objects.filter(user=request.user, status='completed', plan__price=1000).exists()
+        is_standard = Payment.objects.filter(user=request.user, status='completed', plan__price=300).exists()
+        
+        # If user is employer and not verified, block them
+        if request.user.user_type == 'employer' and not is_gold and not is_standard:
+            messages.warning(request, "Video Interviewing is a premium feature. Upgrade to Standard or Gold to start interviewing today!")
+            return redirect('payment_plans')
+    else:
+        is_gold = True # Admins get gold access
+
+    # Determine time limit in seconds
+    time_limit = 0 # 0 means unlimited
+    if is_standard and not is_gold:
+        time_limit = 15 * 60 # 15 minutes
+        
+    return render(request, 'chat/video_call.html', {
+        'session': session,
+        'room_name': f"Charlady_Interview_{session.id}",
+        'time_limit': time_limit,
+        'is_gold': is_gold
     })
 
 @login_required

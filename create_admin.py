@@ -16,7 +16,7 @@ standard_plan, s_created = PaymentPlan.objects.get_or_create(
     defaults={
         'name': 'Standard Plan',
         'plan_type': 'verification',
-        'description': 'Unlock discounted job postings, verified workers, and standard chat functionality.',
+        'description': 'Verified status, discounted job posts, and 15-minute HD video interviews with workers.',
         'duration_days': 30,
         'is_active': True
     }
@@ -30,14 +30,18 @@ else:
 pro_plan, p_created = PaymentPlan.objects.get_or_create(
     price=1000,
     defaults={
-        'name': 'Pro Plan',
+        'name': 'Gold Plan',
         'plan_type': 'verification',
-        'description': 'Unlimited free job postings, AI match priority, and access to top-rated verified talent instantly.',
+        'description': 'Unlimited job postings, priority matching, and unlimited HD video interviewing with all talent.',
         'duration_days': 30,
         'is_active': True
     }
 )
 if p_created:
-    print("Pro Plan (1000 KES) created successfully!")
+    print("Gold Plan (1000 KES) created successfully!")
 else:
-    print("Pro Plan (1000 KES) already exists. Skipping.")
+    # Update existing Pro plan to Gold branding
+    pro_plan.name = "Gold Plan"
+    pro_plan.description = "Unlimited job postings, priority matching, and unlimited HD video interviewing with all talent."
+    pro_plan.save()
+    print("Gold Plan (1000 KES) branding updated.")

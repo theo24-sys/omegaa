@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+
+{% block title %}Video Interview - Charlady{% endblock %}
+
+{% block content %}
+<div class="bg-slate-950 min-h-screen flex flex-col pt-16">
+    <!-- Header/Timer Bar -->
+    <div class="bg-slate-900 border-b border-white/10 p-4 flex items-center justify-between z-20">
+        <div class="flex items-center gap-4">
+            <a href="{% url 'chat_detail' session.id %}" class="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-xl text-sm font-bold transition">
+                ← Exit Call
+            </a>
+            <h1 class="text-white font-black hidden md:block">Interviewing {{ session.get_other_participant.username }}</h1>
+        </div>
+
+        {% if time_limit > 0 %}
+        <div class="flex items-center gap-3 bg-red-500/10 border border-red-500/50 px-4 py-2 rounded-xl">
+            <div class="relative flex h-3 w-3">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+            </div>
+            <span class="text-red-400 font-black tracking-widest text-sm" id="countdown">15:00</span>
+            <span class="text-white/40 text-[10px] font-black uppercase hidden sm:block">Standard Limit</span>
+        </div>
+        {% else %}
+        <div class="flex items-center gap-3 bg-yellow-500/10 border border-yellow-500/50 px-4 py-2 rounded-xl">
+            <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+            <span class="text-yellow-400 font-black tracking-widest text-xs uppercase">Unlimited Gold Session</span>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Video Container -->
+    <div id="jitsi-container" class="flex-grow bg-black"></div>
+</div>
+
+<!-- Jitsi API -->
+<script src="https://meet.jit.si/external_api.js"></script>
+<script>
+    const domain = "meet.jit.si";
+    const options = {
+        roomName: "{{ room_name|safe }}",
+        width: "100%",
+        height: "100%",
+        parentNode: document.querySelector('#jitsi-container'),
+        userInfo: {
+            displayName: "{{ request.user.username|safe }}"
+        },
+        interfaceConfigOverwrite: {
+            TOOLBAR_BUTTONS: [
+                'microphone', 'camera', 'closedcaptions', 'desktop', 'fullscreen',
+                'fodevicedefault', 'hangup', 'profile', 'chat', 'recording',
+                'livestreaming', 'etherpad', 'sharedvideo', 'settings', 'raisehand',
+                'videoquality', 'filmstrip', 'invite', 'feedback', 'stats', 'shortcuts',
+                'tileview', 'videobackgroundblur', 'download', 'help', 'mute-everyone',
+                'security'
+            ],
+        }
+    };
+
+    const api = new JitsiMeetExternalAPI(domain, options);
+
+    // Timer Logic for Standard Plans
+    {% if time_limit > 0 %}
+    let timeRemaining = {{ time_limit }};
+    const countdownEl = document.getElementById('countdown');
+
+    const timerInterval = setInterval(() => {
+        timeRemaining--;
+        
+        const minutes = Math.floor(timeRemaining / 60);
+        const seconds = timeRemaining % 60;
+        countdownEl.innerText = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+
+        if (timeRemaining <= 60) {
+            countdownEl.classList.add('animate-pulse');
+            countdownEl.style.color = '#ef4444';
+        }
+
+        if (timeRemaining <= 0) {
+            clearInterval(timerInterval);
+            api.dispose();
+            alert("Your 15-minute standard interview limit has been reached. Please upgrade to Gold for unlimited interview time!");
+            window.location.href = "{% url 'payment_plans' %}";
+        }
+    }, 1000);
+    {% endif %}
+
+    // Cleanup on hangup
+    api.addEventListener('videoConferenceLeft', () => {
+        window.location.href = "{% url 'chat_detail' session.id %}";
+    });
+</script>
+
+<style>
+    /* Ensure the Jitsi iframe fills the container perfectly */
+    iframe {
+        border: none !important;
+    }
+</style>
+{% endblock %}
