@@ -5,6 +5,7 @@ class ChatSession(models.Model):
     participants = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='chat_sessions')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    interview_active_until = models.DateTimeField(null=True, blank=True)
     
     class Meta:
         ordering = ['-updated_at']

@@ -1,0 +1,44 @@
+<!-- Global Call Invite Modal (HTMX) -->
+<div id="call-invite-modal" class="fixed bottom-6 right-6 z-50 animate-bounce-in max-w-sm w-full mx-auto sm:mx-0">
+    <div class="bg-white rounded-3xl shadow-2xl border-2 border-primary overflow-hidden">
+        <div class="bg-primary p-4 flex items-center gap-3">
+            <div class="w-12 h-12 rounded-full overflow-hidden border-2 border-white">
+                {% if other_user.profile_picture %}
+                <img src="{{ other_user.profile_picture.url }}" class="w-full h-full object-cover">
+                {% else %}
+                <div class="w-full h-full bg-white flex items-center justify-center text-primary font-bold">{{ other_user.username|slice:":1"|upper }}</div>
+                {% endif %}
+            </div>
+            <div>
+                <h3 class="text-white font-bold text-sm leading-tight">{{ other_user.get_full_name|default:other_user.username }}</h3>
+                <p class="text-pink-100 text-[10px] uppercase font-black tracking-widest animate-pulse items-center flex gap-1">
+                    <span class="w-1.5 h-1.5 bg-green-400 rounded-full inline-block"></span>
+                    Incoming Interview Call...
+                </p>
+            </div>
+        </div>
+        <div class="p-6 flex flex-col gap-3">
+            <p class="text-gray-600 text-sm">You have an active interview invite. Join now to start your professional screening.</p>
+            <div class="flex gap-2">
+                <a href="{% url 'chat:video_interview' session.id %}" class="flex-1 bg-green-500 hover:bg-green-600 text-white py-3 rounded-2xl text-center font-bold text-sm shadow-lg transition">
+                    Join Call
+                </a>
+                <button onclick="document.getElementById('call-invite-modal').remove()" class="px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-2xl font-bold text-sm transition">
+                    Dismiss
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+@keyframes bounce-in {
+    0% { transform: scale(0.3); opacity: 0; }
+    50% { transform: scale(1.05); }
+    70% { transform: scale(0.9); }
+    100% { transform: scale(1); opacity: 1; }
+}
+.animate-bounce-in {
+    animation: bounce-in 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+}
+</style>

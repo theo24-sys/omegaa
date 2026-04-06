@@ -1,6 +1,8 @@
 from django.urls import path
 from . import views, admin_views
 
+app_name = 'payments'
+
 urlpatterns = [
     path('plans/', views.payment_plans, name='payment_plans'),
     path('checkout/<int:plan_id>/', views.checkout, name='checkout'),

@@ -84,12 +84,53 @@ def video_interview(request, session_id):
     if is_standard and not is_gold:
         time_limit = 15 * 60 # 15 minutes
         
+    # Mark interview as active for the next hour to alert the other party
+    session.interview_active_until = timezone.now() + timezone.timedelta(minutes=60)
+    session.save()
+    
     return render(request, 'chat/video_call.html', {
         'session': session,
         'room_name': f"Charlady_Interview_{session.id}",
         'time_limit': time_limit,
         'is_gold': is_gold
     })
+
+@login_required
+def chat_messages_fragment(request, session_id):
+    session = get_object_or_404(ChatSession, id=session_id)
+    if request.user not in session.participants.all():
+        return render(request, 'chat/error_fragment.html', {'error': 'Forbidden'})
+    
+    chat_messages = session.messages.all()
+    # Mark as read since They are viewing the live fragment
+    session.messages.exclude(sender=request.user).update(is_read=True)
+    
+    return render(request, 'chat/messages_fragment.html', {
+        'chat_messages': chat_messages,
+        'session': session
+    })
+
+@login_required
+def check_invite(request):
+    """
+    Checks if there's an active interview call for the current user.
+    Only returns HTML if a call is active.
+    """
+    active_session = ChatSession.objects.filter(
+        participants=request.user,
+        interview_active_until__gt=timezone.now()
+    ).first()
+    
+    if active_session:
+        other_user = active_session.get_other_participant(request.user)
+        # Check if the user has ALREADY joined or if they are the one who started it
+        # Since employers usually start, workers get the invite.
+        return render(request, 'chat/call_invite_modal.html', {
+            'session': active_session,
+            'other_user': other_user
+        })
+    
+    return render(request, 'chat/empty.html')
 
 @login_required
 def start_chat(request, user_id):

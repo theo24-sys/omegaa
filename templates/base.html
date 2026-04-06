@@ -28,6 +28,8 @@
 
     <!-- Tailwind + Custom Colors -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- HTMX for Real-Time Polling -->
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -105,6 +107,11 @@
         <div class="loader"></div>
     </div>
 
+    <!-- Global Interview Invite Modal Poller (only for househelps) -->
+    {% if user.is_authenticated and user.user_type == 'househelp' %}
+        <div hx-get="{% url 'chat:check_invite' %}" hx-trigger="every 10s" hx-swap="beforeend"></div>
+    {% endif %}
+
     <!-- Header / Navigation -->
     <header class="bg-gradient-to-r from-primary to-accent text-white shadow-lg sticky top-0 z-50">
         <nav class="container mx-auto px-4 py-5 flex justify-between items-center">
@@ -143,19 +150,22 @@
                         </a>
                     </div>
 
-                    <!-- Notifications -->
-                    <a href="{% url 'notification_list' %}" class="relative hover:text-pink-100 transition">
-                        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                        </svg>
-                        {% if unread_count > 0 %}
-                        <span
-                            class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
-                            {{ unread_count }}
-                        </span>
-                        {% endif %}
-                    </a>
+                    <!-- Global Unread Badge Counter (Polling every 10s) -->
+                    <div id="unread-count-container" hx-get="{% url 'notifications:unread_count_badge' %}" hx-trigger="every 10s" hx-swap="outerHTML">
+                        <!-- Notifications -->
+                        <a href="{% url 'notification_list' %}" class="relative hover:text-pink-100 transition">
+                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                            </svg>
+                            {% if unread_count > 0 %}
+                            <span
+                                class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+                                {{ unread_count }}
+                            </span>
+                            {% endif %}
+                        </a>
+                    </div>
 
                     <!-- User Menu -->
                     <div class="relative group">

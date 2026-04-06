@@ -39,3 +39,11 @@ def mark_all_as_read(request):
         })
     
     return redirect('notification_list')
+
+@login_required
+def unread_count_badge(request):
+    """
+    Returns only the notification icon fragment for HTMX polling.
+    """
+    unread_count = Notification.objects.filter(recipient=request.user, is_read=False).count()
+    return render(request, 'notifications/unread_badge_fragment.html', {'unread_count': unread_count})
