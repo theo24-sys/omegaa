@@ -36,7 +36,7 @@ def checkout(request, plan_id):
             payment_method='mpesa',
             status='pending'
         )
-        return redirect('mpesa_payment', payment_id=payment.id)
+        return redirect('payments:mpesa_payment', payment_id=payment.id)
 
     return render(request, 'payments/checkout.html', {'plan': plan})
 
@@ -53,7 +53,7 @@ def course_checkout(request, course_id):
             payment_method='mpesa',
             status='pending'
         )
-        return redirect('mpesa_payment', payment_id=payment.id)
+        return redirect('payments:mpesa_payment', payment_id=payment.id)
 
     return render(request, 'payments/course_checkout.html', {'course': course})
 
@@ -69,7 +69,7 @@ def mpesa_payment(request, payment_id):
 
         if not transaction_id or not phone_number:
             messages.error(request, 'Transaction ID and phone number are required.')
-            return redirect('mpesa_payment', payment_id=payment.id)
+            return redirect('payments:mpesa_payment', payment_id=payment.id)
 
         payment.transaction_id = transaction_id
         payment.phone_number = phone_number
@@ -99,7 +99,7 @@ def mpesa_payment(request, payment_id):
             )
 
         messages.success(request, 'Payment details submitted. We will verify shortly.')
-        return redirect('payment_verification_submitted', payment_id=payment.id)
+        return redirect('payments:payment_verification_submitted', payment_id=payment.id)
 
     return render(request, 'payments/mpesa_payment.html', {
         'payment': payment,

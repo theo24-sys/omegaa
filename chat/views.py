@@ -20,7 +20,7 @@ def chat_detail(request, session_id):
     session = get_object_or_404(ChatSession, id=session_id)
     if request.user not in session.participants.all() and not request.user.is_superuser:
         messages.error(request, "You do not have permission to view this chat.")
-        return redirect('inbox')
+        return redirect('chat:inbox')
         
     chat_messages = session.messages.all()
     session.messages.exclude(sender=request.user).update(is_read=True)
@@ -63,7 +63,7 @@ def video_interview(request, session_id):
     session = get_object_or_404(ChatSession, id=session_id)
     if request.user not in session.participants.all() and not request.user.is_superuser:
         messages.error(request, "You do not have permission to join this interview.")
-        return redirect('inbox')
+        return redirect('chat:inbox')
 
     # Plan Restrictions
     is_gold = False
@@ -137,7 +137,7 @@ def start_chat(request, user_id):
     target_user = get_object_or_404(User, id=user_id)
     
     if target_user == request.user:
-        return redirect('inbox')
+        return redirect('chat:inbox')
         
     session = ChatSession.objects.filter(participants=request.user).filter(participants=target_user).first()
     

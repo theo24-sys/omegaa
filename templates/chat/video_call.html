@@ -7,7 +7,7 @@
     <!-- Header/Timer Bar -->
     <div class="bg-slate-900 border-b border-white/10 p-2 md:p-4 flex items-center justify-between z-20 shadow-xl">
         <div class="flex items-center gap-2 md:gap-4">
-            <a href="{% url 'chat_detail' session.id %}" class="bg-white/10 hover:bg-white/20 text-white px-3 py-2 rounded-xl text-[10px] md:text-sm font-bold transition flex items-center gap-1">
+            <a href="{% url 'chat:chat_detail' session.id %}" class="bg-white/10 hover:bg-white/20 text-white px-3 py-2 rounded-xl text-[10px] md:text-sm font-bold transition flex items-center gap-1">
                 <svg class="w-3 h-3 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
                 <span class="hidden xs:inline">Exit</span>
             </a>
@@ -82,14 +82,14 @@
             clearInterval(timerInterval);
             api.dispose();
             alert("Your 15-minute standard interview limit has been reached. Please upgrade to Gold for unlimited interview time!");
-            window.location.href = "{% url 'payment_plans' %}";
+            window.location.href = "{% url 'payments:payment_plans' %}";
         }
     }, 1000);
     {% endif %}
 
     // Cleanup on hangup
     api.addEventListener('videoConferenceLeft', () => {
-        window.location.href = "{% url 'chat_detail' session.id %}";
+        window.location.href = "{% url 'chat:chat_detail' session.id %}";
     });
 </script>
 

@@ -27,7 +27,7 @@
                 <!-- Simple logic to pick the other user in template just for display purposes if not passed from view -->
                 {% for u in session.participants.all %}
                     {% if u != request.user %}
-                    <a href="{% url 'chat_detail' session.id %}" class="block p-6 hover:bg-slate-50 transition group relative">
+                    <a href="{% url 'chat:chat_detail' session.id %}" class="block p-6 hover:bg-slate-50 transition group relative">
                         <!-- Unread dot -->
                         {% if session.messages.last.sender != request.user and not session.messages.last.is_read %}
                         <div class="absolute left-3 top-1/2 -translate-y-1/2 w-2.5 h-2.5 bg-pink-500 rounded-full animate-pulse"></div>

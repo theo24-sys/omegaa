@@ -82,7 +82,7 @@ def verify_payment(request, payment_id):
             
             messages.warning(request, f'Payment for {payment.user.username} has been rejected.')
         
-        return redirect('admin_pending_payments')
+        return redirect('payments:admin_pending_payments')
     
     context = {
         'payment': payment,
