@@ -10,58 +10,62 @@ from payments.models import PaymentPlan
 
 # Admin user creation removed per request since you've successfully created it!
 
-# 2. Create the Standard Plan (300 KES)
-standard_plan, s_created = PaymentPlan.objects.get_or_create(
-    price=300,
-    defaults={
-        'name': 'Standard Plan',
-        'plan_type': 'verification',
-        'description': 'Verified status, discounted job posts, and 15-minute HD video interviews with workers.',
-        'duration_days': 30,
-        'is_active': True,
-        'target_group': 'employer'
-    }
-)
-if s_created:
+# 2. Create/Update the Standard Plan (300 KES)
+# Use filter().first() to avoid crash if multiple exact matches exist
+standard_plan = PaymentPlan.objects.filter(name='Standard Plan', price=300).first()
+if not standard_plan:
+    standard_plan = PaymentPlan.objects.create(
+        name='Standard Plan',
+        price=300,
+        plan_type='verification',
+        description='Verified status, discounted job posts, and 15-minute HD video interviews with workers.',
+        duration_days=30,
+        is_active=True,
+        target_group='employer'
+    )
     print("Standard Plan (300 KES) created successfully!")
 else:
-    print("Standard Plan (300 KES) already exists. Skipping.")
+    # Update existing
+    standard_plan.target_group = 'employer'
+    standard_plan.description = 'Verified status, discounted job posts, and 15-minute HD video interviews with workers.'
+    standard_plan.save()
+    print("Standard Plan updated.")
 
-# 3. Create the Pro Plan (1000 KES)
-pro_plan, p_created = PaymentPlan.objects.get_or_create(
-    price=1000,
-    defaults={
-        'name': 'Gold Plan',
-        'plan_type': 'verification',
-        'description': 'Unlimited job postings, priority matching, and unlimited HD video interviewing with all talent.',
-        'duration_days': 30,
-        'is_active': True,
-        'target_group': 'employer'
-    }
-)
-if p_created:
-    print("Gold Plan (1000 KES) created successfully!")
-else:
-    # Update existing Pro plan to Gold branding
-    pro_plan.name = "Gold Plan"
-    pro_plan.target_group = "employer"
-    pro_plan.description = "Unlimited job postings, priority matching, and unlimited HD video interviewing with all talent."
-    pro_plan.save()
-    print("Gold Plan (1000 KES) branding updated.")
+# 3. Create/Update the Gold Plan (1000 KES)
+pro_plan = PaymentPlan.objects.filter(name='Gold Plan', price=1000).first()
+if not pro_plan:
+    # Check for old 'Pro Plan' naming
+    pro_plan = PaymentPlan.objects.filter(price=1000).first()
+    if pro_plan:
+        pro_plan.name = "Gold Plan"
+    else:
+        pro_plan = PaymentPlan.objects.create(
+            name='Gold Plan',
+            price=1000,
+            plan_type='verification',
+            duration_days=30,
+            is_active=True,
+            target_group='employer'
+        )
+pro_plan.target_group = 'employer'
+pro_plan.description = "Unlimited job postings, priority matching, and unlimited HD video interviewing with all talent."
+pro_plan.save()
+print("Gold Plan (1000 KES) updated.")
 
-# 4. Create the Worker Verification Plan (300 KES)
-worker_plan, w_created = PaymentPlan.objects.get_or_create(
-    price=300,
-    target_group='worker',
-    defaults={
-        'name': 'Worker Verification',
-        'plan_type': 'verification',
-        'description': 'Get the "Verified" badge, unlimited job applications, and priority profile placement.',
-        'duration_days': 365, # Workers get a year for 300
-        'is_active': True
-    }
-)
-if w_created:
-    print("Worker Verification Plan (300 KES) created successfully!")
+# 4. Create/Update the Worker Verification Plan (300 KES)
+worker_plan = PaymentPlan.objects.filter(name='Worker Verification', target_group='worker').first()
+if not worker_plan:
+    worker_plan = PaymentPlan.objects.create(
+        name='Worker Verification',
+        price=300,
+        target_group='worker',
+        plan_type='verification',
+        description='Get the "Verified" badge, unlimited job applications, and priority profile placement.',
+        duration_days=365,
+        is_active=True
+    )
+    print("Worker Verification Plan (300 KES) created!")
 else:
+    worker_plan.price = 300
+    worker_plan.save()
     print("Worker Verification Plan already exists.")
