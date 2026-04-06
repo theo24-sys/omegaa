@@ -8,8 +8,12 @@ from notifications.utils import create_notification
 
 @login_required
 def payment_plans(request):
-    plans = PaymentPlan.objects.filter(is_active=True).order_by('price')
-    return render(request, 'payments/plans.html', {'plans': plans})
+    standard_plan = PaymentPlan.objects.filter(price=300, is_active=True).first()
+    pro_plan = PaymentPlan.objects.filter(price=1000, is_active=True).first()
+    return render(request, 'payments/plans.html', {
+        'standard_plan': standard_plan,
+        'pro_plan': pro_plan
+    })
 
 
 @login_required
