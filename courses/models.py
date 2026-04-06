@@ -9,6 +9,8 @@ class Course(models.Model):
     iframe_url = models.URLField(max_length=500)
     is_free = models.BooleanField(default=False)
     is_mandatory = models.BooleanField(default=False)
+    duration = models.CharField(max_length=50, blank=True, null=True, help_text="e.g. 1 week, 2-3 weeks")
+    features = models.TextField(blank=True, null=True, help_text="Comma-separated or bullet-point features")
     is_native = models.BooleanField(default=False)  # True = hosted on Charlady, False = embedded iframe
     created_at = models.DateTimeField(auto_now_add=True)
 

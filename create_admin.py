@@ -69,3 +69,20 @@ else:
     worker_plan.price = 300
     worker_plan.save()
     print("Worker Verification Plan already exists.")
+
+# 5. Create Academy Triple Bundle Plan (4,500 KES)
+bundle_plan = PaymentPlan.objects.filter(name='Academy Triple Bundle', price=4500).first()
+if not bundle_plan:
+    bundle_plan = PaymentPlan.objects.create(
+        name='Academy Triple Bundle',
+        price=4500,
+        plan_type='academy_bundle',
+        description='Unlock all 3 professional courses (Childcare, Chef, Elderly Care) for a discounted price.',
+        duration_days=365,
+        is_active=True,
+        target_group='worker'
+    )
+    print("Academy Triple Bundle (4,500 KES) created successfully!")
+else:
+    bundle_plan.description = 'Unlock all 3 professional courses (Childcare, Chef, Elderly Care) for a discounted price.'
+    bundle_plan.save()

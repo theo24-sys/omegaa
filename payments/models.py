@@ -8,6 +8,8 @@ class PaymentPlan(models.Model):
         ('profile_highlight', 'Profile Highlight'),
         ('featured_listing', 'Featured Listing'),
         ('verification', 'Account Verification'),
+        ('academy_bundle', 'Academy Triple Bundle'),
+        ('course_payment', 'Individual Course Payment'),
     )
     
     TARGET_GROUP_CHOICES = (
@@ -30,6 +32,9 @@ class PaymentPlan(models.Model):
         return f"{self.name} ({self.price} KSh)"
         
 class Payment(models.Model):
+    is_installment = models.BooleanField(default=False, help_text="Is this a partial payment?")
+    balance_due = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, help_text="Remaining balance for installments")
+    
     
     PAYMENT_STATUS_CHOICES = (
         ('pending', 'Pending'),

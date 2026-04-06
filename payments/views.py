@@ -11,9 +11,9 @@ def payment_plans(request):
     user_type = getattr(request.user, 'user_type', 'employer')
     
     if user_type == 'househelp':
-        worker_plan = PaymentPlan.objects.filter(target_group='worker', is_active=True).first()
+        worker_plans = PaymentPlan.objects.filter(target_group='worker', is_active=True).order_by('price')
         return render(request, 'payments/worker_plans.html', {
-            'plan': worker_plan
+            'plans': worker_plans
         })
     else:
         standard_plan = PaymentPlan.objects.filter(target_group='employer', price=300, is_active=True).first()

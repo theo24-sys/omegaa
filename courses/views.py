@@ -1,19 +1,21 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .models import Course, CourseCompletion
+from .models import Course, Lesson, CourseCompletion, LessonCompletion, Question, Choice, QuizAttempt
 from payments.models import Payment
 
 @login_required
 def course_list(request):
     courses = Course.objects.all().order_by('-is_mandatory', 'price')
     completed_courses = CourseCompletion.objects.filter(user=request.user).values_list('course_id', flat=True)
-    paid_courses = Payment.objects.filter(user=request.user, status='completed').values_list('course_id', flat=True)
+    
+    # Check for bundle payment
+    has_bundle = Payment.objects.filter(user=request.user, plan__plan_type='academy_bundle', status='completed').exists()
     
     context = {
         'courses': courses,
         'completed_courses': completed_courses,
-        'paid_courses': paid_courses,
+        'has_bundle': has_bundle,
     }
     return render(request, 'courses/course_list.html', context)
 
@@ -26,27 +28,29 @@ def course_detail(request, course_id):
     if course.is_free or course.is_mandatory:
         has_access = True
     else:
-        # Check for completed payment
-        has_access = Payment.objects.filter(
-            user=request.user, 
-            course=course, 
-            status='completed'
-        ).exists()
+        # 1. Check individual payment
+        has_access = Payment.objects.filter(user=request.user, course=course, status='completed').exists()
         
-        # Also check if already completed (might have been paid before)
+        # 2. Check bundle payment
+        if not has_access:
+            has_access = Payment.objects.filter(user=request.user, plan__plan_type='academy_bundle', status='completed').exists()
+            
+        # 3. Check for completion (legacy)
         if not has_access:
             has_access = CourseCompletion.objects.filter(user=request.user, course=course).exists()
 
     if not has_access:
         messages.info(request, f"Review the details for {course.title}. Payment is required to access lessons and earn certifications.")
-        return redirect('course_checkout', course_id=course.id)
+        return redirect('course_list') # Redirect to list where they can see the bundle offer
 
     completed_courses = CourseCompletion.objects.filter(user=request.user).values_list('course_id', flat=True)
+    completed_lessons = LessonCompletion.objects.filter(user=request.user, lesson__course=course).values_list('lesson_id', flat=True)
     lessons = course.lessons.all() if course.is_native else []
 
     context = {
         'course': course,
         'completed_courses': completed_courses,
+        'completed_lessons': completed_lessons,
         'lessons': lessons,
     }
     return render(request, 'courses/course_detail.html', context)
@@ -57,18 +61,20 @@ def lesson_detail(request, course_id, lesson_id):
     lesson = get_object_or_404(Lesson, id=lesson_id, course=course)
     lessons = course.lessons.all()
     
-    # Access check
+    # Access check (redundant but safe)
     has_access = False
     if course.is_free or course.is_mandatory:
         has_access = True
     else:
         has_access = Payment.objects.filter(user=request.user, course=course, status='completed').exists()
         if not has_access:
+            has_access = Payment.objects.filter(user=request.user, plan__plan_type='academy_bundle', status='completed').exists()
+        if not has_access:
             has_access = CourseCompletion.objects.filter(user=request.user, course=course).exists()
 
     if not has_access:
-        messages.warning(request, f"You need to pay for the {course.title} course to access this lesson.")
-        return redirect('course_checkout', course_id=course.id)
+        messages.warning(request, f"Access denied. Please purchase the {course.title} course or the Academy Bundle.")
+        return redirect('course_list')
 
     # Sequential Unlocking Check
     previous_lessons = lessons.filter(order__lt=lesson.order).order_by('order')
@@ -82,11 +88,14 @@ def lesson_detail(request, course_id, lesson_id):
     if lesson.quiz_questions.exists():
         lesson_quiz_done = QuizAttempt.objects.filter(user=request.user, lesson=lesson, passed=True).exists()
 
+    completed_lessons = LessonCompletion.objects.filter(user=request.user, lesson__course=course).values_list('lesson_id', flat=True)
+
     context = {
         'course': course,
         'lesson': lesson,
         'lessons': lessons,
         'lesson_quiz_done': lesson_quiz_done,
+        'completed_lessons': completed_lessons,
     }
     return render(request, 'courses/lesson_detail.html', context)
 
@@ -110,11 +119,11 @@ def course_quiz(request, course_id, lesson_id=None):
         
         for q_id in request.POST:
             if q_id.startswith('question_'):
-                id_val = q_id.split('_')[1]
+                q_pk = q_id.split('_')[1]
                 selected_choice_id = request.POST.get(q_id)
                 if selected_choice_id:
                     try:
-                        choice = Choice.objects.get(id=selected_choice_id, question_id=id_val)
+                        choice = Choice.objects.get(id=selected_choice_id, question_id=q_pk)
                         if choice.is_correct:
                             score += 1
                     except Choice.DoesNotExist:
@@ -133,13 +142,21 @@ def course_quiz(request, course_id, lesson_id=None):
         if passed:
             if lesson:
                 LessonCompletion.objects.get_or_create(user=request.user, lesson=lesson)
-                messages.success(request, f"Passed! You scored {score}/{total} ({(score/total)*100:.0f}%). Lesson completed.")
-                return redirect('course_detail', course_id=course.id)
+                messages.success(request, f"Passed! Module complete.")
+                
+                # Automatically find the next lesson
+                next_lesson = course.lessons.filter(order__gt=lesson.order).order_by('order').first()
+                if next_lesson:
+                    return redirect('lesson_detail', course_id=course.id, lesson_id=next_lesson.id)
+                else:
+                    return redirect('course_detail', course_id=course.id)
             else:
                 return redirect('complete_course', course_id=course.id)
         else:
-            messages.error(request, f"You scored {score}/{total} ({(score/total)*100:.0f}%). You need 80% to pass. Try again!")
-            return redirect(request.path)
+            messages.error(request, f"Score: {score}/{total} ({(score/total)*100:.0f}%). You need 80% to pass. Review & Retry!")
+            if lesson:
+                return redirect('lesson_detail', course_id=course.id, lesson_id=lesson.id)
+            return redirect('course_detail', course_id=course.id)
             
     context = {
         'course': course,
@@ -156,23 +173,22 @@ def complete_course(request, course_id):
     completion, created = CourseCompletion.objects.get_or_create(user=request.user, course=course)
     
     if created:
-        # Update user badges according to course title or some mapping
         user = request.user
         if "Professional Standards" in course.title:
             user.badge_professional_standards = True
+            user.badge_verified_id = True
         elif "Childcare" in course.title:
             user.badge_childcare = True
         elif "Elderly Care" in course.title:
             user.badge_elder_care = True
-        elif "Home Care & Kitchen" in course.title:
-            user.badge_cleaning = True  # Using cleaning as proxy for Home Care/Laundry
+        elif "Chef" in course.title or "Kitchen" in course.title:
             user.badge_kitchen = True
-        elif "Cleaning" in course.title:
+        elif "Cleaning" in course.title or "Home Care" in course.title:
             user.badge_cleaning = True
-        elif "Kitchen" in course.title or "Cooking" in course.title:
-            user.badge_kitchen = True
+        elif "Appliance" in course.title:
+            user.badge_appliance = True
         
         user.save()
-        messages.success(request, f"Congratulations! You have completed {course.title} and earned a badge.")
+        messages.success(request, f"Excellent! You've earned the {course.title} badge.")
     
     return redirect('course_list')

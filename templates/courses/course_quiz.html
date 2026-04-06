@@ -1,53 +1,111 @@
 {% extends 'base.html' %}
 
-{% block title %}Quiz: {{ course.title }} - Charlady{% endblock %}
+{% block title %}Examination: {{ course.title }} - Charlady Academy{% endblock %}
+
+{% block extra_head %}
+<!-- High-End Assessment Styles -->
+<style>
+    .quiz-card {
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .choice-label:hover {
+        transform: translateX(8px);
+        background: rgba(255, 255, 255, 0.95);
+        box-shadow: 0 10px 20px rgba(217, 70, 239, 0.05);
+        border-color: rgba(217, 70, 239, 0.2);
+    }
+    input[type="radio"]:checked + .choice-content {
+        color: #d946ef;
+        font-weight: 800;
+    }
+    input[type="radio"]:checked ~ .check-indicator {
+        opacity: 1;
+        transform: scale(1);
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="max-w-3xl mx-auto py-12 px-4">
-    <div class="mb-8">
-        <a href="{% url 'course_detail' course.id %}"
-            class="text-primary hover:text-pink-600 font-medium flex items-center gap-2 mb-4">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18">
-                </path>
-            </svg>
-            Back to Course
-        </a>
-        <h1 class="text-3xl font-bold text-gray-900 mb-2">
-            {% if lesson %}Quiz: {{ lesson.title }}{% else %}Final Exam: {{ course.title }}{% endif %}
+<div class="max-w-4xl mx-auto py-16 px-4">
+    <!-- Header -->
+    <div class="text-center mb-16 space-y-4">
+        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-pink-50 text-primary text-xs font-black tracking-widest uppercase mb-4">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            Professional Examination
+        </div>
+        <h1 class="text-4xl font-black text-gray-900 tracking-tight">
+            {% if lesson %}Assess: <span class="text-primary">{{ lesson.title }}</span>{% else %}Final Exam: <span class="text-primary">{{ course.title }}</span>{% endif %}
         </h1>
-        <p class="text-gray-600">Answer carefully. You need a score of 80% or higher to pass and advance.</p>
+        <p class="text-lg text-gray-500 max-w-2xl mx-auto">
+            Review your answers carefully. A minimum score of <span class="font-bold text-gray-900">80%</span> is required to pass this module and unlock your certification.
+        </p>
     </div>
 
-    <form method="POST" class="space-y-8">
+    <form method="POST" class="space-y-10">
         {% csrf_token %}
 
         {% for question in questions %}
-        <div class="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm">
-            <h3 class="text-lg font-bold text-gray-900 mb-6">
-                <span class="text-primary mr-2">{{ forloop.counter }}.</span>
+        <div class="quiz-card p-8 md:p-12 rounded-[3rem] shadow-2xl relative group animate-fade-in-up" 
+             style="animation-delay: {{ forloop.counter0|add:1 }}00ms;">
+            
+            <!-- Question Number Indicator -->
+            <div class="absolute -top-4 -left-4 w-12 h-12 bg-gray-900 text-white rounded-2xl flex items-center justify-center font-black text-xl shadow-xl">
+                {{ forloop.counter }}
+            </div>
+
+            <h3 class="text-2xl font-bold text-gray-900 mb-10 leading-tight">
                 {{ question.text }}
             </h3>
 
-            <div class="space-y-3">
+            <!-- Choice Grid -->
+            <div class="space-y-4">
                 {% for choice in question.choices.all %}
-                <label
-                    class="flex items-center p-4 rounded-xl border border-gray-100 hover:bg-pink-50 hover:border-pink-200 transition cursor-pointer group">
+                <label class="choice-label flex items-center p-6 rounded-2xl border border-gray-100 bg-white/50 transition cursor-pointer relative group">
                     <input type="radio" name="question_{{ question.id }}" value="{{ choice.id }}" required
-                        class="w-5 h-5 text-primary focus:ring-primary border-gray-300">
-                    <span class="ml-4 text-gray-700 group-hover:text-gray-900">{{ choice.text }}</span>
+                           class="hidden peer">
+                    
+                    <div class="w-6 h-6 rounded-lg border-2 border-gray-200 flex items-center justify-center mr-6 transition group-hover:border-primary peer-checked:bg-primary peer-checked:border-primary">
+                        <svg class="w-4 h-4 text-white opacity-0 peer-checked:opacity-100 transition scale-50 peer-checked:scale-100" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                    </div>
+
+                    <span class="choice-content text-lg text-gray-700 transition">
+                        {{ choice.text }}
+                    </span>
                 </label>
                 {% endfor %}
             </div>
         </div>
         {% endfor %}
 
-        <div class="pt-6">
+        <!-- Final Submission -->
+        <div class="pt-12 text-center pb-24">
             <button type="submit"
-                class="w-full bg-primary hover:bg-pink-600 text-white font-bold py-4 rounded-2xl transition shadow-lg shadow-pink-100 text-lg">
-                Submit Quiz & Earn Badge
+                    class="inline-flex items-center gap-4 bg-primary hover:bg-pink-600 text-white font-black px-16 py-6 rounded-3xl transition shadow-2xl shadow-pink-900/20 text-xl transform hover:-translate-y-1 hover:scale-[1.02]">
+                COMPLETE EXAMINATION
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
             </button>
+            <p class="text-sm text-gray-400 mt-8 font-medium">Verify all answers before submission. Changes cannot be made after completion.</p>
         </div>
     </form>
 </div>
+
+<script>
+    // Smooth fade-in for questions
+    document.addEventListener('DOMContentLoaded', () => {
+        const cards = document.querySelectorAll('.quiz-card');
+        cards.forEach((card, i) => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            setTimeout(() => {
+                card.style.transition = 'all 0.6s cubic-bezier(0.2, 0.8, 0.2, 1)';
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, i * 150);
+        });
+    });
+</script>
 {% endblock %}
