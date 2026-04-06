@@ -3,7 +3,7 @@ services:
     name: housekeeper-connect
     env: python
     buildCommand: "./build.sh"
-    startCommand: "gunicorn housekeeper_connect.wsgi:application"
+    startCommand: "python manage.py migrate --noinput && gunicorn housekeeper_connect.wsgi:application"
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.0

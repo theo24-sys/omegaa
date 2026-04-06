@@ -60,6 +60,16 @@ class CustomUser(AbstractUser):
             return True
         return self.is_verified
 
+    @property
+    def location(self):
+        """Returns a formatted location string."""
+        parts = []
+        if self.county: parts.append(self.county)
+        if self.constituency: parts.append(self.constituency)
+        if self.major_town: parts.append(self.major_town)
+        if self.ward: parts.append(f"Ward: {self.ward}")
+        return ", ".join(parts) if parts else "Not provided"
+
     def get_badges_list(self):
         """Returns a list of badges with their earned status and metadata."""
         badges = [
