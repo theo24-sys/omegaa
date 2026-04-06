@@ -18,6 +18,7 @@ urlpatterns = [
     path('payments/', include('payments.urls')),
     path('blog/', include('blog.urls')),
     path('courses/', include('courses.urls')),
+    path('chat/', include('chat.urls')),
     path('terms/', views.terms, name='terms'),
     path('privacy/', views.privacy, name='privacy'),
     # Service Worker for PushAlert

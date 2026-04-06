@@ -1,82 +1,130 @@
 {% extends 'base.html' %}
 
-{% block title %}Complete M-Pesa Payment - Charlady{% endblock %}
+{% block title %}STK Push - Safaricom M-Pesa{% endblock %}
 
 {% block content %}
-<div class="container mx-auto px-4 py-8 max-w-3xl">
-    <div class="bg-white rounded-2xl shadow-xl border border-pink-100 overflow-hidden">
+<div class="container mx-auto px-4 py-12 max-w-2xl">
+    <div class="bg-white rounded-3xl shadow-2xl border border-green-100 overflow-hidden">
         <!-- Header -->
-        <div class="bg-gradient-to-r from-pink-500 to-purple-600 p-8 text-white text-center">
-            <h1 class="text-3xl md:text-4xl font-bold mb-2">Complete Your Payment</h1>
-            <p class="text-lg text-pink-100 opacity-90">Follow these easy steps</p>
+        <div class="bg-gradient-to-r from-green-500 to-emerald-600 p-8 text-white text-center relative overflow-hidden">
+            <!-- M-Pesa Logo Mock / Badge -->
+            <div class="absolute top-4 right-4 bg-white/20 px-3 py-1 rounded-full text-xs font-black tracking-widest backdrop-blur-sm shadow-sm border border-white/30">
+                M-PESA CHECKOUT
+            </div>
+            <h1 class="text-3xl md:text-4xl font-black mb-2 mt-4">Secure Payment</h1>
+            <p class="text-lg text-green-50 opacity-90 font-medium">KES {{ payment.amount|floatformat:0 }}</p>
         </div>
 
-        <!-- Instructions -->
         <div class="p-8 md:p-10">
-            <div class="bg-pink-50 rounded-xl p-6 mb-8">
-                <h2 class="text-2xl font-bold text-pink-700 mb-6">M-Pesa Payment Instructions</h2>
-                <ol class="list-decimal pl-6 space-y-4 text-gray-700 text-lg">
-                    <li>Open your M-Pesa menu on your phone</li>
-                    <li>Select <strong>Lipa na M-Pesa</strong></li>
-                    <li>Choose <strong>Buy Goods and Services</strong></li>
-                    <li>Enter Till Number: <strong class="text-pink-700">4567052</strong></li>
-                    <li>Enter Amount: <strong class="text-green-600">KES {{ payment.amount|floatformat:0 }}</strong>
-                    </li>
-                    <li>Enter your M-Pesa PIN to complete</li>
-                    <li>Copy the **Transaction ID** from the confirmation SMS</li>
-                </ol>
+            <div class="bg-green-50/50 rounded-2xl p-6 mb-8 border border-green-100 flex items-center justify-between">
+                <div>
+                    <h2 class="text-xl font-bold text-gray-800 mb-1">Pay to Charlady</h2>
+                    <p class="text-gray-500 text-sm">Till Number: <span class="font-bold text-green-700">4567052</span></p>
+                </div>
+                <div class="text-right">
+                    <span class="text-xs font-bold text-gray-400 uppercase tracking-widest block mb-1">Amount Due</span>
+                    <span class="text-2xl font-black text-green-600">KES {{ payment.amount|floatformat:0 }}</span>
+                </div>
             </div>
 
             <!-- Form -->
-            <form method="post" class="space-y-6">
+            <form id="stk-form" method="post" class="space-y-6 relative min-h-[250px]">
                 {% csrf_token %}
-
-                <div>
-                    <label class="block text-lg font-medium text-gray-800 mb-2">
-                        M-Pesa Transaction ID <span class="text-red-600">*</span>
+                <input type="hidden" name="transaction_id" id="simulated_trx_id" value="">
+                <input type="hidden" name="verification_notes" value="Simulated STK Push">
+                
+                <!-- Input Step -->
+                <div id="input-step" class="transition-all duration-300 transform scale-100 opacity-100">
+                    <label class="block text-sm font-bold uppercase tracking-widest text-gray-500 mb-3 ml-1">
+                        Enter M-Pesa Phone Number
                     </label>
-                    <input type="text" name="transaction_id" required
-                        class="w-full px-5 py-4 rounded-xl border border-pink-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-200 text-lg"
-                        placeholder="e.g. QJI5HFXPLO">
-                    <p class="text-sm text-gray-500 mt-2">
-                        This is the confirmation code from your M-Pesa SMS
-                    </p>
-                </div>
-
-                <div>
-                    <label class="block text-lg font-medium text-gray-800 mb-2">
-                        Phone Number Used <span class="text-red-600">*</span>
-                    </label>
-                    <input type="tel" name="phone_number" required
-                        class="w-full px-5 py-4 rounded-xl border border-pink-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-200 text-lg"
-                        placeholder="e.g. 0712345678">
-                </div>
-
-                <div>
-                    <label class="block text-lg font-medium text-gray-800 mb-2">
-                        Additional Notes (optional)
-                    </label>
-                    <textarea name="verification_notes" rows="3"
-                        class="w-full px-5 py-4 rounded-xl border border-pink-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-200 text-lg"
-                        placeholder="Any extra information..."></textarea>
-                </div>
-
-                <div class="flex flex-col sm:flex-row gap-4 justify-end pt-6">
-                    <a href="{% url 'payment_plans' %}"
-                        class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-4 px-10 rounded-xl transition text-center">
-                        Cancel
-                    </a>
-                    <button type="submit"
-                        class="bg-pink-600 hover:bg-pink-700 text-white font-bold py-4 px-12 rounded-xl transition focus:outline-none focus:ring-4 focus:ring-pink-300">
-                        Submit Verification
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-gray-400 font-bold text-lg">
+                            +254
+                        </span>
+                        <input type="tel" name="phone_number" id="phone_input" required
+                            class="w-full pl-16 pr-5 py-5 rounded-2xl border-2 border-gray-200 focus:border-green-500 focus:ring-4 focus:ring-green-500/20 text-xl font-bold text-gray-800 shadow-sm transition outline-none"
+                            placeholder="712 345 678" value="{{ request.user.phone_number }}">
+                    </div>
+                    
+                    <button type="button" onclick="triggerSTK()"
+                        class="mt-8 w-full bg-green-600 hover:bg-green-500 active:bg-green-700 text-white font-black uppercase tracking-wider py-5 rounded-2xl transition shadow-[0_0_20px_rgba(5,150,105,0.3)] hover:shadow-[0_0_25px_rgba(5,150,105,0.5)] transform hover:-translate-y-1">
+                        Send Payment Prompt
                     </button>
+                    
+                    <div class="text-center mt-6">
+                        <a href="{% url 'payment_plans' %}" class="text-sm font-bold text-gray-400 hover:text-gray-600 transition">← Cancel & Return to Plans</a>
+                    </div>
+                </div>
+
+                <!-- Loading / Awaiting Pin Step -->
+                <div id="loading-step" class="absolute inset-0 flex flex-col items-center justify-center text-center opacity-0 scale-95 pointer-events-none transition-all duration-300">
+                    <div class="relative mb-6">
+                        <div class="animate-ping absolute inset-0 rounded-full bg-green-400 opacity-20 h-20 w-20"></div>
+                        <div class="relative rounded-full h-20 w-20 border-4 border-gray-100 border-t-green-500 animate-spin"></div>
+                    </div>
+                    
+                    <h3 class="text-2xl font-black text-gray-800 mb-3">Check your phone!</h3>
+                    <p class="text-gray-600 font-medium">An M-Pesa prompt has been sent to</p>
+                    <p id="display-phone" class="text-xl font-black text-green-600 mt-1 mb-6"></p>
+                    
+                    <div class="bg-gray-50 rounded-xl p-4 border border-gray-100 w-full max-w-sm">
+                        <p class="text-sm text-gray-500 font-medium flex items-center justify-center gap-2">
+                            <span class="relative flex h-3 w-3">
+                              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                              <span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                            </span>
+                            Awaiting Daraja Callback
+                        </p>
+                    </div>
                 </div>
             </form>
-
-            <p class="text-center text-sm text-gray-500 mt-8">
-                We'll verify your payment within a few hours during business hours (Mon–Fri, 8 AM–5 PM)
-            </p>
         </div>
     </div>
+    
+    <p class="text-center text-xs font-bold text-gray-400 mt-8 uppercase tracking-widest">
+        Secured by Daraja STK Push Integration
+    </p>
 </div>
+
+<script>
+    function triggerSTK() {
+        const phone = document.getElementById('phone_input').value;
+        if (!phone || phone.replace(/\D/g,'').length < 9) {
+            alert("Please enter a valid Safaricom phone number.");
+            return;
+        }
+        
+        // UI Transitions
+        const inputStep = document.getElementById('input-step');
+        const loadingStep = document.getElementById('loading-step');
+        
+        inputStep.style.opacity = '0';
+        inputStep.style.transform = 'scale(0.95)';
+        inputStep.style.pointerEvents = 'none';
+        
+        setTimeout(() => {
+            inputStep.style.display = 'none';
+            
+            document.getElementById('display-phone').innerText = phone;
+            
+            loadingStep.style.pointerEvents = 'auto';
+            loadingStep.style.opacity = '1';
+            loadingStep.style.transform = 'scale(1)';
+        }, 300);
+        
+        // Mock Daraja STK Push completion delay
+        // In reality, this would initiate an AJAX polling request checking payment status
+        setTimeout(() => {
+            // Generate mock M-Pesa transaction ID (e.g. QJI5HFXPLO)
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let mockTrx = 'Q' + Array(9).fill(0).map(() => chars[Math.floor(Math.random() * chars.length)]).join('');
+            
+            document.getElementById('simulated_trx_id').value = mockTrx;
+            
+            // Submit form to Django backend
+            document.getElementById('stk-form').submit();
+        }, 5000); // Wait 5 seconds to simulate user entering pin
+    }
+</script>
 {% endblock %}
