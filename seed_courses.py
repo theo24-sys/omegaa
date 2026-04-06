@@ -10,6 +10,20 @@ from courses.models import Course, Lesson, Question, Choice
 def seed_courses():
     print("Starting course seeding...")
 
+    # helper to ensure lessons exist
+    def ensure_lesson(course, title, content, video_url="", order=1):
+        lesson, created = Lesson.objects.get_or_create(
+            course=course,
+            title=title,
+            defaults={'content': content, 'video_url': video_url, 'order': order}
+        )
+        if not created:
+            lesson.content = content
+            lesson.video_url = video_url
+            lesson.order = order
+            lesson.save()
+        return lesson
+
     # 1. Professional Standards & Ethics (Mandatory)
     course_pro, created = Course.objects.get_or_create(
         title="Professional Standards & Ethics",
@@ -24,22 +38,26 @@ def seed_courses():
             'iframe_url': "https://www.youtube.com/embed/dQw4w9WgXcQ"
         }
     )
-    if not created:
-        course_pro.price = 0
-        course_pro.is_mandatory = True
-        course_pro.duration = "1 week (Self-paced)"
-        course_pro.features = "Mandatory for all learners; certificate included."
-        course_pro.save()
-    else:
-        print("- Created Course: Professional Standards")
-        lesson = Lesson.objects.create(
-            course=course_pro,
-            title="Introduction to Professionalism",
-            content="Professionalism is about your attitude, your appearance, and how you treat the homes you work in...",
-            video_url="https://www.youtube.com/embed/dQw4w9WgXcQ",
-            order=1
-        )
-        q1 = Question.objects.create(course=course_pro, lesson=lesson, text="What is the most important part of workplace boundaries?", order=1)
+    # Always update metadata
+    course_pro.price = 0
+    course_pro.is_mandatory = True
+    course_pro.duration = "1 week (Self-paced)"
+    course_pro.features = "Mandatory for all learners; certificate included."
+    course_pro.is_native = True
+    course_pro.save()
+
+    # Ensure Lesson 1
+    lesson = ensure_lesson(
+        course_pro, 
+        "Introduction to Professionalism", 
+        "Professionalism is about your attitude, your appearance, and how you treat the homes you work in. Key areas include punctuality, honest communication with employers, and maintaining high hygiene standards.",
+        "https://www.youtube.com/embed/dQw4w9WgXcQ",
+        1
+    )
+    
+    # Ensure Questions
+    q1, _ = Question.objects.get_or_create(course=course_pro, lesson=lesson, text="What is the most important part of workplace boundaries?", defaults={'order': 1})
+    if not q1.choices.exists():
         Choice.objects.create(question=q1, text="Respecting privacy and confidentiality", is_correct=True)
         Choice.objects.create(question=q1, text="Arriving late every day", is_correct=False)
         Choice.objects.create(question=q1, text="Using the employer's phone without asking", is_correct=False)
@@ -58,19 +76,19 @@ def seed_courses():
             'iframe_url': "https://www.youtube.com/embed/dQw4w9WgXcQ"
         }
     )
-    if not created:
-        course_child.price = 1500
-        course_child.duration = "2–3 weeks"
-        course_child.features = "Practical exercises, child safety tips, play & learning templates."
-        course_child.save()
-    else:
-        print("- Created Course: Childcare")
-        lesson = Lesson.objects.create(
-            course=course_child,
-            title="Basics of Infant Safety",
-            content="When caring for young children, safety is your primary priority. Learn how to baby-proof a kitchen...",
-            order=1
-        )
+    course_child.price = 1500
+    course_child.duration = "2–3 weeks"
+    course_child.features = "Practical exercises, child safety tips, play & learning templates."
+    course_child.is_native = True
+    course_child.save()
+
+    ensure_lesson(
+        course_child,
+        "Basics of Infant Safety",
+        "When caring for young children, safety is your primary priority. Learn how to baby-proof a kitchen, safe sleep positions for infants, and basic first aid for choking.",
+        "https://www.youtube.com/embed/dQw4w9WgXcQ",
+        1
+    )
 
     # 3. Chef & Kitchen Management
     course_chef, created = Course.objects.get_or_create(
@@ -86,13 +104,19 @@ def seed_courses():
             'iframe_url': "https://www.youtube.com/embed/dQw4w9WgXcQ"
         }
     )
-    if not created:
-        course_chef.price = 1800
-        course_chef.duration = "3–4 weeks"
-        course_chef.features = "Hands-on cooking, menu planning, hygiene guides."
-        course_chef.save()
-    else:
-        print("- Created Course: Chef & Kitchen")
+    course_chef.price = 1800
+    course_chef.duration = "3–4 weeks"
+    course_chef.features = "Hands-on cooking, menu planning, hygiene guides."
+    course_chef.is_native = True
+    course_chef.save()
+
+    ensure_lesson(
+        course_chef,
+        "Kitchen Hygiene & Safety",
+        "A managed kitchen is a safe kitchen. Learn about cross-contamination prevention, knife skills for professionals, and efficient grocery planning.",
+        "https://www.youtube.com/embed/dQw4w9WgXcQ",
+        1
+    )
 
     # 4. Elderly Care
     course_elder, created = Course.objects.get_or_create(
@@ -108,13 +132,19 @@ def seed_courses():
             'iframe_url': "https://www.youtube.com/embed/dQw4w9WgXcQ"
         }
     )
-    if not created:
-        course_elder.price = 1500
-        course_elder.duration = "3 weeks"
-        course_elder.features = "Care exercises, emergency guidelines, emotional support strategies."
-        course_elder.save()
-    else:
-        print("- Created Course: Elderly Care")
+    course_elder.price = 1500
+    course_elder.duration = "3 weeks"
+    course_elder.features = "Care exercises, emergency guidelines, emotional support strategies."
+    course_elder.is_native = True
+    course_elder.save()
+
+    ensure_lesson(
+        course_elder,
+        "Introduction to Geriatric Care",
+        "Understanding the unique needs of the elderly — from physical mobility assistance to providing emotional companionship and managing daily medication schedules safely.",
+        "https://www.youtube.com/embed/dQw4w9WgXcQ",
+        1
+    )
 
     print("Course seeding complete!")
 

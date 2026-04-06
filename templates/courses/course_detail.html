@@ -63,7 +63,7 @@
                 CERTIFIED GRADUATE
             </div>
             <button onclick="generateCertificate()"
-                class="bg-gray-900 hover:bg-black text-white font-black px-8 py-4 rounded-[2rem] shadow-2xl transition transform hover:-translate-y-1 flex items-center gap-2 text-xs tracking-widest uppercase">
+                class="bg-primary hover:bg-primary/90 text-white font-black px-8 py-4 rounded-[2rem] shadow-2xl transition transform hover:-translate-y-1 flex items-center gap-2 text-xs tracking-widest uppercase">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4-4v12"></path>
@@ -191,14 +191,14 @@
     </div>
 
     <!-- Course Content Area -->
-    <div class="bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden min-h-[600px] flex flex-col mb-12">
-        <div class="bg-gray-900 p-4 border-b border-gray-800 flex items-center justify-between">
-            <div class="flex gap-2">
-                <div class="w-3 h-3 rounded-full bg-red-500"></div>
-                <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
-                <div class="w-3 h-3 rounded-full bg-green-500"></div>
+    <div class="bg-white rounded-3xl shadow-2xl border border-pink-50 overflow-hidden min-h-[600px] flex flex-col mb-12">
+        <div class="bg-pink-50/50 p-6 border-b border-pink-100 flex items-center justify-between">
+            <div class="flex gap-2.5">
+                <div class="w-3.5 h-3.5 rounded-full bg-pink-200 animate-pulse"></div>
+                <div class="w-3.5 h-3.5 rounded-full bg-pink-100"></div>
+                <div class="w-3.5 h-3.5 rounded-full bg-pink-50"></div>
             </div>
-            <span class="text-gray-400 text-[10px] font-black tracking-widest uppercase">Charlady Academy Virtual Classroom</span>
+            <span class="text-slate-400 text-[10px] font-black tracking-[0.3em] uppercase">Academy Virtual Classroom</span>
         </div>
 
         <div class="flex-grow course-iframe-container">
@@ -252,16 +252,16 @@
 
     <!-- Features & Syllabus -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
-        <div class="bg-gray-900 rounded-[3rem] p-12 text-white relative overflow-hidden">
-            <div class="absolute top-0 right-0 w-64 h-64 bg-primary/20 rounded-full blur-3xl -mr-32 -mt-32"></div>
-            <h3 class="text-2xl font-black mb-8 relative z-10">What You'll Gain</h3>
+        <div class="bg-white rounded-[3rem] p-12 text-slate-800 border border-pink-100 shadow-xl relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -mr-32 -mt-32"></div>
+            <h3 class="text-2xl font-black mb-8 relative z-10 text-primary tracking-tight">What You'll Gain</h3>
             <ul class="space-y-6 relative z-10">
                 {% for feature in course.features|split:"," %}
                 <li class="flex items-start gap-4">
-                    <div class="w-6 h-6 rounded-lg bg-white/10 flex items-center justify-center shrink-0 mt-1">
+                    <div class="w-6 h-6 rounded-lg bg-pink-50 flex items-center justify-center shrink-0 mt-1">
                         <svg class="w-4 h-4 text-pink-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
                     </div>
-                    <span class="text-gray-300 font-medium">{{ feature|strip }}</span>
+                    <span class="text-slate-600 font-medium leading-relaxed">{{ feature|strip }}</span>
                 </li>
                 {% endfor %}
             </ul>

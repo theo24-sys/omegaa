@@ -46,68 +46,66 @@
 {% block content %}
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
     <!-- Premium Worker Header -->
-    <div class="relative overflow-hidden rounded-[2rem] md:rounded-[3rem] bg-gradient-to-br from-primary to-accent p-6 md:p-16 mb-8 md:mb-12 shadow-2xl animate-sapphire">
+    <div class="relative overflow-hidden rounded-[3rem] bg-white p-8 md:p-16 mb-12 border border-pink-100 shadow-2xl shadow-pink-50 animate-sapphire">
         <!-- Abstract Glows -->
-        <div class="absolute top-0 right-0 w-96 h-96 bg-white/20 rounded-full blur-[100px] -mr-48 -mt-48"></div>
-        <div class="absolute bottom-0 left-0 w-64 h-64 bg-secondary/30 rounded-full blur-[100px] -ml-32 -mb-32"></div>
+        <div class="absolute top-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-[100px] -mr-48 -mt-48"></div>
+        <div class="absolute bottom-0 left-0 w-64 h-64 bg-accent/5 rounded-full blur-[100px] -ml-32 -mb-32"></div>
 
-        <div class="relative z-10 flex flex-col items-center text-center gap-8">
-            <div class="space-y-4">
-                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/20 border border-white/40 text-white text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] backdrop-blur-sm">
-                    <span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
-                    Professional Worker Profile
+        <div class="relative z-10 flex flex-col items-center text-center gap-10">
+            <div class="space-y-6">
+                <div class="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-pink-50 border border-pink-100 text-primary text-xs font-black uppercase tracking-widest">
+                    <span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+                    Verified Member Portal
                 </div>
-                <h1 class="text-3xl md:text-6xl font-extrabold text-white tracking-tight">
-                    <span id="greeting-time">Welcome</span>,
-                    <span>{{ user.get_full_name|default:user.username }}</span>
-                    {% if user.is_verified %}
-                    <img src="{% static 'img/badges/verified.svg' %}" alt="Verified" class="inline-block w-6 h-6 md:w-10 md:h-10 ml-1 md:ml-2">
-                    {% endif %}
+                <h1 class="text-4xl md:text-7xl font-black text-slate-900 tracking-tight leading-none">
+                    <span id="greeting-time">Welcome</span>, <br>
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">{{ user.get_full_name|default:user.username }}</span>
                 </h1>
-                <p class="text-pink-100 text-base md:text-xl font-medium max-w-xl mx-auto">
-                    Manage your professional applications and academy certifications.
+                <p class="text-slate-500 text-lg md:text-xl font-medium max-w-xl mx-auto leading-relaxed">
+                    Elevating professional standards for Kenyan househelps. Manage your career and certifications with ease.
                 </p>
             </div>
 
             <!-- Communication Hub (WhatsApp/Instagram Style) -->
-            <div class="flex items-center gap-4 bg-white/10 p-2 rounded-[2rem] backdrop-blur-xl border border-white/20 shadow-2xl">
+            <div class="flex items-center gap-6 bg-white p-3 rounded-[3rem] border border-pink-100 shadow-2xl">
                 <!-- Messages -->
-                <a href="{% url 'chat:inbox' %}" class="flex flex-col items-center gap-1 group">
-                    <div class="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-white flex items-center justify-center text-primary shadow-lg transition transform group-hover:scale-110 group-active:scale-95">
-                        <svg class="w-7 h-7 md:w-8 md:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+                <a href="{% url 'chat:inbox' %}" class="flex flex-col items-center gap-2 group">
+                    <div class="w-16 h-16 md:w-20 md:h-20 rounded-[2rem] bg-pink-50 flex items-center justify-center text-primary shadow-inner transition transform group-hover:scale-105 group-active:scale-95">
+                        <svg class="w-8 h-8 md:w-10 md:h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
                     </div>
-                    <span class="text-[10px] font-black text-white uppercase tracking-widest">Messages</span>
+                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Messages</span>
                 </a>
                 
                 <!-- Interviews -->
-                <a href="{% url 'chat:inbox' %}" class="flex flex-col items-center gap-1 group">
-                    <div class="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-gradient-to-br from-pink-500 to-primary flex items-center justify-center text-white shadow-lg transition transform group-hover:scale-110 group-active:scale-95">
-                        <svg class="w-7 h-7 md:w-8 md:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                <a href="{% url 'chat:inbox' %}" class="flex flex-col items-center gap-2 group">
+                    <div class="w-16 h-16 md:w-20 md:h-20 rounded-[2rem] bg-primary flex items-center justify-center text-white shadow-2xl shadow-primary/30 transition transform group-hover:scale-105 group-active:scale-95">
+                        <svg class="w-8 h-8 md:w-10 md:h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
                     </div>
-                    <span class="text-[10px] font-black text-white uppercase tracking-widest">Interviews</span>
+                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Interviews</span>
                 </a>
             </div>
 
             <!-- Dashboard Stats Row -->
-            <div class="flex items-center gap-4 md:gap-6 p-4 md:p-6 rounded-[2rem] bg-white/20 backdrop-blur-md border border-white/30 shadow-lg w-full md:w-auto">
-                <div class="flex items-center gap-4 w-full md:w-auto justify-around">
-                    <div class="flex flex-col text-center border-r border-white/20 pr-4">
-                        <span class="text-2xl md:text-3xl font-black text-white">{{ applications.count }}</span>
-                        <span class="text-[8px] md:text-[10px] text-pink-100 uppercase font-black tracking-widest">Applications</span>
-                    </div>
-                    <div class="flex flex-col text-center border-r border-white/20 pr-4">
-                        <span class="text-2xl md:text-3xl font-black text-white">{{ review_count }}</span>
-                        <span class="text-[8px] md:text-[10px] text-pink-100 uppercase font-black tracking-widest">Reviews</span>
-                    </div>
+            <div class="flex items-center gap-8 p-6 rounded-[2.5rem] bg-pink-50 border border-pink-100 w-full md:w-auto shadow-inner">
+                <div class="flex items-center gap-12 w-full md:w-auto justify-around">
                     <div class="flex flex-col text-center">
-                        <span class="text-2xl md:text-3xl font-black text-white">{{ avg_rating|floatformat:1 }}</span>
-                        <span class="text-[8px] md:text-[10px] text-pink-100 uppercase font-black tracking-widest">Rating</span>
+                        <span class="text-3xl md:text-4xl font-black text-slate-900 leading-none">{{ applications.count }}</span>
+                        <span class="text-[10px] text-slate-400 uppercase font-bold tracking-widest mt-2">Placed</span>
+                    </div>
+                    <div class="w-px h-10 bg-pink-200"></div>
+                    <div class="flex flex-col text-center">
+                        <span class="text-3xl md:text-4xl font-black text-slate-900 leading-none">{{ review_count }}</span>
+                        <span class="text-[10px] text-slate-400 uppercase font-bold tracking-widest mt-2">Reviews</span>
+                    </div>
+                    <div class="w-px h-10 bg-pink-200"></div>
+                    <div class="flex flex-col text-center">
+                        <span class="text-3xl md:text-4xl font-black text-slate-900 leading-none">{{ avg_rating|floatformat:1 }}</span>
+                        <span class="text-[10px] text-slate-400 uppercase font-bold tracking-widest mt-2">Rating</span>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
     <!-- Main Layout Grid -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 md:gap-12 animate-sapphire" style="animation-delay: 0.1s;">
         <!-- Left Sidebar: Profile & Achievements -->
@@ -277,7 +275,7 @@
                         <div class="p-6 rounded-3xl bg-white border border-gray-100 shadow-sm hover:shadow-xl transition-all">
                             <div class="flex justify-between items-start">
                                 <div class="space-y-2">
-                                    <h3 class="font-bold text-gray-900 line-clamp-1"><a href="{% url 'jobs:job_detail' app.job.pk % Sanford %}">{{ app.job.title }}</a></h3>
+                                    <h3 class="font-bold text-gray-900 line-clamp-1"><a href="{% url 'jobs:job_detail' app.job.pk %}">{{ app.job.title }}</a></h3>
                                     <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">{{ app.job.employer.username }}</p>
                                 </div>
                                 <span class="px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest

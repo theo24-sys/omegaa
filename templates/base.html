@@ -39,7 +39,7 @@
                         secondary: '#f472b6',  // softer pink
                         accent: '#c084fc',     // light purple
                         light: '#fce7f3',      // very pale pink
-                        dark: '#831843',       // deep berry
+                        dark: '#be185d',       // slightly lighter berry for high contrast on light bg
                     },
                     fontFamily: {
                         serif: ['Georgia', 'serif'],
@@ -119,7 +119,7 @@
     {% endif %}
 
     <!-- Header / Navigation -->
-    <header class="bg-gradient-to-r from-primary to-accent text-white shadow-lg sticky top-0 z-50">
+    <header class="bg-white/80 backdrop-blur-md text-slate-800 shadow-sm sticky top-0 z-50 border-b border-pink-100">
         <nav class="container mx-auto px-4 py-5 flex justify-between items-center">
             <!-- Logo -->
             <a href="{% url 'home' %}" class="flex items-center space-x-3 group">
@@ -129,8 +129,8 @@
                         alt="Charlady" class="w-full h-full object-contain">
                 </div>
                 <div class="flex flex-col">
-                    <span class="text-2xl md:text-3xl font-serif font-bold tracking-tight">CHARLADY</span>
-                    <span class="text-xs md:text-sm opacity-90">Trusted • Verified • Connected</span>
+                    <span class="text-2xl md:text-3xl font-serif font-bold tracking-tight text-primary">CHARLADY</span>
+                    <span class="text-xs md:text-sm text-slate-400">Trusted • Verified • Connected</span>
                 </div>
             </a>
 
@@ -154,12 +154,9 @@
                             <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
                             <span class="absolute -top-1 -right-1 bg-white text-primary text-[9px] font-black rounded-full w-4 h-4 flex items-center justify-center shadow-sm opacity-0 group-hover:opacity-100 transition">🎥</span>
                         </a>
-                    </div>
-
-                    <!-- Global Unread Badge Counter (Polling every 10s) -->
-                    <div id="unread-count-container" hx-get="{% url 'notifications:unread_count_badge' %}" hx-trigger="every 10s" hx-swap="outerHTML">
+                                  <div id="unread-count-container" hx-get="{% url 'notifications:unread_count_badge' %}" hx-trigger="every 10s" hx-swap="outerHTML">
                         <!-- Notifications -->
-                        <a href="{% url 'notifications:notification_list' %}" class="relative hover:text-pink-100 transition">
+                        <a href="{% url 'notifications:notification_list' %}" class="relative hover:text-primary transition text-slate-600">
                             <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
@@ -172,6 +169,7 @@
                             {% endif %}
                         </a>
                     </div>
+      </div>
 
                     <!-- User Menu -->
                     <div class="relative group">
@@ -221,57 +219,56 @@
                 </div>
                 {% else %}
                 <div class="flex items-center space-x-4">
-                    <a href="{% url 'login' %}" class="hover:text-pink-100 transition font-medium">Login</a>
+                    <a href="{% url 'login' %}" class="text-slate-600 hover:text-primary transition font-medium">Login</a>
                     <a href="{% url 'signup' %}"
-                        class="bg-white text-primary hover:bg-gray-100 font-bold px-6 py-2.5 rounded-full shadow transition">
+                        class="bg-primary text-white hover:bg-primary/90 font-bold px-6 py-2.5 rounded-full shadow-lg transition">
                         Sign Up
                     </a>
-                    <a href="{% url 'contact_admin' %}" class="hover:text-pink-100 transition font-medium">Contact</a>
+                    <a href="{% url 'contact_admin' %}" class="text-slate-600 hover:text-primary transition font-medium">Contact</a>
                 </div>
                 {% endif %}
             </div>
 
             <!-- Mobile Menu Button -->
-            <button id="mobile-menu-button" class="md:hidden text-white focus:outline-none p-2 rounded-lg hover:bg-white/10 transition">
+            <button id="mobile-menu-button" class="md:hidden text-primary focus:outline-none p-2 rounded-lg hover:bg-pink-50 transition">
                 <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
             </button>
         </nav>
 
-        <!-- Mobile Menu Container -->
-        <div id="mobile-menu" class="hidden md:hidden bg-dark border-t border-white/10 animate-fade-in-down">
-            <div class="px-4 pt-2 pb-6 space-y-2">
-                <a href="{% url 'jobs:job_list' %}" class="block px-4 py-3 rounded-xl hover:bg-white/10 transition font-medium">Browse Jobs</a>
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-pink-100 animate-fade-in-down shadow-xl">
+            <div class="px-4 pt-2 pb-6 space-y-2 text-slate-800">
+                <a href="{% url 'jobs:job_list' %}" class="block px-4 py-3 rounded-xl hover:bg-pink-50 transition font-medium">Browse Jobs</a>
                 {% if user.is_authenticated and user.user_type == 'househelp' %}
-                <a href="{% url 'courses:course_list' %}" class="block px-4 py-3 rounded-xl hover:bg-white/10 transition font-medium">Training</a>
+                <a href="{% url 'courses:course_list' %}" class="block px-4 py-3 rounded-xl hover:bg-pink-50 transition font-medium">Training</a>
                 {% endif %}
-                <a href="{% url 'blog_home' %}" class="block px-4 py-3 rounded-xl hover:bg-white/10 transition font-medium">Blog</a>
+                <a href="{% url 'blog_home' %}" class="block px-4 py-3 rounded-xl hover:bg-pink-50 transition font-medium">Blog</a>
                 
                 {% if user.is_authenticated %}
-                <div class="border-t border-white/10 my-4 pt-4">
-                    <p class="px-4 text-xs font-bold uppercase tracking-widest text-pink-300 mb-2">My Account</p>
-                    <a href="{% url 'dashboard:user_dashboard' %}" class="block px-4 py-3 rounded-xl hover:bg-white/10 transition font-medium">Dashboard</a>
-                    <a href="{% url 'notifications:notification_list' %}" class="block px-4 py-3 rounded-xl hover:bg-white/10 transition font-medium flex items-center justify-between">
+                <div class="border-t border-pink-100 my-4 pt-4">
+                    <p class="px-4 text-xs font-bold uppercase tracking-widest text-primary mb-2">My Account</p>
+                    <a href="{% url 'dashboard:user_dashboard' %}" class="block px-4 py-3 rounded-xl hover:bg-pink-50 transition font-medium">Dashboard</a>
+                    <a href="{% url 'notifications:notification_list' %}" class="block px-4 py-3 rounded-xl hover:bg-pink-50 transition font-medium flex items-center justify-between">
                         <span>Notifications</span>
-                        {% if unread_count > 0 %}<span class="bg-red-500 text-[10px] px-2 py-0.5 rounded-full">{{ unread_count }}</span>{% endif %}
+                        {% if unread_count > 0 %}<span class="bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full">{{ unread_count }}</span>{% endif %}
                     </a>
                     <div class="grid grid-cols-2 gap-2 px-4 py-2">
-                        <a href="{% url 'chat:inbox' %}" class="flex items-center justify-center gap-2 py-4 rounded-2xl bg-white/10 hover:bg-white/20 transition group">
+                        <a href="{% url 'chat:inbox' %}" class="flex items-center justify-center gap-2 py-4 rounded-2xl bg-pink-50 hover:bg-pink-100 transition group text-primary">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
                             <span class="text-xs font-bold uppercase tracking-widest">Messages</span>
                         </a>
-                        <a href="{% url 'chat:inbox' %}" class="flex items-center justify-center gap-2 py-4 rounded-2xl bg-white/10 hover:bg-white/20 transition">
+                        <a href="{% url 'chat:inbox' %}" class="flex items-center justify-center gap-2 py-4 rounded-2xl bg-pink-50 hover:bg-pink-100 transition text-primary">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
                             <span class="text-xs font-bold uppercase tracking-widest">Interviews</span>
                         </a>
                     </div>
-                    <a href="{% url 'logout' %}" class="block px-4 py-3 rounded-xl text-red-300 hover:bg-red-500/10 transition font-medium">Logout</a>
+                    <a href="{% url 'logout' %}" class="block px-4 py-3 rounded-xl text-red-600 hover:bg-red-50 transition font-medium">Logout</a>
                 </div>
                 {% else %}
                 <div class="grid grid-cols-2 gap-4 px-4 pt-4">
-                    <a href="{% url 'login' %}" class="flex items-center justify-center py-3 rounded-xl border border-white/20 hover:bg-white/10 transition font-bold text-sm">Login</a>
-                    <a href="{% url 'signup' %}" class="flex items-center justify-center py-3 rounded-xl bg-white text-primary hover:bg-pink-50 transition font-bold text-sm">Sign Up</a>
+                    <a href="{% url 'login' %}" class="flex items-center justify-center py-3 rounded-xl border border-pink-200 hover:bg-pink-50 transition font-bold text-sm text-slate-600">Login</a>
+                    <a href="{% url 'signup' %}" class="flex items-center justify-center py-3 rounded-xl bg-primary text-white hover:bg-primary/90 transition font-bold text-sm">Sign Up</a>
                 </div>
                 {% endif %}
             </div>
@@ -291,61 +288,64 @@
         </div>
         {% endif %}
 
-        {% block content %}{% endblock %}
-    </main>
-
-    <!-- Footer -->
-    <footer class="bg-gradient-to-t from-dark to-gray-900 text-white py-12">
+        {% block content %}{% endblock %}    <!-- Footer -->
+    <footer class="bg-gradient-to-br from-white via-pink-50/30 to-white text-slate-600 py-20 border-t border-pink-100">
         <div class="container mx-auto px-4">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-16">
                 <!-- Brand -->
-                <div>
-                    <div class="flex items-center space-x-3 mb-6">
-                        <div class="w-14 h-14 rounded-full bg-white p-2 shadow-inner">
+                <div class="space-y-6">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-16 h-16 rounded-full bg-white p-2 shadow-xl border border-pink-100">
                             <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/logo-OZc2HOWFOzyiQsm3QQBzgTdp8UyUO1.png"
                                 alt="Charlady" class="w-full h-full object-contain">
                         </div>
                         <div>
-                            <h3 class="text-2xl font-serif font-bold">Charlady</h3>
-                            <p class="text-sm opacity-80">Connecting Homes & Talent</p>
+                            <h3 class="text-2xl font-serif font-bold text-primary">Charlady</h3>
+                            <p class="text-xs font-black uppercase tracking-widest text-slate-400">Connecting Homes</p>
                         </div>
                     </div>
-                    <p class="text-sm opacity-80">
-                        © {% now "Y" %} Charlady. All rights reserved.<br>
-                        Crafted with care in Nairobi, Kenya.
+                    <p class="text-sm leading-relaxed text-slate-500">
+                        The ultimate destination for verified talent and caring families in Kenya. 
+                        We believe every home deserves professional excellence and every worker deserves respect.
+                    </p>
+                    <p class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-300">
+                        © {% now "Y" %} Charlady Academy. Crafted in Nairobi.
                     </p>
                 </div>
 
                 <!-- Quick Links -->
                 <div>
-                    <h4 class="text-lg font-semibold mb-5">Quick Links</h4>
-                    <ul class="space-y-3 text-sm">
-                        <li><a href="{% url 'home' %}" class="hover:text-secondary transition">Home</a></li>
-                        <li><a href="{% url 'jobs:job_list' %}" class="hover:text-secondary transition">Browse Jobs</a></li>
+                    <h4 class="text-xs font-black uppercase tracking-[0.3em] text-primary mb-8">Navigation</h4>
+                    <ul class="space-y-4 text-sm font-semibold">
+                        <li><a href="{% url 'home' %}" class="hover:text-primary transition flex items-center gap-2">
+                            <span class="w-1.5 h-1.5 rounded-full bg-pink-100"></span> Home</a></li>
+                        <li><a href="{% url 'jobs:job_list' %}" class="hover:text-primary transition flex items-center gap-2">
+                            <span class="w-1.5 h-1.5 rounded-full bg-pink-100"></span> Browse Jobs</a></li>
                         {% if user.is_authenticated and user.user_type == 'employer' %}
-                        <li><a href="{% url 'job_create' %}" class="hover:text-secondary transition">Post a Job</a></li>
+                        <li><a href="{% url 'jobs:job_create' %}" class="hover:text-primary transition flex items-center gap-2">
+                            <span class="w-1.5 h-1.5 rounded-full bg-pink-100"></span> Post a Job</a></li>
                         {% endif %}
-                        <li><a href="{% url 'contact_admin' %}" class="hover:text-secondary transition">Contact
-                                Admin</a></li>
-                        <li><a href="{% url 'terms' %}" class="hover:text-secondary transition">Terms of Service</a>
-                        </li>
-                        <li><a href="{% url 'privacy' %}" class="hover:text-secondary transition">Privacy Policy</a>
-                        </li>
+                        <li><a href="{% url 'contact_admin' %}" class="hover:text-primary transition flex items-center gap-2">
+                            <span class="w-1.5 h-1.5 rounded-full bg-pink-100"></span> Help Center</a></li>
+                        <li><a href="{% url 'terms' %}" class="hover:text-primary transition flex items-center gap-2">
+                            <span class="w-1.5 h-1.5 rounded-full bg-pink-100"></span> Legal Terms</a></li>
                     </ul>
                 </div>
 
                 <!-- Contact -->
-                <div>
-                    <h4 class="text-lg font-semibold mb-5">Get in Touch</h4>
-                    <p class="text-sm mb-2">Email: <a href="mailto:info@charlady.online"
-                            class="hover:text-secondary">info@charlady.online</a></p>
-                    <p class="text-sm mb-4">WhatsApp: <a href="https://wa.me/254714042946"
-                            class="hover:text-secondary">+254 714 042946</a></p>
-                    <p class="text-sm opacity-80">We reply within 1–2 hours during business hours.</p>
+                <div class="space-y-8">
+                    <div>
+                        <h4 class="text-xs font-black uppercase tracking-[0.3em] text-primary mb-6">Inquiries</h4>
+                        <p class="text-sm font-bold mb-2">Support: <a href="mailto:info@charlady.co.ke"
+                                class="text-primary hover:underline">info@charlady.co.ke</a></p>
+                        <p class="text-sm font-bold">WhatsApp: <a href="https://wa.me/254714042946"
+                                class="text-primary">+254 714 042946</a></p>
+                    </div>
                 </div>
             </div>
         </div>
     </footer>
+      </footer>
 
     <!-- Floating WhatsApp Button -->
     <a href="https://wa.me/254714042946" target="_blank" rel="noopener noreferrer"

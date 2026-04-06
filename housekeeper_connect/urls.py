@@ -15,7 +15,7 @@ urlpatterns = [
     path('notifications/', include(('notifications.urls', 'notifications'), namespace='notifications')),
     path('reviews/', include(('reviews.urls', 'reviews'), namespace='reviews')),
     path('contact-admin/', TemplateView.as_view(template_name='contact_admin.html'), name='contact_admin'),
-    path('payments/', include('payments.urls')),
+    path('payments/', include(('payments.urls', 'payments'), namespace='payments')),
     path('blog/', include('blog.urls')),
     path('courses/', include(('courses.urls', 'courses'), namespace='courses')),
     path('chat/', include(('chat.urls', 'chat'), namespace='chat')),
