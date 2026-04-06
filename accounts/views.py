@@ -66,7 +66,7 @@ def signup(request):
 def login(request):
     if request.user.is_authenticated:
         if request.user.user_type == 'househelp':
-            return redirect('/dashboard/housekeeper/')
+            return redirect('dashboard:housekeeper_dashboard')
         else:
             return redirect('/dashboard/employer/')
 
@@ -79,9 +79,9 @@ def login(request):
             if user.is_active:
                 auth_login(request, user)
                 if user.user_type == 'househelp':
-                    return redirect('/dashboard/housekeeper/')
+                    return redirect('dashboard:housekeeper_dashboard')
                 else:
-                    return redirect('/dashboard/employer/')
+                    return redirect('dashboard:employer_dashboard')
             else:
                 messages.error(request, 'Your account is not active.')
         else:
@@ -99,9 +99,9 @@ def logout(request):
 @login_required
 def profile(request):
     if request.user.user_type == 'househelp':
-        return redirect('/dashboard/housekeeper/')
+        return redirect('dashboard:housekeeper_dashboard')
     elif request.user.user_type == 'employer':
-        return redirect('/dashboard/employer/')
+        return redirect('dashboard:employer_dashboard')
     
     user_profile = request.user
 
@@ -142,7 +142,7 @@ def edit_profile(request):
         if form.is_valid():
             form.save()
             messages.success(request, "Profile updated successfully!")
-            return redirect('user_dashboard')  # FIX 4: was 'profile.html', must be URL name
+            return redirect('dashboard:user_dashboard')  # FIX 4: was 'profile.html', must be URL name
     else:
         form = CustomUserChangeForm(instance=request.user)
     return render(request, 'accounts/edit_profile.html', {'form': form})  # FIX 5: moved out of if block

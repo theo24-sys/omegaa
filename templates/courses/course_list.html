@@ -144,12 +144,12 @@
             <!-- Action Area -->
             <div class="pt-6 border-t border-slate-50">
                 {% if course.id in completed_courses %}
-                <a href="{% url 'course_detail' course.id %}" class="w-full bg-slate-950 text-white font-black py-5 px-6 rounded-3xl transition-all flex items-center justify-center gap-2 hover:bg-black">
+                <a href="{% url 'courses:course_detail' course.id %}" class="w-full bg-slate-950 text-white font-black py-5 px-6 rounded-3xl transition-all flex items-center justify-center gap-2 hover:bg-black">
                     <svg class="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
                     GRADUATED
                 </a>
                 {% else %}
-                <a href="{% url 'course_detail' course.id %}" 
+                <a href="{% url 'courses:course_detail' course.id %}" 
                    class="w-full premium-gradient text-white font-black py-5 px-6 rounded-3xl shadow-xl hover:shadow-2xl hover:scale-[1.02] transition-all flex items-center justify-center gap-3 group">
                     <span>START PATH</span>
                     <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>

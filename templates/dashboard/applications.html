@@ -38,7 +38,7 @@
                 <tr class="hover:bg-pink-50 transition duration-150">
                     <td class="px-6 py-4 whitespace-nowrap">
                         <div class="text-sm font-medium text-gray-900 line-clamp-1">
-                            <a href="{% url 'job_detail' app.job.pk %}" class="text-pink-600 hover:text-pink-800">
+                            <a href="{% url 'jobs:job_detail' app.job.pk %}" class="text-pink-600 hover:text-pink-800">
                                 {{ app.job.title }}
                             </a>
                         </div>

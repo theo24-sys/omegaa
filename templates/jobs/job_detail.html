@@ -6,7 +6,7 @@
 <div class="container mx-auto px-4 py-8 max-w-4xl">
     <!-- Back -->
     <div class="mb-6">
-        <a href="{% url 'job_list' %}" class="text-pink-600 hover:text-pink-800 font-medium flex items-center gap-2">
+        <a href="{% url 'jobs:job_list' %}" class="text-pink-600 hover:text-pink-800 font-medium flex items-center gap-2">
             ← Back to Jobs
         </a>
     </div>
@@ -40,7 +40,7 @@
                     </button>
                     {% elif user.user_type == 'househelp' %}
                     {% if user.documents_verified %}
-                    <a href="{% url 'job_apply' job.pk %}"
+                    <a href="{% url 'jobs:job_apply' job.pk %}"
                         class="bg-pink-600 hover:bg-pink-700 text-white font-bold py-3 px-8 rounded-xl transition focus:outline-none focus:ring-4 focus:ring-pink-300">
                         Apply Now
                     </a>
@@ -57,7 +57,7 @@
                     </button>
                     {% endif %}
                     {% else %}
-                    <a href="{% url 'login' %}?next={% url 'job_detail' job.pk %}"
+                    <a href="{% url 'login' %}?next={% url 'jobs:job_detail' job.pk %}"
                         class="bg-pink-600 hover:bg-pink-700 text-white font-bold py-3 px-8 rounded-xl transition">
                         Login to Apply
                     </a>

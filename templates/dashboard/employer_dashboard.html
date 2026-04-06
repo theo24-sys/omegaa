@@ -199,7 +199,7 @@
         </div>
 
         <!-- Quick Action Tiles -->
-        <a href="{% url 'job_create' %}"
+        <a href="{% url 'jobs:job_create' %}"
             class="theme-card rounded-[2rem] p-4 md:p-8 flex flex-col gap-4 text-gray-900 group relative overflow-hidden h-full">
             <div class="absolute top-0 right-0 p-4 text-primary/[0.05] group-hover:text-primary/[0.1] transition-colors">
                 <svg class="w-16 h-16 md:w-24 md:h-24" fill="currentColor" viewBox="0 0 24 24">
@@ -216,7 +216,7 @@
             </div>
         </a>
 
-        <a href="{% url 'my_jobs' %}"
+        <a href="{% url 'jobs:my_jobs' %}"
             class="theme-card rounded-[2rem] p-4 md:p-8 flex flex-col gap-4 text-gray-900 group relative overflow-hidden h-full">
             <div class="absolute top-0 right-0 p-4 text-primary/[0.05] group-hover:text-primary/[0.1] transition-colors">
                 <svg class="w-16 h-16 md:w-24 md:h-24" fill="currentColor" viewBox="0 0 24 24">
@@ -233,7 +233,7 @@
             </div>
         </a>
 
-        <a href="{% url 'my_applications' %}"
+        <a href="{% url 'jobs:my_applications' %}"
             class="theme-card rounded-[2rem] p-4 md:p-8 flex flex-col gap-4 text-gray-900 group relative overflow-hidden h-full">
             <div class="absolute top-0 right-0 p-4 text-primary/[0.05] group-hover:text-primary/[0.1] transition-colors">
                 <svg class="w-16 h-16 md:w-24 md:h-24" fill="currentColor" viewBox="0 0 24 24">
@@ -310,7 +310,7 @@
                     <h2 class="text-2xl font-bold text-gray-900">Recent Listings</h2>
                     <p class="text-sm text-gray-500 font-medium uppercase tracking-widest mt-1">Live Management</p>
                 </div>
-                <a href="{% url 'my_jobs' %}"
+                <a href="{% url 'jobs:my_jobs' %}"
                     class="text-primary font-bold hover:text-pink-600 transition flex items-center gap-1 group">
                     Full Archive
                     <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none"
@@ -328,7 +328,7 @@
                     <div class="flex justify-between items-start gap-4">
                         <div class="space-y-2">
                             <h3 class="text-xl font-bold text-gray-900 group-hover:text-primary transition-colors">
-                                <a href="{% url 'job_detail' job.pk %}">{{ job.title }}</a>
+                                <a href="{% url 'jobs:job_detail' job.pk %}">{{ job.title }}</a>
                             </h3>
                             <div class="flex items-center gap-3">
                                 <span
@@ -354,7 +354,7 @@
                 {% else %}
                 <div class="p-10 rounded-3xl bg-gray-50 border-2 border-dashed border-gray-200 text-center space-y-4">
                     <p class="text-gray-500 font-medium">Your portfolio is currently empty.</p>
-                    <a href="{% url 'job_create' %}"
+                    <a href="{% url 'jobs:job_create' %}"
                         class="inline-flex items-center gap-2 text-primary font-bold group">
                         Launch Your First Listing
                         <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none"
@@ -374,7 +374,7 @@
                     <h2 class="text-2xl font-bold text-gray-900">Talent Queue</h2>
                     <p class="text-sm text-gray-500 font-medium uppercase tracking-widest mt-1">Pending Review</p>
                 </div>
-                <a href="{% url 'my_applications' %}"
+                <a href="{% url 'jobs:my_applications' %}"
                     class="text-primary font-bold hover:text-pink-600 transition flex items-center gap-1 group">
                     Review All
                     <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none"

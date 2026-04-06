@@ -100,9 +100,9 @@ def dashboard_stats(request):
 @login_required
 def user_dashboard(request):
     if request.user.user_type == 'househelp':
-        return redirect('housekeeper_dashboard')
+        return redirect('dashboard:housekeeper_dashboard')
     elif request.user.user_type == 'employer':
-        return redirect('employer_dashboard')
+        return redirect('dashboard:employer_dashboard')
     messages.error(request, "Invalid user type.")
     return redirect('home')
 

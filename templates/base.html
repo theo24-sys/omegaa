@@ -136,9 +136,9 @@
 
             <!-- Desktop Nav -->
             <div class="hidden md:flex items-center space-x-8">
-                <a href="{% url 'job_list' %}" class="hover:text-pink-100 transition font-medium">Browse Jobs</a>
+                <a href="{% url 'jobs:job_list' %}" class="hover:text-pink-100 transition font-medium">Browse Jobs</a>
                 {% if user.is_authenticated and user.user_type == 'househelp' %}
-                <a href="{% url 'course_list' %}" class="hover:text-pink-100 transition font-medium">Training</a>
+                <a href="{% url 'courses:course_list' %}" class="hover:text-pink-100 transition font-medium">Training</a>
                 {% endif %}
                 <a href="{% url 'blog_home' %}" class="hover:text-pink-100 transition font-medium">Blog</a>
 
@@ -201,16 +201,16 @@
                                    invisible opacity-0 transform transition ease-out duration-150
                                    group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100">
                             {% if user.user_type == 'employer' %}
-                            <a href="{% url 'job_create' %}" class="block px-5 py-3 hover:bg-pink-50 text-gray-800">Post
+                            <a href="{% url 'jobs:job_create' %}" class="block px-5 py-3 hover:bg-pink-50 text-gray-800">Post
                                 a Job</a>
-                            <a href="{% url 'my_jobs' %}" class="block px-5 py-3 hover:bg-pink-50 text-gray-800">My
+                            <a href="{% url 'jobs:my_jobs' %}" class="block px-5 py-3 hover:bg-pink-50 text-gray-800">My
                                 Jobs</a>
                             {% endif %}
-                            <a href="{% url 'my_applications' %}"
+                            <a href="{% url 'jobs:my_applications' %}"
                                 class="block px-5 py-3 hover:bg-pink-50 text-gray-800">
                                 {% if user.user_type == 'employer' %}Applications{% else %}My Applications{% endif %}
                             </a>
-                            <a href="{% url 'user_dashboard' %}"
+                            <a href="{% url 'dashboard:user_dashboard' %}"
                                 class="block px-5 py-3 hover:bg-pink-50 text-gray-800">My Dashboard</a>
                             <a href="{% url 'contact_admin' %}"
                                 class="block px-5 py-3 hover:bg-pink-50 text-gray-800">Contact Admin</a>
@@ -242,16 +242,16 @@
         <!-- Mobile Menu Container -->
         <div id="mobile-menu" class="hidden md:hidden bg-dark border-t border-white/10 animate-fade-in-down">
             <div class="px-4 pt-2 pb-6 space-y-2">
-                <a href="{% url 'job_list' %}" class="block px-4 py-3 rounded-xl hover:bg-white/10 transition font-medium">Browse Jobs</a>
+                <a href="{% url 'jobs:job_list' %}" class="block px-4 py-3 rounded-xl hover:bg-white/10 transition font-medium">Browse Jobs</a>
                 {% if user.is_authenticated and user.user_type == 'househelp' %}
-                <a href="{% url 'course_list' %}" class="block px-4 py-3 rounded-xl hover:bg-white/10 transition font-medium">Training</a>
+                <a href="{% url 'courses:course_list' %}" class="block px-4 py-3 rounded-xl hover:bg-white/10 transition font-medium">Training</a>
                 {% endif %}
                 <a href="{% url 'blog_home' %}" class="block px-4 py-3 rounded-xl hover:bg-white/10 transition font-medium">Blog</a>
                 
                 {% if user.is_authenticated %}
                 <div class="border-t border-white/10 my-4 pt-4">
                     <p class="px-4 text-xs font-bold uppercase tracking-widest text-pink-300 mb-2">My Account</p>
-                    <a href="{% url 'user_dashboard' %}" class="block px-4 py-3 rounded-xl hover:bg-white/10 transition font-medium">Dashboard</a>
+                    <a href="{% url 'dashboard:user_dashboard' %}" class="block px-4 py-3 rounded-xl hover:bg-white/10 transition font-medium">Dashboard</a>
                     <a href="{% url 'notifications:notification_list' %}" class="block px-4 py-3 rounded-xl hover:bg-white/10 transition font-medium flex items-center justify-between">
                         <span>Notifications</span>
                         {% if unread_count > 0 %}<span class="bg-red-500 text-[10px] px-2 py-0.5 rounded-full">{{ unread_count }}</span>{% endif %}
@@ -321,7 +321,7 @@
                     <h4 class="text-lg font-semibold mb-5">Quick Links</h4>
                     <ul class="space-y-3 text-sm">
                         <li><a href="{% url 'home' %}" class="hover:text-secondary transition">Home</a></li>
-                        <li><a href="{% url 'job_list' %}" class="hover:text-secondary transition">Browse Jobs</a></li>
+                        <li><a href="{% url 'jobs:job_list' %}" class="hover:text-secondary transition">Browse Jobs</a></li>
                         {% if user.is_authenticated and user.user_type == 'employer' %}
                         <li><a href="{% url 'job_create' %}" class="hover:text-secondary transition">Post a Job</a></li>
                         {% endif %}

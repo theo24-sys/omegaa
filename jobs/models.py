@@ -91,7 +91,7 @@ class Job(models.Model):
         return self.title
 
     def get_absolute_url(self):
-        return reverse('job_detail', args=[self.pk])
+        return reverse('jobs:job_detail', args=[self.pk])
 
     def get_location_display(self):
         return f"{self.location}, {self.city}" if self.location and self.city else self.city or "Not specified"

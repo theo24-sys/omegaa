@@ -35,12 +35,12 @@ def chat_detail(request, session_id):
                 msg_count = ChatMessage.objects.filter(sender=request.user).count()
                 if msg_count >= 5:
                     messages.warning(request, "You have reached your Free Plan limit. Please upgrade to Standard or Gold to continue chatting seamlessly!")
-                    return redirect('payment_plans')
+                    return redirect('payments:payment_plans')
             
             ChatMessage.objects.create(session=session, sender=request.user, text=text)
             session.updated_at = timezone.now()
             session.save()
-            return redirect('chat_detail', session_id=session.id)
+            return redirect('chat:chat_detail', session_id=session.id)
             
     is_gold = False
     is_standard = False
@@ -75,7 +75,7 @@ def video_interview(request, session_id):
         # If user is employer and not verified, block them
         if request.user.user_type == 'employer' and not is_gold and not is_standard:
             messages.warning(request, "Video Interviewing is a premium feature. Upgrade to Standard or Gold to start interviewing today!")
-            return redirect('payment_plans')
+            return redirect('payments:payment_plans')
     else:
         is_gold = True # Admins get gold access
 
@@ -147,9 +147,9 @@ def start_chat(request, user_id):
             total_sessions = ChatSession.objects.filter(participants=request.user).count()
             if total_sessions >= 2:
                 messages.warning(request, "Free Plan Restriction: You can only start 2 conversations. Please upgrade to securely message more professionals.")
-                return redirect('payment_plans')
+                return redirect('payments:payment_plans')
                 
         session = ChatSession.objects.create()
         session.participants.add(request.user, target_user)
         
-    return redirect('chat_detail', session_id=session.id)
+    return redirect('chat:chat_detail', session_id=session.id)

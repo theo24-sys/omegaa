@@ -57,7 +57,7 @@ def job_detail(request, pk):
 def job_create(request):
     if request.user.user_type != 'employer':
         messages.error(request, 'Only employers can post jobs.')
-        return redirect('job_list')
+        return redirect('jobs:job_list')
 
     if request.method == 'POST':
         form = JobForm(request.POST)
@@ -76,7 +76,7 @@ def job_create(request):
             else:
                 messages.warning(request, 'Please pay KSh 200 to Till 4567052 and enter M-Pesa code to activate your job.')
 
-            return redirect('my_jobs')
+            return redirect('jobs:my_jobs')
     else:
         form = JobForm()
 
@@ -88,14 +88,14 @@ def job_edit(request, pk):
     job = get_object_or_404(Job, pk=pk)
     if request.user != job.employer:
         messages.error(request, 'You can only edit your own jobs.')
-        return redirect('job_detail', pk=pk)
+        return redirect('jobs:job_detail', pk=pk)
 
     if request.method == 'POST':
         form = JobForm(request.POST, instance=job)
         if form.is_valid():
             form.save()
             messages.success(request, 'Job updated successfully.')
-            return redirect('job_detail', pk=pk)
+            return redirect('jobs:job_detail', pk=pk)
     else:
         form = JobForm(instance=job)
 
@@ -107,12 +107,12 @@ def job_delete(request, pk):
     job = get_object_or_404(Job, pk=pk)
     if request.user != job.employer:
         messages.error(request, 'You can only delete your own jobs.')
-        return redirect('job_detail', pk=pk)
+        return redirect('jobs:job_detail', pk=pk)
 
     if request.method == 'POST':
         job.delete()
         messages.success(request, 'Job deleted.')
-        return redirect('my_jobs')
+        return redirect('jobs:my_jobs')
 
     return render(request, 'jobs/job_confirm_delete.html', {'job': job})
 
@@ -123,7 +123,7 @@ def job_apply(request, pk):
 
     if request.user.user_type != 'househelp':
         messages.error(request, 'Only housekeepers can apply.')
-        return redirect('job_detail', pk=pk)
+        return redirect('jobs:job_detail', pk=pk)
 
     if not request.user.can_apply_for_jobs():
         messages.warning(
@@ -134,7 +134,7 @@ def job_apply(request, pk):
 
     if Application.objects.filter(job=job, applicant=request.user).exists():
         messages.info(request, 'You already applied for this job.')
-        return redirect('job_detail', pk=pk)
+        return redirect('jobs:job_detail', pk=pk)
 
     if request.method == 'POST':
         form = ApplicationForm(request.POST, request.FILES)
@@ -154,7 +154,7 @@ def job_apply(request, pk):
             )
 
             messages.success(request, 'Application submitted!')
-            return redirect('my_applications')
+            return redirect('jobs:my_applications')
     else:
         form = ApplicationForm()
 
@@ -165,7 +165,7 @@ def job_apply(request, pk):
 def my_jobs(request):
     if request.user.user_type != 'employer':
         messages.error(request, 'Only employers can view this page.')
-        return redirect('job_list')
+        return redirect('jobs:job_list')
 
     jobs = Job.objects.filter(employer=request.user).order_by('-created_at')
     return render(request, 'jobs/my_jobs.html', {'jobs': jobs})
@@ -187,7 +187,7 @@ def update_application_status(request, pk):
 
     if request.user != application.job.employer:
         messages.error(request, 'You can only update applications for your jobs.')
-        return redirect('my_applications')
+        return redirect('jobs:my_applications')
 
     if request.method == 'POST':
         new_status = request.POST.get('status')
@@ -209,4 +209,4 @@ def update_application_status(request, pk):
         else:
             messages.error(request, 'Invalid status.')
 
-    return redirect('my_applications')
+    return redirect('jobs:my_applications')

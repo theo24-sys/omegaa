@@ -29,7 +29,7 @@
 <div class="max-w-5xl mx-auto py-8 px-4">
     <div class="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-            <a href="{% url 'course_list' %}"
+            <a href="{% url 'courses:course_list' %}"
                 class="text-primary hover:text-pink-600 font-bold flex items-center gap-2 mb-2 transition">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -149,13 +149,13 @@
             }
         </script>
         {% elif course.questions.exists %}
-        <a href="{% url 'course_quiz' course.id %}"
+        <a href="{% url 'courses:course_quiz' course.id %}"
             class="bg-primary hover:bg-pink-600 text-white font-black px-12 py-5 rounded-[2.5rem] shadow-2xl transition transform hover:-translate-y-1 flex items-center gap-3 text-sm tracking-widest uppercase">
             TAKE FINAL EXAMINATION
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
         </a>
         {% else %}
-        <form action="{% url 'complete_course' course.id %}" method="post">
+        <form action="{% url 'courses:complete_course' course.id %}" method="post">
             {% csrf_token %}
             <button type="submit"
                 class="bg-primary hover:bg-pink-600 text-white font-black px-12 py-5 rounded-[2.5rem] shadow-2xl transition transform hover:-translate-y-1 flex items-center gap-2 text-sm tracking-widest uppercase">
@@ -207,7 +207,7 @@
                 <h3 class="text-2xl font-black text-gray-900 mb-8 tracking-tight">Curriculum Overview</h3>
                 <div class="grid gap-4">
                     {% for lesson in lessons %}
-                    <a href="{% url 'lesson_detail' course.id lesson.id %}"
+                    <a href="{% url 'courses:lesson_detail' course.id lesson.id %}"
                         class="flex items-center p-6 rounded-[2rem] border border-gray-100 hover:border-primary hover:bg-pink-50 transition-all group">
                         <div
                             class="w-12 h-12 rounded-2xl bg-pink-50 text-primary flex items-center justify-center font-black mr-6 group-hover:bg-primary group-hover:text-white transition-colors">

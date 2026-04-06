@@ -60,7 +60,7 @@
 
             <!-- Call to Action Buttons -->
             <div class="flex flex-col sm:flex-row justify-center gap-5">
-                <a href="{% url 'payment_history' %}"
+                <a href="{% url 'payments:payment_history' %}"
                     class="bg-pink-100 hover:bg-pink-200 text-pink-700 font-bold py-4 px-10 rounded-xl transition text-lg">
                     View Payment History
                 </a>
@@ -74,7 +74,7 @@
             {% if payment.plan.plan_type == 'job_boost' %}
             <p class="text-center text-gray-600 mt-10">
                 Your job postings are now boosted! Check your listings →
-                <a href="{% url 'my_jobs' %}" class="text-pink-600 hover:text-pink-800 font-medium">My Jobs</a>
+                <a href="{% url 'jobs:my_jobs' %}" class="text-pink-600 hover:text-pink-800 font-medium">My Jobs</a>
             </p>
             {% endif %}
         </div>

@@ -64,7 +64,7 @@
                     </div>
                 </div>
 
-                <a href="{% url 'employer_dashboard' %}" class="w-full block text-center bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold py-4 rounded-2xl transition">
+                <a href="{% url 'dashboard:employer_dashboard' %}" class="w-full block text-center bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold py-4 rounded-2xl transition">
                     Try Charlady
                 </a>
             </div>
@@ -121,7 +121,7 @@
                     </div>
                 </div>
 
-                <a href="{% if standard_plan %}{% url 'checkout' standard_plan.id %}{% else %}#{% endif %}" class="w-full block text-center bg-white hover:bg-slate-50 text-primary font-black py-4 rounded-2xl transition shadow-[0_0_20px_rgba(255,255,255,0.2)] hover:shadow-[0_0_25px_rgba(255,255,255,0.4)]">
+                <a href="{% if standard_plan %}{% url 'payments:checkout' standard_plan.id %}{% else %}#{% endif %}" class="w-full block text-center bg-white hover:bg-slate-50 text-primary font-black py-4 rounded-2xl transition shadow-[0_0_20px_rgba(255,255,255,0.2)] hover:shadow-[0_0_25px_rgba(255,255,255,0.4)]">
                     Choose Standard
                 </a>
             </div>
@@ -176,7 +176,7 @@
                     </div>
                 </div>
 
-                <a href="{% if pro_plan %}{% url 'checkout' pro_plan.id %}{% else %}#{% endif %}" class="relative z-10 w-full block text-center bg-yellow-950 hover:bg-black text-yellow-400 font-black py-4 rounded-2xl transition ring-4 ring-yellow-950/20 hover:ring-black/40 shadow-xl">
+                <a href="{% if pro_plan %}{% url 'payments:checkout' pro_plan.id %}{% else %}#{% endif %}" class="relative z-10 w-full block text-center bg-yellow-950 hover:bg-black text-yellow-400 font-black py-4 rounded-2xl transition ring-4 ring-yellow-950/20 hover:ring-black/40 shadow-xl">
                     Hire Faster 🚀
                 </a>
             </div>

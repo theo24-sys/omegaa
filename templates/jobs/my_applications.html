@@ -36,7 +36,7 @@
                     {% for app in applications %}
                     <tr class="hover:bg-pink-50 transition">
                         <td class="px-6 py-4">
-                            <a href="{% url 'job_detail' app.job.pk %}"
+                            <a href="{% url 'jobs:job_detail' app.job.pk %}"
                                 class="text-pink-600 hover:text-pink-800 font-medium">
                                 {{ app.job.title }}
                             </a>
@@ -85,7 +85,7 @@
                         </td>
                         {% if request.user.user_type == 'employer' %}
                         <td class="px-6 py-4">
-                            <form method="post" action="{% url 'update_application_status' app.pk %}"
+                            <form method="post" action="{% url 'jobs:update_application_status' app.pk %}"
                                 class="flex items-center gap-2">
                                 {% csrf_token %}
                                 <select name="status"
@@ -118,7 +118,7 @@
             You haven't applied to any jobs yet.
             {% endif %}
         </p>
-        <a href="{% url 'job_list' %}" class="text-pink-600 hover:text-pink-800 font-medium">
+        <a href="{% url 'jobs:job_list' %}" class="text-pink-600 hover:text-pink-800 font-medium">
             Browse available jobs →
         </a>
     </div>

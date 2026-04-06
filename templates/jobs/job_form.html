@@ -34,12 +34,12 @@
             <!-- Buttons -->
             <div class="flex flex-col sm:flex-row gap-4 justify-end pt-6">
                 {% if request.user.user_type == 'employer' %}
-                <a href="{% url 'my_jobs' %}"
+                <a href="{% url 'jobs:my_jobs' %}"
                     class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-3 px-8 rounded-xl transition text-center">
                     Cancel
                 </a>
                 {% else %}
-                <a href="{% url 'job_list' %}"
+                <a href="{% url 'jobs:job_list' %}"
                     class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-3 px-8 rounded-xl transition text-center">
                     Cancel
                 </a>

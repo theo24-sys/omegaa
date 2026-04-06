@@ -18,7 +18,7 @@
 
         <form method="post" class="flex flex-col sm:flex-row gap-4 justify-center">
             {% csrf_token %}
-            <a href="{% url 'job_detail' job.pk %}"
+            <a href="{% url 'jobs:job_detail' job.pk %}"
                 class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-3 px-8 rounded-xl transition">
                 Cancel
             </a>

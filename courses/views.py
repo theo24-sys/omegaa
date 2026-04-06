@@ -41,7 +41,7 @@ def course_detail(request, course_id):
 
     if not has_access:
         messages.info(request, f"Review the details for {course.title}. Payment is required to access lessons and earn certifications.")
-        return redirect('course_list') # Redirect to list where they can see the bundle offer
+        return redirect('courses:course_list') # Redirect to list where they can see the bundle offer
 
     completed_courses = CourseCompletion.objects.filter(user=request.user).values_list('course_id', flat=True)
     completed_lessons = LessonCompletion.objects.filter(user=request.user, lesson__course=course).values_list('lesson_id', flat=True)
@@ -74,14 +74,14 @@ def lesson_detail(request, course_id, lesson_id):
 
     if not has_access:
         messages.warning(request, f"Access denied. Please purchase the {course.title} course or the Academy Bundle.")
-        return redirect('course_list')
+        return redirect('courses:course_list')
 
     # Sequential Unlocking Check
     previous_lessons = lessons.filter(order__lt=lesson.order).order_by('order')
     for prev in previous_lessons:
         if not LessonCompletion.objects.filter(user=request.user, lesson=prev).exists():
             messages.info(request, f"Please complete '{prev.title}' before moving to this lesson.")
-            return redirect('lesson_detail', course_id=course.id, lesson_id=prev.id)
+            return redirect('courses:lesson_detail', course_id=course.id, lesson_id=prev.id)
 
     # Check if quiz exists for THIS lesson
     lesson_quiz_done = False
@@ -147,16 +147,16 @@ def course_quiz(request, course_id, lesson_id=None):
                 # Automatically find the next lesson
                 next_lesson = course.lessons.filter(order__gt=lesson.order).order_by('order').first()
                 if next_lesson:
-                    return redirect('lesson_detail', course_id=course.id, lesson_id=next_lesson.id)
+                    return redirect('courses:lesson_detail', course_id=course.id, lesson_id=next_lesson.id)
                 else:
-                    return redirect('course_detail', course_id=course.id)
+                    return redirect('courses:course_detail', course_id=course.id)
             else:
-                return redirect('complete_course', course_id=course.id)
+                return redirect('courses:complete_course', course_id=course.id)
         else:
             messages.error(request, f"Score: {score}/{total} ({(score/total)*100:.0f}%). You need 80% to pass. Review & Retry!")
             if lesson:
-                return redirect('lesson_detail', course_id=course.id, lesson_id=lesson.id)
-            return redirect('course_detail', course_id=course.id)
+                return redirect('courses:lesson_detail', course_id=course.id, lesson_id=lesson.id)
+            return redirect('courses:course_detail', course_id=course.id)
             
     context = {
         'course': course,
@@ -191,4 +191,4 @@ def complete_course(request, course_id):
         user.save()
         messages.success(request, f"Excellent! You've earned the {course.title} badge.")
     
-    return redirect('course_list')
+    return redirect('courses:course_list')
