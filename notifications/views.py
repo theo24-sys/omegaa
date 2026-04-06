@@ -26,7 +26,7 @@ def mark_as_read(request, notification_id):
             'message': 'Marked as read'
         })
     
-    return redirect('notification_list')
+    return redirect('notifications:notification_list')
 
 @login_required
 def mark_all_as_read(request):
@@ -38,7 +38,7 @@ def mark_all_as_read(request):
             'message': 'All notifications marked as read'
         })
     
-    return redirect('notification_list')
+    return redirect('notifications:notification_list')
 
 @login_required
 def unread_count_badge(request):
