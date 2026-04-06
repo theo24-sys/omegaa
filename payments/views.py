@@ -8,12 +8,20 @@ from notifications.utils import create_notification
 
 @login_required
 def payment_plans(request):
-    standard_plan = PaymentPlan.objects.filter(price=300, is_active=True).first()
-    pro_plan = PaymentPlan.objects.filter(price=1000, is_active=True).first()
-    return render(request, 'payments/plans.html', {
-        'standard_plan': standard_plan,
-        'pro_plan': pro_plan
-    })
+    user_type = getattr(request.user, 'user_type', 'employer')
+    
+    if user_type == 'househelp':
+        worker_plan = PaymentPlan.objects.filter(target_group='worker', is_active=True).first()
+        return render(request, 'payments/worker_plans.html', {
+            'plan': worker_plan
+        })
+    else:
+        standard_plan = PaymentPlan.objects.filter(target_group='employer', price=300, is_active=True).first()
+        pro_plan = PaymentPlan.objects.filter(target_group='employer', price=1000, is_active=True).first()
+        return render(request, 'payments/plans.html', {
+            'standard_plan': standard_plan,
+            'pro_plan': pro_plan
+        })
 
 
 @login_required

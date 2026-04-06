@@ -3,11 +3,11 @@
 {% block title %}Chat with {{ other_user.username }} | Charlady{% endblock %}
 
 {% block content %}
-<div class="bg-slate-50 min-h-screen pb-20 pt-6">
-    <div class="max-w-3xl mx-auto px-4 h-[80vh] flex flex-col pt-16">
+<div class="bg-slate-50 min-h-screen flex flex-col">
+    <div class="max-w-3xl mx-auto w-full flex-grow flex flex-col h-screen md:h-[85vh] md:mt-10 overflow-hidden shadow-2xl md:rounded-[2rem] border border-slate-200">
         
         <!-- Header -->
-        <div class="bg-white rounded-t-3xl border-b border-slate-100 p-4 flex items-center gap-4 shadow-sm z-10 sticky top-16 md:top-[80px]">
+        <div class="bg-white/95 backdrop-blur-md border-b border-slate-100 p-3 md:p-4 flex items-center gap-3 md:gap-4 shadow-sm z-30">
             <a href="{% url 'inbox' %}" class="w-10 h-10 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-500 transition">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
             </a>
@@ -66,7 +66,7 @@
 
             {% for msg in chat_messages %}
                 <div class="flex flex-col {% if msg.sender == request.user %}items-end{% else %}items-start{% endif %}">
-                    <div class="max-w-[80%] {% if msg.sender == request.user %}bg-[#dcf8c6] rounded-t-2xl rounded-bl-2xl rounded-br-sm shadow-sm{% else %}bg-white rounded-t-2xl rounded-br-2xl rounded-bl-sm shadow-sm{% endif %} p-3 relative group">
+                    <div class="max-w-[88%] md:max-w-[75%] {% if msg.sender == request.user %}bg-[#dcf8c6] rounded-t-2xl rounded-bl-2xl rounded-br-sm shadow-sm{% else %}bg-white rounded-t-2xl rounded-br-2xl rounded-bl-sm shadow-sm{% endif %} p-3 relative group">
                         
                         <!-- Pro message indicator if sender is pro -->
                         {% if msg.sender.is_verified and msg.sender.user_type == 'employer' and msg.sender != request.user %}
@@ -90,13 +90,13 @@
         </div>
 
         <!-- Compose Box -->
-        <div class="bg-[#f0f2f5] p-3 rounded-b-3xl border-t border-slate-200">
-            <form method="post" class="flex gap-2 items-end max-w-full">
+        <div class="bg-white p-3 md:p-4 border-t border-slate-100 shadow-[0_-4px_10px_rgba(0,0,0,0.03)]">
+            <form method="post" class="flex gap-2 items-center">
                 {% csrf_token %}
-                <textarea name="text" rows="1" required placeholder="Type your message..." id="messageInput"
-                    class="flex-grow resize-none rounded-2xl border-none focus:ring-0 py-3 px-5 text-[15px] max-h-32 shadow-sm"></textarea>
-                <button type="submit" class="w-12 h-12 flex-shrink-0 bg-green-500 hover:bg-green-600 rounded-full flex items-center justify-center text-white shadow-md transition transform active:scale-95">
-                    <svg class="w-5 h-5 ml-1" fill="currentColor" viewBox="0 0 20 20"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"></path></svg>
+                <textarea name="text" rows="1" required placeholder="Type a message..." id="messageInput"
+                    class="flex-grow resize-none rounded-2xl border border-slate-200 focus:border-primary focus:ring-1 focus:ring-primary/20 py-3 px-5 text-[15px] max-h-32 transition-all"></textarea>
+                <button type="submit" class="w-12 h-12 flex-shrink-0 bg-primary hover:bg-pink-600 rounded-full flex items-center justify-center text-white shadow-lg transition transform active:scale-90">
+                    <svg class="w-5 h-5 translate-x-0.5" fill="currentColor" viewBox="0 0 20 20"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"></path></svg>
                 </button>
             </form>
         </div>

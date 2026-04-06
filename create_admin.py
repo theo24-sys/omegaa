@@ -18,7 +18,8 @@ standard_plan, s_created = PaymentPlan.objects.get_or_create(
         'plan_type': 'verification',
         'description': 'Verified status, discounted job posts, and 15-minute HD video interviews with workers.',
         'duration_days': 30,
-        'is_active': True
+        'is_active': True,
+        'target_group': 'employer'
     }
 )
 if s_created:
@@ -34,7 +35,8 @@ pro_plan, p_created = PaymentPlan.objects.get_or_create(
         'plan_type': 'verification',
         'description': 'Unlimited job postings, priority matching, and unlimited HD video interviewing with all talent.',
         'duration_days': 30,
-        'is_active': True
+        'is_active': True,
+        'target_group': 'employer'
     }
 )
 if p_created:
@@ -42,6 +44,24 @@ if p_created:
 else:
     # Update existing Pro plan to Gold branding
     pro_plan.name = "Gold Plan"
+    pro_plan.target_group = "employer"
     pro_plan.description = "Unlimited job postings, priority matching, and unlimited HD video interviewing with all talent."
     pro_plan.save()
     print("Gold Plan (1000 KES) branding updated.")
+
+# 4. Create the Worker Verification Plan (300 KES)
+worker_plan, w_created = PaymentPlan.objects.get_or_create(
+    price=300,
+    target_group='worker',
+    defaults={
+        'name': 'Worker Verification',
+        'plan_type': 'verification',
+        'description': 'Get the "Verified" badge, unlimited job applications, and priority profile placement.',
+        'duration_days': 365, # Workers get a year for 300
+        'is_active': True
+    }
+)
+if w_created:
+    print("Worker Verification Plan (300 KES) created successfully!")
+else:
+    print("Worker Verification Plan already exists.")

@@ -89,12 +89,12 @@
                                     <div class="{{ field.css_class }}">
                                         {% for subfield in field.fields %}
                                             <div class="{{ subfield.css_class }}">
-                                                {{ form|crispy_field:subfield }}
+                                                {% crispy_field subfield %}
                                             </div>
                                         {% endfor %}
                                     </div>
                                 {% else %}
-                                    {{ form|crispy_field:field }}
+                                    {% crispy_field field %}
                                 {% endif %}
                             {% endfor %}
                         </div>

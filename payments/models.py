@@ -9,10 +9,16 @@ class PaymentPlan(models.Model):
         ('featured_listing', 'Featured Listing'),
         ('verification', 'Account Verification'),
     )
+    
+    TARGET_GROUP_CHOICES = (
+        ('employer', 'Employer'),
+        ('worker', 'Worker'),
+    )
 
     name = models.CharField(max_length=100)
     plan_type = models.CharField(max_length=50, choices=PLAN_TYPE_CHOICES)
     description = models.TextField()
+    target_group = models.CharField(max_length=20, choices=TARGET_GROUP_CHOICES, default='employer')
     price = models.DecimalField(max_digits=10, decimal_places=2)
     duration_days = models.PositiveIntegerField(default=30)
     is_active = models.BooleanField(default=True)
