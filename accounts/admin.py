@@ -44,6 +44,30 @@ class CustomUserAdmin(UserAdmin):
         ('Important dates', {'fields': ('last_login', 'date_joined')}),
     )
 
+    def get_fieldsets(self, request, obj=None):
+        fieldsets = super().get_fieldsets(request, obj)
+        if obj and obj.user_type != 'househelp':
+            # Remove 'Worker Documents' and filter 'Verification & Badges'
+            new_fieldsets = []
+            for title, info in fieldsets:
+                if title == 'Worker Documents':
+                    continue
+                if title == 'Verification & Badges':
+                    # Only keep is_verified and mpesa_code for Employers
+                    info['fields'] = ('is_verified', 'mpesa_code')
+                new_fieldsets.append((title, info))
+            return tuple(new_fieldsets)
+        return fieldsets
+
+    def get_readonly_fields(self, request, obj=None):
+        readonly_fields = list(self.readonly_fields)
+        if obj and obj.user_type != 'househelp':
+            # Remove previews for Employers (since they don't have these docs)
+            for f in ('id_document_preview', 'agreement_form_preview', 'police_clearance_preview', 'documents_verified_at'):
+                if f in readonly_fields:
+                    readonly_fields.remove(f)
+        return tuple(readonly_fields)
+
     readonly_fields = [
         'id_document_preview', 'agreement_form_preview', 'police_clearance_preview', 'documents_verified_at'
     ]

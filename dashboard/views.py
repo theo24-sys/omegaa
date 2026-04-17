@@ -8,6 +8,8 @@ from payments.models import Payment, PaymentPlan
 from reviews.models import Review
 from django.db import models
 from courses.models import Course, CourseCompletion
+from payments.models import MonthlyContribution
+from accounts.models import PlatformDocument
 
 def is_admin(user):
     return user.is_authenticated and user.is_staff
@@ -135,13 +137,9 @@ def housekeeper_dashboard(request):
         ).exclude(id__in=completed_course_ids)
     study_tracker_courses = accessible_courses.order_by('-is_mandatory')[:3]
 
-from payments.models import Payment, PaymentPlan, MonthlyContribution
-...
     # Monthly Contribution logic
     pending_contribution = MonthlyContribution.objects.filter(worker=request.user, payment_status='pending').order_by('-year', '-month').first()
 
-from accounts.models import CustomUser, PlatformDocument
-...
     # Agreements / Templates
     agreement_template = PlatformDocument.objects.filter(doc_type='worker_agreement', is_active=True).first()
 
