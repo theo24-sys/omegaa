@@ -201,11 +201,11 @@ X_FRAME_OPTIONS = 'DENY'
 MPESA_TILL_NUMBER = os.getenv('MPESA_TILL_NUMBER', '4567052')
 
 # API Credentials (Must be set in Render environment variables)
-MPESA_CONSUMER_KEY = os.getenv('MPESA_CONSUMER_KEY', '')
-MPESA_CONSUMER_SECRET = os.getenv('MPESA_CONSUMER_SECRET', '')
-MPESA_PASSKEY = os.getenv('MPESA_PASSKEY', '')
-MPESA_SHORT_CODE = os.getenv('MPESA_SHORT_CODE', '4567052')
-MPESA_ENVIRONMENT = os.getenv('MPESA_ENVIRONMENT', 'sandbox')  # 'sandbox' or 'production'
+MPESA_CONSUMER_KEY = os.getenv('MPESA_CONSUMER_KEY', 'DU68PrjYY2nEYvXA5Eq2GyoL4c/LQwN8I8X01aGyRQp6zGjD')
+MPESA_CONSUMER_SECRET = os.getenv('MPESA_CONSUMER_SECRET', 'DQgo6uTI5kL0PYZ5abUQFmmqD2Eg0UfO6CmdNFgZdFnGvxAGAN5Z39ICS1lgNGH2')
+MPESA_PASSKEY = os.getenv('MPESA_PASSKEY', '6ed3f4//105fa046ddaad0460343ea84f7b069dd3080a19ceaab98c37a280c53')
+MPESA_SHORT_CODE = os.getenv('MPESA_SHORT_CODE', '4564139')
+MPESA_ENVIRONMENT = os.getenv('MPESA_ENVIRONMENT', 'production')  # Use production based on screenshot
 MPESA_TRANSACTION_TYPE = os.getenv('MPESA_TRANSACTION_TYPE', 'CustomerBuyGoodsOnline')  # 'CustomerPayBillOnline' or 'CustomerBuyGoodsOnline'
 
 # Callback URL for Safaricom to send payment results
