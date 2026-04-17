@@ -13,6 +13,7 @@ admin_phone = "+254700111222"
 admin_user, created = CustomUser.objects.get_or_create(
     phone_number=admin_phone,
     defaults={
+        'username': admin_phone,
         'first_name': 'System',
         'last_name': 'Admin',
         'email': 'admin@charlady.co.ke',

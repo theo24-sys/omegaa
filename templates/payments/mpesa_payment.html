@@ -88,43 +88,62 @@
 </div>
 
 <script>
+    // Polling function to check payment status
+    function startPolling(paymentId) {
+        const pollInterval = setInterval(async () => {
+            try {
+                const response = await fetch(`/payments/status/${paymentId}/`);
+                const data = await response.json();
+                
+                if (data.is_completed) {
+                    clearInterval(pollInterval);
+                    // Redirect to success/verification page
+                    window.location.href = `/payments/verification-submitted/${paymentId}/`;
+                } else if (data.status === 'failed') {
+                    clearInterval(pollInterval);
+                    alert("Payment failed or was cancelled. Please try again.");
+                    window.location.reload();
+                }
+            } catch (error) {
+                console.error("Polling error:", error);
+            }
+        }, 3000); // Check every 3 seconds
+    }
+
     function triggerSTK() {
         const phone = document.getElementById('phone_input').value;
         if (!phone || phone.replace(/\D/g,'').length < 9) {
             alert("Please enter a valid Safaricom phone number.");
             return;
         }
-        
-        // UI Transitions
-        const inputStep = document.getElementById('input-step');
-        const loadingStep = document.getElementById('loading-step');
-        
-        inputStep.style.opacity = '0';
-        inputStep.style.transform = 'scale(0.95)';
-        inputStep.style.pointerEvents = 'none';
-        
-        setTimeout(() => {
+
+        // Redirect to trigger the push via GET
+        const url = new URL(window.location.href);
+        url.searchParams.set('trigger_stk', '1');
+        url.searchParams.set('phone', phone);
+        window.location.href = url.toString();
+    }
+
+    // On page load, if we have an STK reference, show loading and start polling
+    document.addEventListener('DOMContentLoaded', function() {
+        const paymentId = "{{ payment.id }}";
+        const hasSTK = "{{ payment.stk_reference_id }}" !== "None" && "{{ payment.stk_reference_id }}" !== "";
+        const isPending = "{{ payment.status }}" === "pending";
+
+        if (hasSTK && isPending) {
+            // Show loading state
+            const inputStep = document.getElementById('input-step');
+            const loadingStep = document.getElementById('loading-step');
+            
             inputStep.style.display = 'none';
+            document.getElementById('display-phone').innerText = "{{ payment.phone_number }}";
             
-            document.getElementById('display-phone').innerText = phone;
-            
-            loadingStep.style.pointerEvents = 'auto';
             loadingStep.style.opacity = '1';
             loadingStep.style.transform = 'scale(1)';
-        }, 300);
-        
-        // Mock Daraja STK Push completion delay
-        // In reality, this would initiate an AJAX polling request checking payment status
-        setTimeout(() => {
-            // Generate mock M-Pesa transaction ID (e.g. QJI5HFXPLO)
-            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-            let mockTrx = 'Q' + Array(9).fill(0).map(() => chars[Math.floor(Math.random() * chars.length)]).join('');
+            loadingStep.style.pointerEvents = 'auto';
             
-            document.getElementById('simulated_trx_id').value = mockTrx;
-            
-            // Submit form to Django backend
-            document.getElementById('stk-form').submit();
-        }, 5000); // Wait 5 seconds to simulate user entering pin
-    }
+            startPolling(paymentId);
+        }
+    });
 </script>
 {% endblock %}

@@ -76,7 +76,8 @@ class Payment(models.Model):
         ordering = ['-created_at']
 
     def __str__(self):
-        return f"{self.user.username} - {self.plan.name} - {self.status}"
+        plan_name = self.plan.name if self.plan else (self.course.title if self.course else f"Payment {self.id}")
+        return f"{self.user.username} - {plan_name} - {self.status}"
 
     def is_verified(self):
         return self.status == 'completed'

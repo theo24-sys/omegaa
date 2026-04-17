@@ -200,6 +200,16 @@ X_FRAME_OPTIONS = 'DENY'
 # ─── M-Pesa ─────────────────────────────────────────────────────────────────────
 MPESA_TILL_NUMBER = os.getenv('MPESA_TILL_NUMBER', '4567052')
 
+# API Credentials (Must be set in Render environment variables)
+MPESA_CONSUMER_KEY = os.getenv('MPESA_CONSUMER_KEY', '')
+MPESA_CONSUMER_SECRET = os.getenv('MPESA_CONSUMER_SECRET', '')
+MPESA_PASSKEY = os.getenv('MPESA_PASSKEY', '')
+MPESA_SHORT_CODE = os.getenv('MPESA_SHORT_CODE', '4567052')
+MPESA_ENVIRONMENT = os.getenv('MPESA_ENVIRONMENT', 'sandbox')  # 'sandbox' or 'production'
+
+# Callback URL for Safaricom to send payment results
+MPESA_CALLBACK_URL = os.getenv('MPESA_CALLBACK_URL', 'https://charlady.co.ke/payments/mpesa/callback/')
+
 # ─── Jazzmin Admin Theme ────────────────────────────────────────────────────────
 JAZZMIN_SETTINGS = {
     "site_title": "Charlady Admin",

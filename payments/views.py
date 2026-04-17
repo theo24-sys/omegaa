@@ -5,6 +5,10 @@ from django.utils import timezone
 from .models import PaymentPlan, Payment
 from courses.models import Course
 from notifications.utils import create_notification
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+import json
+from .mpesa_service import MpesaClient
 
 @login_required
 def payment_plans(request):
@@ -78,12 +82,15 @@ def mpesa_payment(request, payment_id):
         payment.payment_date = timezone.now()
         payment.save()
 
+        # Handle Course vs Plan for notifications
+        name = payment.plan.name if payment.plan else (payment.course.title if payment.course else "Item")
+
         # Notify user
         create_notification(
             recipient=request.user,
             notification_type='system',
             title='Payment Submitted',
-            message=f'Your {payment.plan.name} payment is pending verification.',
+            message=f'Your payment for {name} is pending verification.',
             related_object=payment
         )
 
@@ -94,16 +101,107 @@ def mpesa_payment(request, payment_id):
                 recipient=admin,
                 notification_type='system',
                 title='New Payment to Verify',
-                message=f'User {payment.user.username} submitted payment for {payment.plan.name}.',
+                message=f'User {payment.user.username} submitted payment for {name}.',
                 related_object=payment
             )
 
         messages.success(request, 'Payment details submitted. We will verify shortly.')
         return redirect('payments:payment_verification_submitted', payment_id=payment.id)
 
+    # Automatically trigger STK push if phone number provided via query or last payment
+    stk_error = None
+    if request.method == 'GET' and 'trigger_stk' in request.GET:
+        phone = request.GET.get('phone') or request.user.phone_number or ""
+        if phone:
+            # Normalize for M-Pesa
+            normalized_phone = phone.strip()
+            if normalized_phone.startswith('+'): normalized_phone = normalized_phone[1:]
+            
+            client = MpesaClient()
+            name = payment.plan.name if payment.plan else (payment.course.title if payment.course else "Service")
+            
+            # Start STK Push
+            res = client.initiate_stk_push(
+                phone_number=normalized_phone,
+                amount=payment.amount,
+                reference_id=str(payment.id),
+                description=f"Payment for {name}"
+            )
+            
+            if res.get('success'):
+                payment.is_mpesa_stk = True
+                payment.stk_reference_id = res.get('checkout_request_id')
+                payment.stk_initiated_at = timezone.now()
+                payment.save()
+                messages.info(request, "An M-Pesa prompt has been sent to your phone.")
+            else:
+                stk_error = res.get('message')
+
     return render(request, 'payments/mpesa_payment.html', {
         'payment': payment,
-        'till_number': '4567052',
+        'till_number': settings.MPESA_TILL_NUMBER,
+        'stk_error': stk_error,
+    })
+
+
+@csrf_exempt
+def mpesa_callback(request):
+    """
+    Endpoint for Safaricom to POST payment results
+    """
+    if request.method != 'POST':
+        return JsonResponse({"ResultCode": 1, "ResultDesc": "Invalid request method"}, status=405)
+
+    try:
+        data = json.loads(request.body)
+        stk_callback = data.get('Body', {}).get('stkCallback', {})
+        result_code = stk_callback.get('ResultCode')
+        checkout_request_id = stk_callback.get('CheckoutRequestID')
+        
+        # Find matching payment
+        payment = Payment.objects.filter(stk_reference_id=checkout_request_id).first()
+        if not payment:
+            return JsonResponse({"ResultCode": 1, "ResultDesc": "Payment record not found"}, status=404)
+
+        if result_code == 0:
+            # Success! Extract Receipt Number
+            callback_metadata = stk_callback.get('CallbackMetadata', {}).get('Item', [])
+            receipt_number = ""
+            for item in callback_metadata:
+                if item.get('Name') == 'MpesaReceiptNumber':
+                    receipt_number = item.get('Value')
+                    break
+            
+            payment.status = 'completed'
+            payment.mpesa_transaction_id = receipt_number
+            payment.transaction_id = receipt_number
+            payment.payment_verified_at = timezone.now()
+            payment.payment_date = timezone.now()
+            payment.save()
+            
+            # The on_payment_completed signal in signals.py will handle badge/course access
+            return JsonResponse({"ResultCode": 0, "ResultDesc": "Success"})
+        else:
+            # Failed
+            payment.status = 'failed'
+            payment.verification_notes = f"Safaricom Error: {stk_callback.get('ResultDesc')}"
+            payment.save()
+            return JsonResponse({"ResultCode": 0, "ResultDesc": "Acknowledged Failure"})
+
+    except Exception as e:
+        return JsonResponse({"ResultCode": 1, "ResultDesc": str(e)}, status=500)
+
+
+@login_required
+def check_payment_status(request, payment_id):
+    """
+    JSON endpoint for frontend polling
+    """
+    payment = get_object_or_404(Payment, id=payment_id, user=request.user)
+    return JsonResponse({
+        'status': payment.status,
+        'id': payment.id,
+        'is_completed': payment.status == 'completed'
     })
 
 
