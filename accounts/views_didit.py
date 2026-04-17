@@ -29,7 +29,7 @@ def initiate_didit_verification(request):
     payload = {
         "vendor_id": str(user.id),
         "workflow_id": DIDIT_WORKFLOW_ID,
-        "callback_url": request.build_absolute_url(reverse('dashboard:housekeeper_dashboard' if user.user_type == 'househelp' else 'dashboard:employer_dashboard')),
+        "callback_url": request.build_absolute_uri(reverse('dashboard:housekeeper_dashboard' if user.user_type == 'househelp' else 'dashboard:employer_dashboard')),
         "features": ["identity_document", "face_match"] # Adjust based on your workflow needs
     }
     
