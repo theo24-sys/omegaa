@@ -32,6 +32,9 @@ class CustomUser(AbstractUser):
     major_town = models.CharField(max_length=50, blank=True, null=True)
     ward = models.CharField(max_length=50, blank=True, null=True)
     is_verified = models.BooleanField(default=False)
+    is_paid_verified = models.BooleanField(default=False, help_text='User paid 250 KES for annual verification', verbose_name='Paid Verified Member')
+    paid_verification_date = models.DateTimeField(blank=True, null=True, verbose_name='Verification Payment Date')
+    paid_verification_expires_at = models.DateTimeField(blank=True, null=True, verbose_name='Verification Expiry Date')
     mpesa_code = models.CharField(max_length=20, blank=True, null=True, help_text='M-Pesa confirmation code for verification')
 
     # Document uploads (housekeepers only) - required for job applications

@@ -17,6 +17,7 @@ admin_user, created = CustomUser.objects.get_or_create(
         'last_name': 'Admin',
         'email': 'admin@charlady.co.ke',
         'user_type': 'employer',
+        'is_paid_verified': True,
     }
 )
 admin_user.set_password('Admin@2026Charlady')
