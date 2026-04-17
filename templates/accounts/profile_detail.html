@@ -12,7 +12,7 @@
                 <div class="w-40 h-40 rounded-full overflow-hidden bg-pink-50 border-4 border-pink-200 flex-shrink-0">
                     {% if user_profile.profile_picture and user_profile.profile_picture.url %}
                     <img src="{{ user_profile.profile_picture.url }}" alt="{{ user_profile.get_full_name }}"
-                        class="w-full h-full object-cover">
+                        class="w-full h-full object-cover" onerror="this.src='{% static 'img/placeholder.svg' %}'; this.onerror=null;">
                     {% else %}
                     <div class="w-full h-full bg-pink-100 flex items-center justify-center overflow-hidden">
                         <img src="{% static 'img/placeholder.svg' %}" alt="Placeholder" class="w-2/3 opacity-20">

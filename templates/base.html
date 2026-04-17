@@ -184,7 +184,7 @@
                             <div class="w-9 h-9 rounded-full bg-white overflow-hidden shadow-inner">
                                 {% if user.profile_picture and user.profile_picture.url %}
                                 <img src="{{ user.profile_picture.url }}" alt="{{ user.username }}"
-                                    class="w-full h-full object-cover">
+                                    class="w-full h-full object-cover" onerror="this.src='{% static 'img/placeholder.svg' %}'; this.onerror=null;">
                                 {% else %}
                                 <div class="w-full h-full bg-pink-100 flex items-center justify-center p-1.5 overflow-hidden">
                                     <img src="{% static 'img/placeholder.svg' %}" alt="Avatar" class="w-full h-full opacity-30">

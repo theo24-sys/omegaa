@@ -33,6 +33,7 @@ class MpesaClient:
         self.auth_url = f"{self.base_url}/oauth/v1/generate?grant_type=client_credentials"
         self.stk_url = f"{self.base_url}/mpesa/stkpush/v1/processrequest"
         self.query_url = f"{self.base_url}/mpesa/stkpushquery/v1/query"
+        self.transaction_type = getattr(settings, 'MPESA_TRANSACTION_TYPE', 'CustomerBuyGoodsOnline')
 
     def authenticate(self):
         """
@@ -114,7 +115,7 @@ class MpesaClient:
             "BusinessShortCode": self.short_code,
             "Password": password,
             "Timestamp": timestamp,
-            "TransactionType": "CustomerPayBillOnline",
+            "TransactionType": self.transaction_type,
             "Amount": int(amount),  # Must be integer
             "PartyA": phone_number,
             "PartyB": self.short_code,

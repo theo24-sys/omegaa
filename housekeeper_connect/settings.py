@@ -206,6 +206,7 @@ MPESA_CONSUMER_SECRET = os.getenv('MPESA_CONSUMER_SECRET', '')
 MPESA_PASSKEY = os.getenv('MPESA_PASSKEY', '')
 MPESA_SHORT_CODE = os.getenv('MPESA_SHORT_CODE', '4567052')
 MPESA_ENVIRONMENT = os.getenv('MPESA_ENVIRONMENT', 'sandbox')  # 'sandbox' or 'production'
+MPESA_TRANSACTION_TYPE = os.getenv('MPESA_TRANSACTION_TYPE', 'CustomerBuyGoodsOnline')  # 'CustomerPayBillOnline' or 'CustomerBuyGoodsOnline'
 
 # Callback URL for Safaricom to send payment results
 MPESA_CALLBACK_URL = os.getenv('MPESA_CALLBACK_URL', 'https://charlady.co.ke/payments/mpesa/callback/')
