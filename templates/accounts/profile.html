@@ -290,7 +290,7 @@
                             d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z">
                         </path>
                     </svg>
-                    Verification Status
+                    Safety & Trust
                 </h3>
 
                 <div class="space-y-4">
@@ -298,81 +298,49 @@
                     <div
                         class="flex items-center justify-between p-4 rounded-2xl {% if user_profile.is_verified %}bg-green-50 border border-green-100{% else %}bg-amber-50 border border-amber-100{% endif %}">
                         <span
-                            class="text-sm font-bold {% if user_profile.is_verified %}text-green-800{% else %}text-amber-800{% endif %}">Membership</span>
+                            class="text-sm font-bold {% if user_profile.is_verified %}text-green-800{% else %}text-amber-800{% endif %}">Account Status</span>
                         {% if user_profile.is_verified %}
-                        <svg class="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd"
-                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                                clip-rule="evenodd"></path>
-                        </svg>
+                            <span class="text-xs font-bold text-green-600">Verified</span>
                         {% else %}
-                        <a href="{% url 'payments:payment_plans' %}"
-                            class="text-xs font-bold bg-amber-600 text-white px-3 py-1 rounded-lg">Pay Now</a>
+                            <a href="{% url 'payments:payment_plans' %}"
+                                class="text-xs font-bold bg-amber-600 text-white px-3 py-1 rounded-lg">Pay Now</a>
                         {% endif %}
                     </div>
 
-                    <!-- Documents -->
-                    <div
-                        class="flex items-center justify-between p-4 rounded-2xl {% if user_profile.documents_verified %}bg-blue-50 border border-blue-100{% else %}bg-gray-50 border border-gray-100{% endif %}">
-                        <span
-                            class="text-sm font-bold {% if user_profile.documents_verified %}text-blue-800{% else %}text-gray-800{% endif %}">Documents</span>
-                        {% if user_profile.documents_verified %}
-                        <svg class="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd"
-                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                                clip-rule="evenodd"></path>
-                        </svg>
-                        {% else %}
-                        <a href="{% url 'edit_profile' %}" class="text-xs font-bold text-primary hover:underline">Upload
-                            →</a>
+                    <!-- Identity Verification (Didit) -->
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between p-4 rounded-2xl {% if user_profile.badge_verified_id %}bg-blue-50 border border-blue-100{% elif user_profile.didit_verification_status == 'pending' %}bg-indigo-50 border border-indigo-100{% else %}bg-gray-50 border border-gray-100{% endif %}">
+                            <span class="text-sm font-bold {% if user_profile.badge_verified_id %}text-blue-800{% elif user_profile.didit_verification_status == 'pending' %}text-indigo-800{% else %}text-gray-800{% endif %}">Identity</span>
+                            
+                            {% if user_profile.badge_verified_id %}
+                                <svg class="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                </svg>
+                            {% elif user_profile.didit_verification_status == 'pending' %}
+                                <span class="text-[10px] font-black uppercase text-indigo-600 animate-pulse">Pending Review</span>
+                            {% else %}
+                                <span class="text-[10px] font-black uppercase text-gray-400">Not Verified</span>
+                            {% endif %}
+                        </div>
+
+                        {% if not user_profile.badge_verified_id and user_profile == request.user %}
+                        <a href="{% url 'accounts:initiate_didit_verification' %}" 
+                           class="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-black py-4 px-6 rounded-2xl transition-all shadow-lg active:scale-95 group">
+                            <svg class="w-5 h-5 group-hover:rotate-12 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                            </svg>
+                            Verify with Didit
+                        </a>
                         {% endif %}
                     </div>
                 </div>
 
-                {% if not user_profile.documents_verified or not user_profile.is_verified %}
+                {% if not user_profile.is_verified or not user_profile.badge_verified_id %}
                 <p class="text-xs text-gray-500 mt-6 italic">
-                    Complete verification to unlock all features and increase employer trust.
+                    Identity verification increases employer trust by <span class="text-primary font-bold">85%</span>.
                 </p>
                 {% endif %}
             </div>
-
-            <!-- Downloadable Resources -->
-            {% if user_profile.agreement_form or user_profile.id_document %}
-            <div class="bg-gray-900 rounded-3xl shadow-xl p-8 text-white relative overflow-hidden">
-                <div class="absolute -right-8 -bottom-8 w-32 h-32 bg-white/10 rounded-full blur-3xl"></div>
-                <h3 class="text-lg font-bold mb-6 flex items-center gap-2">
-                    <svg class="w-5 h-5 text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4-4v12"></path>
-                    </svg>
-                    Resources
-                </h3>
-                <div class="space-y-4">
-                    {% if user_profile.agreement_form %}
-                    <a href="{{ user_profile.agreement_form.url }}" download
-                        class="flex justify-between items-center p-4 rounded-2xl bg-white/10 hover:bg-white/20 transition group">
-                        <span class="text-sm">Agreement Form</span>
-                        <svg class="w-4 h-4 text-pink-400 group-hover:translate-y-0.5 transition" fill="none"
-                            stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
-                        </svg>
-                    </a>
-                    {% endif %}
-                    {% if user_profile.id_document %}
-                    <a href="{{ user_profile.id_document.url }}" download
-                        class="flex justify-between items-center p-4 rounded-2xl bg-white/10 hover:bg-white/20 transition group">
-                        <span class="text-sm">ID Document</span>
-                        <svg class="w-4 h-4 text-pink-400 group-hover:translate-y-0.5 transition" fill="none"
-                            stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
-                        </svg>
-                    </a>
-                    {% endif %}
-                </div>
-            </div>
-            {% endif %}
         </div>
     </div>
 </div>

@@ -59,8 +59,17 @@ class CustomUser(AbstractUser):
     paid_verification_date = models.DateTimeField(blank=True, null=True, verbose_name='Verification Payment Date')
     paid_verification_expires_at = models.DateTimeField(blank=True, null=True, verbose_name='Verification Expiry Date')
     mpesa_code = models.CharField(max_length=20, blank=True, null=True, help_text='M-Pesa confirmation code for verification')
+    
+    # Didit Verification
+    didit_session_id = models.CharField(max_length=255, blank=True, null=True)
+    didit_verification_status = models.CharField(
+        max_length=50, 
+        choices=[('none', 'None'), ('pending', 'Pending'), ('completed', 'Completed'), ('failed', 'Failed')],
+        default='none'
+    )
 
     # Document uploads (housekeepers only) - required for job applications
+    # Document uploads (Deprecated in favor of Didit)
     id_document = models.FileField(upload_to='worker_docs/%Y/%m/%d/', blank=True, null=True, help_text='ID document (ID/Passport)')
     agreement_form = models.FileField(upload_to='worker_docs/%Y/%m/%d/', blank=True, null=True, help_text='Signed agreement form')
     police_clearance = models.FileField(upload_to='worker_docs/%Y/%m/%d/', blank=True, null=True, help_text='Police Clearance Certificate / Good Conduct')

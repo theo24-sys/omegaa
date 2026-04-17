@@ -105,7 +105,7 @@ class CustomUserChangeForm(UserChangeForm):
             'county', 'constituency', 'major_town', 'ward',
             'phone_number', 'bio', 'profile_picture',
             'skills', 'experience',
-            'id_document', 'agreement_form',
+            'agreement_form',
             'is_verified', 'mpesa_code',
         )
 
@@ -130,7 +130,6 @@ class CustomUserChangeForm(UserChangeForm):
             'major_town': '🏘️ Current town / area / nearest place',
             'ward': '📍 Ward',
             'mpesa_code': '💳 M-Pesa confirmation code (if paid)',
-            'police_clearance': '🛡️ Certificate of Good Conduct (PDF/Image)',
             'skills': '🛠️ e.g. Cooking, Laundry, Childcare',
             'experience': '💼 Describe your relevant experience...',
         }
@@ -149,12 +148,12 @@ class CustomUserChangeForm(UserChangeForm):
         
         if instance and instance.user_type != 'househelp':
             for f in ('skills', 'experience', 'id_document', 'agreement_form', 'police_clearance', 'badge_appliance'):
-                self.fields.pop(f, None)
+                if f in self.fields: self.fields.pop(f)
         elif instance and instance.user_type == 'househelp':
             # LOCK DOCUMENTS if already verified or awaiting review
-            is_awaiting_review = (instance.id_document or instance.agreement_form or instance.police_clearance) and not instance.documents_verified
+            is_awaiting_review = (instance.agreement_form) and not instance.documents_verified
             if instance.documents_verified or is_awaiting_review:
-                for f in ('id_document', 'agreement_form', 'police_clearance'):
+                for f in ('agreement_form',):
                     if f in self.fields:
                         self.fields[f].disabled = True
                         if is_awaiting_review:
@@ -204,7 +203,7 @@ class CustomUserChangeForm(UserChangeForm):
                 css_class='space-y-6 border-t border-pink-100 pt-8 mt-8'
             ))
             
-        if 'id_document' in self.fields:
+        if 'id_document' in self.fields or 'agreement_form' in self.fields:
             layout_list.append(Fieldset(
                 'Validation Documents',
                 Div(
@@ -214,7 +213,7 @@ class CustomUserChangeForm(UserChangeForm):
                                 <span class="bg-green-500 text-white rounded-full p-1"><svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg></span>
                                 <div><strong>Documents Verified:</strong> Your profile is fully unlocked and trustworthy.</div>
                             </div>
-                        {% elif user.id_document or user.agreement_form or user.police_clearance %}
+                        {% elif user.agreement_form %}
                             <div class="mb-4 p-4 bg-amber-50 border border-amber-200 text-amber-800 rounded-2xl text-xs flex items-center gap-3">
                                 <span class="bg-amber-500 text-white rounded-full p-1 animate-pulse"><svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2" fill="none"></path></svg></span>
                                 <div><strong>Under Review:</strong> Our team is validating your documents.</div>
@@ -222,9 +221,7 @@ class CustomUserChangeForm(UserChangeForm):
                         {% endif %}
                     """),
                 ),
-                'id_document',
                 'agreement_form',
-                'police_clearance',
                 css_class='space-y-6 border-t border-pink-100 pt-8 mt-8'
             ))
             
