@@ -181,21 +181,12 @@
                     <!-- User Menu -->
                     <div class="relative group">
                         <button class="flex items-center space-x-2 hover:text-pink-100 transition">
-                            <div class="w-9 h-9 rounded-full bg-white overflow-hidden shadow-inner">
-                                {% if user.profile_picture and user.profile_picture.url %}
-                                <img src="{{ user.profile_picture.url }}" alt="{{ user.username }}"
-                                    class="w-full h-full object-cover" onerror="this.src='{% static 'img/placeholder.svg' %}'; this.onerror=null;">
-                                {% else %}
-                                <div class="w-full h-full bg-pink-100 flex items-center justify-center p-1.5 overflow-hidden">
-                                    <img src="{% static 'img/placeholder.svg' %}" alt="Avatar" class="w-full h-full opacity-30">
-                                </div>
-                                {% endif %}
+                            <div class="w-9 h-9 rounded-full bg-white overflow-hidden shadow-inner border border-pink-100">
+                                <img src="{{ user.get_avatar_url }}" alt="{{ user.username }}" class="w-full h-full object-cover">
                             </div>
-                            <span class="font-medium">
+                            <span class="font-medium flex items-center">
                                <span class="text-star">{{ user.get_full_name|default:user.username }}</span>
-                    {% if user.is_verified %}
-                    <img src="{% static 'img/badges/verified.svg' %}" alt="Verified" class="inline-block w-8 h-8 md:w-10 md:h-10 ml-2">
-                    {% endif %}
+                               {{ user.get_verified_badge|safe }}
                             </span>
                         </button>
 

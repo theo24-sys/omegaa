@@ -10,14 +10,7 @@
             <!-- Header: Photo + Name + Type + Rating -->
             <div class="flex flex-col md:flex-row items-center md:items-start gap-8">
                 <div class="w-40 h-40 rounded-full overflow-hidden bg-pink-50 border-4 border-pink-200 flex-shrink-0">
-                    {% if user_profile.profile_picture and user_profile.profile_picture.url %}
-                    <img src="{{ user_profile.profile_picture.url }}" alt="{{ user_profile.get_full_name }}"
-                        class="w-full h-full object-cover" onerror="this.src='{% static 'img/placeholder.svg' %}'; this.onerror=null;">
-                    {% else %}
-                    <div class="w-full h-full bg-pink-100 flex items-center justify-center overflow-hidden">
-                        <img src="{% static 'img/placeholder.svg' %}" alt="Placeholder" class="w-2/3 opacity-20">
-                    </div>
-                    {% endif %}
+                    <img src="{{ user_profile.get_avatar_url }}" alt="{{ user_profile.username }}" class="w-full h-full object-cover">
                 </div>
 
                 <div class="text-center md:text-left">
@@ -32,12 +25,7 @@
                                 {% endfor %}
                             </div>
 
-                            {% if user_profile.is_verified %}
-                            <span
-                                class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
-                                ✓ Verified Member
-                            </span>
-                            {% endif %}
+                        {{ user_profile.get_verified_badge|safe }}
                         {% endif %}
                     </h1>
 

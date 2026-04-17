@@ -21,11 +21,15 @@ def payment_plans(request):
             'plans': worker_plans
         })
     else:
-        standard_plan = PaymentPlan.objects.filter(target_group='employer', price=300, is_active=True).first()
-        pro_plan = PaymentPlan.objects.filter(target_group='employer', price=1000, is_active=True).first()
+        # User is employer - map to 0, 150, 350 plans
+        standard_plan = PaymentPlan.objects.filter(target_group='employer', price=150, is_active=True).first()
+        gold_plan = PaymentPlan.objects.filter(target_group='employer', price=350, is_active=True).first()
+        free_plan = PaymentPlan.objects.filter(target_group='employer', price=0, is_active=True).first()
+        
         return render(request, 'payments/plans.html', {
             'standard_plan': standard_plan,
-            'pro_plan': pro_plan
+            'pro_plan': gold_plan, # Maintain context variable name 'pro_plan'
+            'free_plan': free_plan
         })
 
 

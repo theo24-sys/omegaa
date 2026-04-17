@@ -170,10 +170,41 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+# AWS S3 Settings (provided by user)
+AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
+AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')
+AWS_S3_ENDPOINT_URL = os.getenv('AWS_S3_ENDPOINT_URL')
+AWS_S3_CUSTOM_DOMAIN = os.getenv('AWS_S3_CUSTOM_DOMAIN')
+AWS_S3_REGION_NAME = os.getenv('AWS_S3_REGION_NAME', 'eu-central-1')
+
+# Storage Configuration (Django 4.2+ pattern)
+STORAGES = {
+    "default": {
+        "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
+        "OPTIONS": {
+            "access_key": AWS_ACCESS_KEY_ID,
+            "secret_key": AWS_SECRET_ACCESS_KEY,
+            "bucket_name": AWS_STORAGE_BUCKET_NAME,
+            "endpoint_url": AWS_S3_ENDPOINT_URL,
+            "custom_domain": AWS_S3_CUSTOM_DOMAIN,
+            "location": "media",
+            "file_overwrite": False,
+        },
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
+
+# Fallback for older apps/logic
+if not AWS_ACCESS_KEY_ID:
+    STORAGES["default"]["BACKEND"] = "django.core.files.storage.FileSystemStorage"
+    MEDIA_URL = '/media/'
+    MEDIA_ROOT = BASE_DIR / 'media'
+else:
+    MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/media/' if AWS_S3_CUSTOM_DOMAIN else f'{AWS_S3_ENDPOINT_URL}/{AWS_STORAGE_BUCKET_NAME}/media/'
 
 # ─── Crispy Forms ───────────────────────────────────────────────────────────────
 CRISPY_ALLOWED_TEMPLATE_PACKS = "tailwind"
@@ -205,7 +236,8 @@ MPESA_CONSUMER_KEY = os.getenv('MPESA_CONSUMER_KEY', 'DU68PrjYY2nEYvXA5Eq2GyoL4c
 MPESA_CONSUMER_SECRET = os.getenv('MPESA_CONSUMER_SECRET', 'DQgo6uTI5kL0PYZ5abUQFmmqD2Eg0UfO6CmdNFgZdFnGvxAGAN5Z39ICS1lgNGH2')
 MPESA_PASSKEY = os.getenv('MPESA_PASSKEY', '6ed3f4//105fa046ddaad0460343ea84f7b069dd3080a19ceaab98c37a280c53')
 MPESA_SHORT_CODE = os.getenv('MPESA_SHORT_CODE', '4564139')
-MPESA_ENVIRONMENT = os.getenv('MPESA_ENVIRONMENT', 'production')  # Use production based on screenshot
+MPESA_ENVIRONMENT = os.getenv('MPESA_ENVIRONMENT', 'production')
+JOB_POSTING_FEE = 250
 MPESA_TRANSACTION_TYPE = os.getenv('MPESA_TRANSACTION_TYPE', 'CustomerBuyGoodsOnline')  # 'CustomerPayBillOnline' or 'CustomerBuyGoodsOnline'
 
 # Callback URL for Safaricom to send payment results

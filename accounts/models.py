@@ -81,10 +81,10 @@ class CustomUser(AbstractUser):
     REQUIRED_FIELDS = ["email", "phone_number"]
 
     def can_apply_for_jobs(self):
-        """Housekeepers must have paid for membership (is_verified) to apply for jobs."""
+        """Housekeepers must be verified and have a profile picture to apply for jobs."""
         if self.user_type != 'househelp':
             return True
-        return self.is_verified
+        return self.is_verified and bool(self.profile_picture)
 
     @property
     def location(self):
@@ -108,6 +108,56 @@ class CustomUser(AbstractUser):
             ('appliance', {'label': 'Appliance Pro', 'icon': 'appliance', 'earned': self.badge_appliance, 'color': 'slate'}),
         ]
         return badges
+
+    def get_avatar_url(self):
+        """Robustly returns avatar URL, falling back to placeholder if missing or deleted."""
+        from django.templatetags.static import static
+        import os
+        
+        placeholder = static('img/placeholder.svg')
+        if not self.profile_picture:
+            return placeholder
+            
+        try:
+            if self.profile_picture.storage.exists(self.profile_picture.name):
+                return self.profile_picture.url
+        except Exception:
+            pass
+            
+        return placeholder
+
+    @property
+    def completion_percentage(self):
+        """Calculates profile completion based on key fields."""
+        fields = [
+            'first_name', 'last_name', 'email', 'phone_number', 
+            'bio', 'profile_picture', 'county', 'constituency', 'major_town'
+        ]
+        if self.user_type == 'househelp':
+            fields += ['skills', 'experience', 'id_document']
+            
+        total = len(fields)
+        filled = 0
+        for f in fields:
+            val = getattr(self, f)
+            if val and str(val).strip():
+                filled += 1
+        
+        return int((filled / total) * 100)
+
+    def get_verified_badge(self):
+        """Returns Instagram-style blue checkmark HTML if verified."""
+        if not self.is_verified and not self.is_paid_verified:
+            return ""
+            
+        # Meta Blue: #0095f6
+        return f"""
+        <span class="inline-flex items-center justify-center bg-[#0095f6] rounded-full p-[2px] w-4 h-4 md:w-5 md:h-5 ml-1 select-none shadow-sm" title="Verified">
+            <svg class="w-full h-full text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M5 13l4 4L19 7"></path>
+            </svg>
+        </span>
+        """
 
 User = get_user_model()
 

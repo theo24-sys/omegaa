@@ -140,6 +140,12 @@ def on_payment_completed(sender, instance, created, update_fields, **kwargs):
                 subscription.save()
                 logger.info(f"Updated existing subscription for {user.username}")
             
+            # --- FEATURE: Grant Verified Badge to Paid Employers ---
+            if instance.plan.price >= 150:
+                user.is_verified = True
+                user.save(update_fields=['is_verified'])
+                logger.info(f"Granted Verified Badge to Employer {user.username} (Price: {instance.plan.price})")
+            
             # Notify employer
             create_notification(
                 recipient=user,

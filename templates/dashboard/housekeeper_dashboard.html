@@ -59,7 +59,10 @@
                 </div>
                 <h1 class="text-4xl md:text-7xl font-black text-slate-900 tracking-tight leading-none">
                     <span id="greeting-time">Welcome</span>, <br>
-                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">{{ user.get_full_name|default:user.username }}</span>
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent flex items-center justify-center gap-2">
+                        {{ user.get_full_name|default:user.username }}
+                        {{ user.get_verified_badge|safe }}
+                    </span>
                 </h1>
                 <p class="text-slate-500 text-lg md:text-xl font-medium max-w-xl mx-auto leading-relaxed">
                     Elevating professional standards for Kenyan househelps. Manage your career and certifications with ease.

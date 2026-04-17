@@ -5,6 +5,9 @@ from django.db.models import Q
 from .models import Job, Application
 from .forms import JobForm, ApplicationForm, JobSearchForm
 from notifications.utils import create_notification
+from payments.models import Payment
+from payments.mpesa_service import get_mpesa_client
+from django.conf import settings
 
 def job_list(request):
     form = JobSearchForm(request.GET or None)
@@ -66,15 +69,51 @@ def job_create(request):
             job.employer = request.user
             job.save()  # Save first so we have ID
 
-            # Payment logic
+            # Payment logic (250 KES via STK Push)
             mpesa_code = request.POST.get('mpesa_code')
+            phone_number = request.POST.get('phone_number') # Get phone for STK push
+            
+            job_fee = getattr(settings, 'JOB_POSTING_FEE', 250)
+            
+            # Create a generic payment record first
+            payment = Payment.objects.create(
+                user=request.user,
+                amount=job_fee,
+                payment_method='mpesa',
+                status='pending',
+                verification_notes=f"Job Posting fee for '{job.title}'"
+            )
+            
             if mpesa_code:
+                # Fallback to manual code if provided
                 job.mpesa_code = mpesa_code
-                job.posting_fee_paid = False  # pending admin check
+                job.posting_fee_paid = False 
                 job.save()
-                messages.success(request, 'Job posted! Payment pending admin verification.')
+                payment.transaction_id = mpesa_code
+                payment.status = 'verification_submitted'
+                payment.save()
+                messages.success(request, f'Job posted! Payment verification for KSh {job_fee} submitted.')
+            elif phone_number:
+                # Professional API Flow: STK Push
+                client = get_mpesa_client()
+                response = client.initiate_stk_push(
+                    phone_number=phone_number,
+                    amount=job_fee,
+                    reference_id=f"JOB{job.id}",
+                    description=f"Job Post Fee"
+                )
+                
+                if response.get('success'):
+                    payment.stk_reference_id = response.get('checkout_request_id')
+                    payment.is_mpesa_stk = True
+                    payment.phone_number = phone_number
+                    payment.save()
+                    messages.success(request, f'M-Pesa prompt sent! Complete payment of KSh {job_fee} on your phone to activate.')
+                    return redirect('payments:mpesa_payment', payment_id=payment.id)
+                else:
+                    messages.error(request, f"M-Pesa error: {response.get('message')}. Please pay manually.")
             else:
-                messages.warning(request, 'Please pay KSh 200 to Till 4567052 and enter M-Pesa code to activate your job.')
+                messages.warning(request, f'Please pay KSh {job_fee} to Till 4567052 to activate your job.')
 
             return redirect('jobs:my_jobs')
     else:

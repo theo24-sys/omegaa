@@ -164,7 +164,12 @@ def employer_dashboard(request):
         return redirect('home')
 
     jobs = Job.objects.filter(employer=request.user).order_by('-created_at')
-    applications = Application.objects.filter(job__employer=request.user).select_related('applicant').order_by('-created_at')
+    # Filter: Only show applications where the applicant has a profile picture
+    applications = Application.objects.filter(
+        job__employer=request.user
+    ).exclude(
+        models.Q(applicant__profile_picture='') | models.Q(applicant__profile_picture__isnull=True)
+    ).select_related('applicant').order_by('-created_at')
     payment_plans = PaymentPlan.objects.filter(is_active=True)
 
     reviews = Review.objects.filter(reviewed_user=request.user)

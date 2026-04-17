@@ -49,7 +49,10 @@
                 </div>
                 <h1 class="text-4xl md:text-7xl font-black text-slate-900 tracking-tight leading-none">
                     <span id="greeting-time">Welcome</span>, <br>
-                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">{{ user.get_full_name|default:user.username }}</span>
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent flex items-center justify-center gap-2">
+                        {{ user.get_full_name|default:user.username }}
+                        {{ user.get_verified_badge|safe }}
+                    </span>
                 </h1>
                 <p class="text-slate-500 text-lg md:text-xl font-medium max-w-xl mx-auto leading-relaxed">
                     Source and manage top-tier domestic talent with Africa's leading platform.
@@ -86,15 +89,14 @@
 
             <!-- Dashboard Stats Row -->
             <div class="flex items-center gap-10 p-6 rounded-[2.5rem] bg-pink-50 border border-pink-100 w-full md:w-auto shadow-inner">
-                <div class="w-16 h-16 md:w-24 md:h-24 rounded-[1.5rem] overflow-hidden border-4 border-white shadow-xl flex-shrink-0">
-                    {% if user.profile_picture %}
-                    <img src="{{ user.profile_picture.url }}" alt="{{ user.username }}" class="w-full h-full object-cover">
-                    {% else %}
-                    <div class="w-full h-full bg-white flex items-center justify-center text-primary text-3xl font-black">{{ user.username|slice:":1"|upper }}</div>
-                    {% endif %}
+                <div class="w-16 h-16 md:w-24 md:h-24 rounded-[1.5rem] overflow-hidden border-4 border-white shadow-xl flex-shrink-0 bg-white">
+                    <img src="{{ user.get_avatar_url }}" alt="{{ user.username }}" class="w-full h-full object-cover">
                 </div>
                 <div class="flex flex-col text-left">
-                    <p class="text-xl md:text-2xl font-black text-slate-900 leading-none mb-1">{{ user.get_full_name|default:user.username }}</p>
+                    <p class="text-xl md:text-2xl font-black text-slate-900 leading-none mb-1 flex items-center gap-2">
+                        {{ user.get_full_name|default:user.username }}
+                        {{ user.get_verified_badge|safe }}
+                    </p>
                     <p class="text-[10px] text-primary font-black uppercase tracking-[0.2em]">Premium Employer since {{ user.date_joined|date:"Y" }}</p>
                     <div class="flex items-center gap-6 mt-4">
                         <div class="flex flex-col">
