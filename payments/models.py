@@ -55,6 +55,14 @@ class Payment(models.Model):
     course = models.ForeignKey('courses.Course', on_delete=models.SET_NULL, null=True, blank=True, related_name='payments')
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     transaction_id = models.CharField(max_length=100, blank=True, null=True)
+    
+    # STK Push fields
+    is_mpesa_stk = models.BooleanField(default=False, help_text='Payment via M-Pesa STK push')
+    mpesa_transaction_id = models.CharField(max_length=100, blank=True, null=True, help_text='M-Pesa MpesaReceiptNumber from callback')
+    stk_reference_id = models.CharField(max_length=100, blank=True, null=True, help_text='M-Pesa CheckoutRequestID')
+    stk_initiated_at = models.DateTimeField(blank=True, null=True, help_text='When STK push was triggered')
+    payment_verified_at = models.DateTimeField(blank=True, null=True, help_text='When M-Pesa confirmed success')
+
     payment_method = models.CharField(max_length=20, choices=PAYMENT_METHOD_CHOICES, default='mpesa')
     status = models.CharField(max_length=30, choices=PAYMENT_STATUS_CHOICES, default='pending')
     created_at = models.DateTimeField(auto_now_add=True)
@@ -72,3 +80,51 @@ class Payment(models.Model):
 
     def is_verified(self):
         return self.status == 'completed'
+
+
+class UserSubscription(models.Model):
+    STATUS_CHOICES = (
+        ('active', 'Active'),
+        ('expired', 'Expired'),
+        ('cancelled', 'Cancelled'),
+    )
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='subscriptions', limit_choices_to={'user_type': 'employer'})
+    plan = models.ForeignKey(PaymentPlan, on_delete=models.PROTECT, related_name='subscriptions')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='active')
+    started_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField(help_text='When subscription expires')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name_plural = 'User Subscriptions'
+
+    def __str__(self):
+        return f"{self.user.username} - {self.plan.name} - {self.status}"
+
+
+class MonthlyContribution(models.Model):
+    STATUS_CHOICES = (
+        ('pending', 'Pending'),
+        ('paid', 'Paid'),
+        ('ignored', 'Ignored'),
+    )
+    worker = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='monthly_contributions', limit_choices_to={'user_type': 'househelp'})
+    year = models.PositiveIntegerField(help_text='e.g. 2026')
+    month = models.PositiveIntegerField(help_text='1-12')
+    calculated_salary = models.DecimalField(max_digits=10, decimal_places=2, default=0.0, help_text='Sum of completed job salaries for the month')
+    amount_due = models.DecimalField(max_digits=10, decimal_places=2, default=0.0, help_text='3% of calculated_salary')
+    payment_status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    payment_date = models.DateTimeField(blank=True, null=True, help_text='When payment was made')
+    mpesa_transaction_id = models.CharField(max_length=100, blank=True, null=True, help_text='M-Pesa receipt number')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('worker', 'year', 'month')
+        ordering = ['-year', '-month']
+        verbose_name_plural = 'Monthly Contributions'
+
+    def __str__(self):
+        return f"{self.worker.username} - {self.month}/{self.year} - {self.payment_status}"
