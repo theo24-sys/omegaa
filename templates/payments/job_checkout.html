@@ -17,7 +17,7 @@
             <p class="text-slate-500 font-medium mb-6">Complete the payment to make <span class="text-primary font-bold">"{{ job.title }}"</span> live for all verified workers.</p>
             
             <div class="flex items-center gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                <div class="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-sm border border-slate-100 text-primary">
+                <div class="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-sm border border-slate-100 text-green-600">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
                 </div>
                 <div>
@@ -32,13 +32,14 @@
         </div>
 
         <!-- Checkout Form Card -->
-        <div class="bg-white rounded-3xl shadow-xl border border-pink-100 overflow-hidden">
+        <div class="bg-white rounded-3xl shadow-xl border border-green-100 overflow-hidden">
             <!-- Header -->
-            <div class="bg-gradient-to-r from-primary to-pink-600 px-8 py-6 text-white">
+            <div class="bg-gradient-to-r from-green-600 to-emerald-700 px-8 py-6 text-white">
                 <div class="flex items-center justify-between">
                     <div>
                         <h2 class="text-xl font-black mb-1">M-Pesa Activation</h2>
-                        <p class="text-pink-100 text-sm font-medium">Automatic STK Push Payment</p>
+                        <p class="text-green-100 text-sm font-medium">Automatic STK Push Payment</p>
+                        <p class="text-green-100 text-sm font-medium">Official M-Pesa API Integration</p>
                     </div>
                     <img src="https://upload.wikimedia.org/wikipedia/commons/1/15/M-Pesa_Logo-01.svg" class="h-10 w-auto brightness-0 invert" alt="M-Pesa">
                 </div>
@@ -48,8 +49,8 @@
                 <!-- Progress Indicator -->
                 <div class="grid grid-cols-3 gap-4 mb-10">
                     <div class="flex flex-col items-center gap-2">
-                        <div class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-bold text-sm">1</div>
-                        <span class="text-[10px] font-black text-primary uppercase tracking-tight">Enter Phone</span>
+                        <div class="w-8 h-8 rounded-full bg-green-600 text-white flex items-center justify-center font-bold text-sm">1</div>
+                        <span class="text-[10px] font-black text-green-600 uppercase tracking-tight">Enter Phone</span>
                     </div>
                     <div class="flex flex-col items-center gap-2">
                         <div class="w-8 h-8 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center font-bold text-sm">2</div>
@@ -70,13 +71,13 @@
                                 <span class="text-slate-400 font-bold">+254</span>
                             </div>
                             <input type="text" name="phone_number" value="{{ request.user.phone_number }}" required
-                                class="w-full pl-16 pr-4 py-5 rounded-2xl border-2 border-slate-100 focus:border-primary focus:ring-4 focus:ring-pink-50 transition-all font-bold text-lg text-slate-700 shadow-inner"
+                                class="w-full pl-16 pr-4 py-5 rounded-2xl border-2 border-slate-100 focus:border-green-600 focus:ring-4 focus:ring-green-50 transition-all font-bold text-lg text-slate-700 shadow-inner"
                                 placeholder="7XXXXXXXX">
                         </div>
                         <p class="text-slate-400 text-xs mt-3 px-1">We will send a payment request for <span class="font-bold text-slate-600">KSh {{ job_fee }}</span> to this number.</p>
                     </div>
 
-                    <button type="submit" class="w-full bg-primary hover:bg-pink-700 text-white font-black py-5 rounded-2xl shadow-lg hover:shadow-pink-200 transition-all transform hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-3">
+                    <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-black py-5 rounded-2xl shadow-lg hover:shadow-green-200 transition-all transform hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-3">
                         <span>Activate Job Now</span>
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                     </button>
