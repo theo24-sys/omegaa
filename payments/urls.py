@@ -8,6 +8,7 @@ urlpatterns = [
     path('checkout/<int:plan_id>/', views.checkout, name='checkout'),
     path('course-checkout/<int:course_id>/', views.course_checkout, name='course_checkout'),
     path('mpesa/<int:payment_id>/', views.mpesa_payment, name='mpesa_payment'),
+    path('contribution/pay/<int:contribution_id>/', views.pay_contribution, name='pay_contribution'),
     path('mpesa/callback/', views.mpesa_callback, name='mpesa_callback'),
     path('status/<int:payment_id>/', views.check_payment_status, name='check_payment_status'),
     path('verification-submitted/<int:payment_id>/', views.payment_verification_submitted, name='payment_verification_submitted'),

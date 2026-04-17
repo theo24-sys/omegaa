@@ -64,6 +64,28 @@ def course_checkout(request, course_id):
 
 
 @login_required
+def pay_contribution(request, contribution_id):
+    contribution = get_object_or_404(MonthlyContribution, id=contribution_id, worker=request.user)
+    
+    # If already paid, or zero amount (ignored), just go back to history/dashboard
+    if contribution.payment_status in ['paid', 'ignored']:
+        messages.info(request, "This contribution has already been settled.")
+        return redirect('dashboard')
+
+    # Create a payment record
+    payment = Payment.objects.create(
+        user=request.user,
+        contribution=contribution,
+        amount=contribution.amount_due,
+        payment_method='mpesa',
+        status='pending'
+    )
+    
+    # Redirect to the M-Pesa STK push page
+    return redirect('payments:mpesa_payment', payment_id=payment.id)
+
+
+@login_required
 def mpesa_payment(request, payment_id):
     payment = get_object_or_404(Payment, id=payment_id, user=request.user)
     
@@ -125,20 +147,24 @@ def mpesa_payment(request, payment_id):
     if request.method == 'GET' and 'trigger_stk' in request.GET:
         phone = request.GET.get('phone') or request.user.phone_number or ""
         if phone:
-            # Normalize for M-Pesa
-            normalized_phone = phone.strip()
-            if normalized_phone.startswith('+'): normalized_phone = normalized_phone[1:]
-            
-            client = MpesaClient()
-            name = payment.plan.name if payment.plan else (payment.course.title if payment.course else "Service")
-            
-            # Start STK Push
-            res = client.initiate_stk_push(
-                phone_number=normalized_phone,
-                amount=payment.amount,
-                reference_id=str(payment.id),
-                description=f"Payment for {name}"
-            )
+            # Check for zero amount
+            if payment.amount <= 0:
+                stk_error = "Payment amount must be greater than 0."
+            else:
+                # Normalize for M-Pesa
+                normalized_phone = phone.strip()
+                if normalized_phone.startswith('+'): normalized_phone = normalized_phone[1:]
+                
+                client = MpesaClient()
+                name = payment.plan.name if payment.plan else (payment.course.title if payment.course else "Service")
+                
+                # Start STK Push
+                res = client.initiate_stk_push(
+                    phone_number=normalized_phone,
+                    amount=payment.amount,
+                    reference_id=str(payment.id),
+                    description=f"Payment for {name}"
+                )
             
             if res.get('success'):
                 payment.is_mpesa_stk = True

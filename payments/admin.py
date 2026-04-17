@@ -1,5 +1,12 @@
 from django.contrib import admin
-from .models import PaymentPlan, Payment
+from .models import PaymentPlan, Payment, MonthlyContribution
+
+@admin.register(MonthlyContribution)
+class MonthlyContributionAdmin(admin.ModelAdmin):
+    list_display = ('worker', 'month', 'year', 'calculated_salary', 'amount_due', 'payment_status')
+    list_filter = ('payment_status', 'year', 'month')
+    search_fields = ('worker__username', 'mpesa_transaction_id')
+    readonly_fields = ('created_at', 'updated_at')
 
 @admin.register(PaymentPlan)
 class PaymentPlanAdmin(admin.ModelAdmin):

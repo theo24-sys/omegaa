@@ -135,6 +135,11 @@ def housekeeper_dashboard(request):
         ).exclude(id__in=completed_course_ids)
     study_tracker_courses = accessible_courses.order_by('-is_mandatory')[:3]
 
+from payments.models import Payment, PaymentPlan, MonthlyContribution
+...
+    # Monthly Contribution logic
+    pending_contribution = MonthlyContribution.objects.filter(worker=request.user, payment_status='pending').order_by('-year', '-month').first()
+
     context = {
         'applications': applications,
         'active_jobs': active_jobs,
@@ -143,6 +148,7 @@ def housekeeper_dashboard(request):
         'review_count': review_count,
         'skills_list': skills_list,
         'study_tracker_courses': study_tracker_courses,
+        'pending_contribution': pending_contribution,
     }
     return render(request, 'dashboard/housekeeper_dashboard.html', context)
 
