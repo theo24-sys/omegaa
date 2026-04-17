@@ -104,11 +104,23 @@ class MpesaClient:
             else:
                 phone_number = '254' + phone_number
 
-        # Generate timestamp for STK (format: YYYYMMDDHHmmss)
-        timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+        # Generate timestamp for STK (format: YYYYMMDDHHmmss) in EAT (UTC+3)
+        # Render servers are UTC, so we add 3 hours to match Kenya time
+        eat_time = datetime.utcnow() + timedelta(hours=3)
+        timestamp = eat_time.strftime('%Y%m%d%H%M%S')
 
         # Generate password: Base64(ShortCode + Passkey + Timestamp)
         import base64
+        import re
+        
+        # Clean alphanumeric reference and description (Max 12 / 13 chars)
+        def clean_str(s, length):
+            if not s: return ""
+            return re.sub(r'[^a-zA-Z0-9]', '', str(s))[:length]
+
+        clean_reference = clean_str(reference_id, 12)
+        clean_description = clean_str(description, 13) or "Payment"
+
         password_string = f"{self.short_code}{self.passkey}{timestamp}"
         password = base64.b64encode(password_string.encode()).decode()
 
@@ -122,8 +134,8 @@ class MpesaClient:
             "PartyB": self.till_number,
             "PhoneNumber": phone_number,
             "CallBackURL": settings.MPESA_CALLBACK_URL,
-            "AccountReference": reference_id,  # Your Payment ID
-            "TransactionDesc": description or "Payment for Charlady Services"
+            "AccountReference": clean_reference,  # Max 12 chars
+            "TransactionDesc": clean_description   # Max 13 chars
         }
 
         try:

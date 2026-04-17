@@ -149,8 +149,9 @@ def job_apply(request, pk):
                 recipient=job.employer,
                 notification_type='job_application',
                 title=f"New Application: {job.title}",
-                message=f"{request.user.username} applied for your job.",
-                related_object=application
+                message=f"{request.user.get_full_name() or request.user.username} has applied! View details on Charlady.",
+                related_object=application,
+                send_sms=True
             )
 
             messages.success(request, 'Application submitted!')
@@ -200,9 +201,10 @@ def update_application_status(request, pk):
             create_notification(
                 recipient=application.applicant,
                 notification_type='application_status',
-                title=f"Update on {application.job.title}",
-                message=f"Your application status changed to: {application.get_status_display()}",
-                related_object=application
+                title=f"Update: {application.job.title}",
+                message=f"Your application status is now: {application.get_status_display()}. Log in to Charlady for next steps.",
+                related_object=application,
+                send_sms=True
             )
 
             messages.success(request, 'Status updated.')

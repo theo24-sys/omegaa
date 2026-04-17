@@ -37,9 +37,22 @@ def chat_detail(request, session_id):
                     messages.warning(request, "You have reached your Free Plan limit. Please upgrade to Standard or Gold to continue chatting seamlessly!")
                     return redirect('payments:payment_plans')
             
-            ChatMessage.objects.create(session=session, sender=request.user, text=text)
+            msg = ChatMessage.objects.create(session=session, sender=request.user, text=text)
             session.updated_at = timezone.now()
             session.save()
+
+            # Notify the other participant by SMS
+            from notifications.utils import create_notification
+            other_user = session.get_other_participant(request.user)
+            create_notification(
+                recipient=other_user,
+                notification_type='chat_message',
+                title=f"New message from {request.user.get_full_name() or request.user.username}",
+                message=text[:50] + ("..." if len(text) > 50 else ""),
+                related_object=msg,
+                send_sms=True
+            )
+            
             return redirect('chat:chat_detail', session_id=session.id)
             
     is_gold = False
@@ -87,6 +100,18 @@ def video_interview(request, session_id):
     # Mark interview as active for the next hour to alert the other party
     session.interview_active_until = timezone.now() + timezone.timedelta(minutes=60)
     session.save()
+
+    # SMS Alert for Video Interview
+    from notifications.utils import create_notification
+    other_user = session.get_other_participant(request.user)
+    create_notification(
+        recipient=other_user,
+        notification_type='video_interview',
+        title="Immediate Interview Invitation",
+        message=f"{request.user.get_full_name() or request.user.username} is waiting for you in the video interview room! Join now on Charlady.",
+        related_object=session,
+        send_sms=True
+    )
     
     return render(request, 'chat/video_call.html', {
         'session': session,

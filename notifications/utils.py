@@ -1,9 +1,10 @@
 from django.contrib.contenttypes.models import ContentType
 from .models import Notification
+from .sms_utils import send_sms as dispatch_sms
 
-def create_notification(recipient, notification_type, title, message, related_object=None):
+def create_notification(recipient, notification_type, title, message, related_object=None, send_sms=False):
     """
-    Utility to create a notification safely.
+    Utility to create a notification safely and optionally send an SMS.
     """
     notification = Notification(
         recipient=recipient,
@@ -17,4 +18,11 @@ def create_notification(recipient, notification_type, title, message, related_ob
         notification.object_id = related_object.pk
     
     notification.save()
+
+    # SMS Dispatch
+    if send_sms and recipient.phone_number:
+        # We use title: message for the SMS content
+        sms_text = f"Charlady: {title}\n{message}"
+        dispatch_sms(recipient.phone_number, sms_text)
+    
     return notification
