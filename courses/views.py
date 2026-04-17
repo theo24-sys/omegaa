@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import Course, Lesson, CourseCompletion, LessonCompletion, Question, Choice, QuizAttempt
 from payments.models import Payment
+from django.http import HttpResponse
 
 @login_required
 def course_list(request):
@@ -192,3 +193,23 @@ def complete_course(request, course_id):
         messages.success(request, f"Excellent! You've earned the {course.title} badge.")
     
     return redirect('courses:course_list')
+
+
+@login_required
+def seed_courses_view(request):
+    if not request.user.is_staff:
+        return HttpResponse("Unauthorized", status=401)
+    
+    import sys
+    from pathlib import Path
+    sys.path.append(str(Path(__file__).resolve().parent.parent))
+    
+    try:
+        import seed_courses
+        seed_courses.seed_courses()
+        messages.success(request, "Courses have been successfully seeded!")
+    except Exception as e:
+        messages.error(request, f"Error seeding courses: {e}")
+        
+    return redirect('courses:course_list')
+
