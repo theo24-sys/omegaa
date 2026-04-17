@@ -52,6 +52,13 @@
     {% block extra_head %}{% endblock %}
     
     <style>
+        /* Responsive Text Wrapping globally to prevent text out-of-bounds on mobile */
+        p, h1, h2, h3, h4, h5, h6, span, a, div, li, ul, ol, td, th {
+            overflow-wrap: break-word;
+            word-wrap: break-word;
+            word-break: break-word;
+        }
+
         .text-star {
             background: linear-gradient(135deg, #d946ef 0%, #f472b6 100%);
             -webkit-background-clip: text;

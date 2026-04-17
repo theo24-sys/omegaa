@@ -41,7 +41,6 @@ def course_detail(request, course_id):
 
     if not has_access:
         messages.info(request, f"Review the details for {course.title}. Payment is required to access lessons and earn certifications.")
-        return redirect('courses:course_list') # Redirect to list where they can see the bundle offer
 
     completed_courses = CourseCompletion.objects.filter(user=request.user).values_list('course_id', flat=True)
     completed_lessons = LessonCompletion.objects.filter(user=request.user, lesson__course=course).values_list('lesson_id', flat=True)
@@ -52,6 +51,7 @@ def course_detail(request, course_id):
         'completed_courses': completed_courses,
         'completed_lessons': completed_lessons,
         'lessons': lessons,
+        'has_access': has_access,
     }
     return render(request, 'courses/course_detail.html', context)
 

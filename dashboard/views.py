@@ -5,7 +5,9 @@ from django.contrib import messages
 from accounts.models import CustomUser
 from jobs.models import Job, Application
 from payments.models import Payment, PaymentPlan
-from reviews.models import Review  # if you have reviews
+from reviews.models import Review
+from django.db import models
+from courses.models import Course, CourseCompletion
 
 def is_admin(user):
     return user.is_authenticated and user.is_staff
@@ -121,6 +123,18 @@ def housekeeper_dashboard(request):
     review_count = reviews.count()
     skills_list = [s.strip() for s in (request.user.skills or '').split(',') if s.strip()]
 
+    # Study Tracker Logic
+    completed_course_ids = CourseCompletion.objects.filter(user=request.user).values_list('course_id', flat=True)
+    has_bundle = Payment.objects.filter(user=request.user, plan__plan_type='academy_bundle', status='completed').exists()
+    if has_bundle:
+        accessible_courses = Course.objects.exclude(id__in=completed_course_ids)
+    else:
+        paid_course_ids = Payment.objects.filter(user=request.user, course__isnull=False, status='completed').values_list('course_id', flat=True)
+        accessible_courses = Course.objects.filter(
+            models.Q(is_free=True) | models.Q(is_mandatory=True) | models.Q(id__in=paid_course_ids)
+        ).exclude(id__in=completed_course_ids)
+    study_tracker_courses = accessible_courses.order_by('-is_mandatory')[:3]
+
     context = {
         'applications': applications,
         'active_jobs': active_jobs,
@@ -128,6 +142,7 @@ def housekeeper_dashboard(request):
         'avg_rating': round(avg_rating, 1),
         'review_count': review_count,
         'skills_list': skills_list,
+        'study_tracker_courses': study_tracker_courses,
     }
     return render(request, 'dashboard/housekeeper_dashboard.html', context)
 
