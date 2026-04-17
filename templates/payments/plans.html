@@ -36,9 +36,9 @@
                     <span class="inline-block px-4 py-1.5 rounded-full bg-slate-100 text-slate-600 text-xs font-bold uppercase tracking-widest mb-4">Starter</span>
                     <h2 class="text-3xl font-black text-slate-900 mb-2">Free Plan</h2>
                     <div class="flex items-baseline gap-1 text-slate-900">
-                        <span class="text-5xl font-black">KES 0</span>
+                        <span class="text-5xl font-black">KES {{ free_plan.price|floatformat:0 }}</span>
                     </div>
-                    <p class="text-sm text-slate-500 font-medium mt-2">Job Posting Fee: KES 250 / post</p>
+                    <p class="text-sm text-slate-500 font-medium mt-2">Job Posting Fee: KES {{ free_plan.job_posting_fee|floatformat:0 }} / post</p>
                 </div>
 
                 <div class="flex-grow space-y-4 mb-8">
@@ -81,10 +81,10 @@
                     <span class="inline-block px-4 py-1.5 rounded-full bg-white/20 text-white text-xs font-bold uppercase tracking-widest mb-4 backdrop-blur-sm">Main Plan</span>
                     <h2 class="text-3xl font-black text-white mb-2">Standard</h2>
                     <div class="flex items-baseline gap-1 text-white">
-                        <span class="text-5xl font-black">KES 300</span>
+                        <span class="text-5xl font-black">KES {{ standard_plan.price|floatformat:0 }}</span>
                         <span class="text-pink-200 font-bold uppercase tracking-widest text-xs">/ month</span>
                     </div>
-                    <p class="text-sm text-pink-100 font-medium mt-2">Job Posting Fee: KES 150 / post</p>
+                    <p class="text-sm text-pink-100 font-medium mt-2">Job Posting Fee: KES {{ standard_plan.job_posting_fee|floatformat:0 }} / post</p>
                 </div>
 
                 <div class="flex-grow space-y-4 mb-8">
@@ -135,10 +135,12 @@
                     <span class="inline-block px-4 py-1.5 rounded-full bg-yellow-900/10 text-yellow-900 text-xs font-bold uppercase tracking-widest mb-4 border border-yellow-900/20 shadow-sm">Premium Experience</span>
                     <h2 class="text-3xl font-black text-yellow-950 mb-2">Gold Plan</h2>
                     <div class="flex items-baseline gap-1 text-yellow-950">
-                        <span class="text-5xl font-black">KES 1000</span>
+                        <span class="text-5xl font-black">KES {{ pro_plan.price|floatformat:0 }}</span>
                         <span class="text-yellow-800 font-bold uppercase tracking-widest text-xs">/ month</span>
                     </div>
-                    <p class="text-sm border border-yellow-900/30 bg-yellow-900/10 text-yellow-900 font-black px-3 py-1 rounded inline-block mt-3 shadow-sm">Job Posting Fee: FREE</p>
+                    <p class="text-sm border border-yellow-900/30 bg-yellow-900/10 text-yellow-900 font-black px-3 py-1 rounded inline-block mt-3 shadow-sm">
+                        Job Posting Fee: {% if pro_plan.job_posting_fee == 0 %}FREE{% else %}KES {{ pro_plan.job_posting_fee|floatformat:0 }}{% endif %}
+                    </p>
                 </div>
 
                 <div class="flex-grow space-y-4 mb-8 relative z-10">

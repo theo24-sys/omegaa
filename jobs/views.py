@@ -81,51 +81,9 @@ def job_create(request):
                 messages.success(request, 'Job posted successfully! Your Gold Plan includes unlimited free postings.')
                 return redirect('jobs:my_jobs')
 
-            # Case 2: PAID Job Posting (Standard/Free plans)
-            phone_number = request.POST.get('phone_number')
-            mpesa_code = request.POST.get('mpesa_code')
-            
-            # Create payment record
-            payment = Payment.objects.create(
-                user=request.user,
-                amount=job_fee,
-                payment_method='mpesa',
-                status='pending',
-                verification_notes=f"Job Posting fee for '{job.title}'"
-            )
-            
-            if mpesa_code:
-                # Fallback to manual code if provided
-                job.mpesa_code = mpesa_code
-                job.posting_fee_paid = False 
-                job.save()
-                payment.transaction_id = mpesa_code
-                payment.status = 'verification_submitted'
-                payment.save()
-                messages.success(request, f'Job posted! Payment verification for KSh {job_fee} submitted.')
-            elif phone_number:
-                # Professional API Flow: STK Push
-                client = get_mpesa_client()
-                response = client.initiate_stk_push(
-                    phone_number=phone_number,
-                    amount=job_fee,
-                    reference_id=f"JOB{job.id}",
-                    description=f"Job Post Fee"
-                )
-                
-                if response.get('success'):
-                    payment.stk_reference_id = response.get('checkout_request_id')
-                    payment.is_mpesa_stk = True
-                    payment.phone_number = phone_number
-                    payment.save()
-                    messages.success(request, f'M-Pesa prompt sent! Complete payment of KSh {job_fee} on your phone to activate.')
-                    return redirect('payments:mpesa_payment', payment_id=payment.id)
-                else:
-                    messages.error(request, f"M-Pesa error: {response.get('message')}. Please pay manually.")
-            else:
-                messages.warning(request, f'Please pay KSh {job_fee} to Till 4567052 to activate your job.')
-
-            return redirect('jobs:my_jobs')
+            # Case 2: PAID Job Posting Path
+            # Redirect to a dedicated checkout page to handle the 150/250 KES payment
+            return redirect('payments:job_checkout', job_id=job.id)
     else:
         form = JobForm()
 
@@ -134,9 +92,7 @@ def job_create(request):
 
     return render(request, 'jobs/job_form.html', {
         'form': form, 
-        'action': 'Post New Job',
-        'job_fee': job_fee,
-        'features': features
+        'action': 'Post New Job'
     })
 
 

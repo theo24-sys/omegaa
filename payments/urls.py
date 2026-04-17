@@ -14,6 +14,7 @@ urlpatterns = [
     path('verification-submitted/<int:payment_id>/', views.payment_verification_submitted, name='payment_verification_submitted'),
     path('detail/<int:payment_id>/', views.payment_detail, name='payment_detail'),
     path('history/', views.payment_history, name='payment_history'),
+    path('job-checkout/<int:job_id>/', views.job_checkout, name='job_checkout'),
     
     # Admin URLs
     path('admin/pending/', admin_views.pending_payments, name='admin_pending_payments'),

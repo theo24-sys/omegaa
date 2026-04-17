@@ -3,7 +3,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.utils import timezone
-from .models import PaymentPlan, Payment
+from .models import PaymentPlan, Payment, UserSubscription
+from jobs.models import Job
 from courses.models import Course
 from notifications.utils import create_notification
 from django.views.decorators.csrf import csrf_exempt
@@ -265,3 +266,60 @@ def payment_detail(request, payment_id):
 def payment_history(request):
     payments = Payment.objects.filter(user=request.user).order_by('-created_at')
     return render(request, 'payments/history.html', {'payments': payments})
+
+
+@login_required
+def job_checkout(request, job_id):
+    job = get_object_or_404(Job, id=job_id, employer=request.user)
+    
+    # If already paid, redirect to my jobs
+    if job.posting_fee_paid:
+        messages.info(request, "This job activation fee has already been paid.")
+        return redirect('jobs:my_jobs')
+    
+    # Get the fee based on the user's current subscription
+    features = UserSubscription.get_active_features(request.user)
+    job_fee = features.job_posting_fee if features else 250
+    
+    if request.method == 'POST':
+        phone_number = request.POST.get('phone_number')
+        
+        if not phone_number:
+            messages.error(request, "Please provide a valid M-Pesa phone number.")
+            return redirect('payments:job_checkout', job_id=job.id)
+            
+        # Create payment record
+        payment = Payment.objects.create(
+            user=request.user,
+            amount=job_fee,
+            payment_method='mpesa',
+            status='pending',
+            verification_notes=f"Job Activation Fee for '{job.title}'"
+        )
+        
+        # Professional API Flow: STK Push
+        client = MpesaClient()
+        response = client.initiate_stk_push(
+            phone_number=phone_number,
+            amount=job_fee,
+            reference_id=f"JOB{job.id}",
+            description=f"Job Post Activation"
+        )
+        
+        if response.get('success'):
+            payment.stk_reference_id = response.get('checkout_request_id')
+            payment.is_mpesa_stk = True
+            payment.phone_number = phone_number
+            payment.save()
+            
+            # Link payment to mpesa_payment status page
+            messages.success(request, f'M-Pesa prompt sent! Complete payment of KSh {job_fee} on your phone.')
+            return redirect('payments:mpesa_payment', payment_id=payment.id)
+        else:
+            messages.error(request, f"M-Pesa error: {response.get('message')}. Please try again.")
+            
+    return render(request, 'payments/job_checkout.html', {
+        'job': job,
+        'job_fee': job_fee,
+        'features': features
+    })
