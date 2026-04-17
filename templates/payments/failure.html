@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+
+{% block title %}Payment Failed - Charlady{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-12 max-w-3xl">
+    <div class="bg-white rounded-2xl shadow-2xl border border-red-100 overflow-hidden text-center">
+        <!-- Failure Icon & Title -->
+        <div class="bg-gradient-to-br from-red-400 to-red-600 p-10">
+            <div class="w-24 h-24 bg-white rounded-full flex items-center justify-center mx-auto shadow-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-red-600" viewBox="0 0 20 20"
+                    fill="currentColor">
+                    <path fill-rule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                        clip-rule="evenodd" />
+                </svg>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="p-8 md:p-12">
+            <h1 class="text-4xl md:text-5xl font-bold text-red-700 mb-6">Payment Failed</h1>
+            <p class="text-xl text-gray-700 mb-8">
+                Unfortunately, your payment could not be processed. Please try again.
+            </p>
+
+            <!-- Error Details Card -->
+            <div class="bg-red-50 rounded-xl p-8 mb-10 max-w-2xl mx-auto">
+                <h2 class="text-2xl font-semibold text-red-700 mb-6">What Went Wrong?</h2>
+                
+                {% if reason == 'timeout' %}
+                <div class="text-center">
+                    <p class="text-lg text-gray-700 mb-4">
+                        <strong>Payment Timeout</strong>
+                    </p>
+                    <p class="text-gray-600 mb-4">
+                        You didn't complete the M-Pesa payment within 5 minutes. The payment request has expired.
+                    </p>
+                </div>
+                {% elif reason == 'user_cancelled' %}
+                <div class="text-center">
+                    <p class="text-lg text-gray-700 mb-4">
+                        <strong>Payment Cancelled</strong>
+                    </p>
+                    <p class="text-gray-600 mb-4">
+                        You cancelled the M-Pesa payment. No charges have been made to your account.
+                    </p>
+                </div>
+                {% elif reason == 'insufficient_funds' %}
+                <div class="text-center">
+                    <p class="text-lg text-gray-700 mb-4">
+                        <strong>Insufficient Funds</strong>
+                    </p>
+                    <p class="text-gray-600 mb-4">
+                        Your M-Pesa account does not have enough balance. Please add funds and try again.
+                    </p>
+                </div>
+                {% elif reason == 'declined' %}
+                <div class="text-center">
+                    <p class="text-lg text-gray-700 mb-4">
+                        <strong>Payment Declined</strong>
+                    </p>
+                    <p class="text-gray-600 mb-4">
+                        Your payment was declined by M-Pesa. Please check your details and try again.
+                    </p>
+                </div>
+                {% elif reason == 'invalid_phone' %}
+                <div class="text-center">
+                    <p class="text-lg text-gray-700 mb-4">
+                        <strong>Invalid Phone Number</strong>
+                    </p>
+                    <p class="text-gray-600 mb-4">
+                        The phone number provided doesn't match your M-Pesa account. Please verify your number.
+                    </p>
+                </div>
+                {% else %}
+                <div class="text-center">
+                    <p class="text-lg text-gray-700 mb-4">
+                        <strong>Payment Error</strong>
+                    </p>
+                    <p class="text-gray-600 mb-4">
+                        An error occurred while processing your payment. Please try again or contact support.
+                    </p>
+                </div>
+                {% endif %}
+
+                <!-- Payment Details -->
+                <div class="mt-8 pt-6 border-t border-red-200">
+                    <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                        <div>
+                            <dt class="text-gray-600">Plan</dt>
+                            <dd class="font-semibold text-gray-900">{{ payment.plan.name }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-gray-600">Amount</dt>
+                            <dd class="font-semibold text-gray-900">KES {{ payment.amount|floatformat:0 }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-gray-600">Attempt Time</dt>
+                            <dd class="font-mono">{{ payment.created_at|date:"F j, Y g:i A"|default:"—" }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-gray-600">Status</dt>
+                            <dd class="inline-block px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
+                                Failed
+                            </dd>
+                        </div>
+                    </dl>
+                </div>
+            </div>
+
+            <!-- What You Can Do -->
+            <div class="bg-blue-50 rounded-xl p-6 mb-10 max-w-2xl mx-auto border border-blue-200">
+                <p class="text-sm font-semibold text-blue-900 mb-3">💡 Next Steps:</p>
+                <ul class="text-sm text-blue-800 space-y-2">
+                    <li>✓ Ensure you have sufficient M-Pesa balance</li>
+                    <li>✓ Check your phone number is correct</li>
+                    <li>✓ Keep your phone nearby and watch for the M-Pesa prompt</li>
+                    <li>✓ Complete the payment within 5 minutes</li>
+                    <li>✓ If problems persist, contact support</li>
+                </ul>
+            </div>
+
+            <!-- Call to Action Buttons -->
+            <div class="flex flex-col sm:flex-row justify-center gap-5">
+                <a href="{% url 'payments:retry_payment' payment.id %}"
+                    class="bg-pink-600 hover:bg-pink-700 text-white font-bold py-4 px-12 rounded-xl transition text-lg shadow-lg">
+                    Try Again
+                </a>
+                <a href="{% url 'home' %}"
+                    class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-4 px-10 rounded-xl transition text-lg">
+                    Return to Home
+                </a>
+            </div>
+
+            <!-- Support Contact -->
+            <div class="mt-10 p-6 bg-gray-50 rounded-lg">
+                <p class="text-center text-gray-600 text-sm">
+                    Having trouble? Contact our support team at
+                    <a href="mailto:support@charlady.co.ke" class="text-pink-600 hover:text-pink-800 font-medium">support@charlady.co.ke</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

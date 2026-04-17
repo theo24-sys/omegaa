@@ -1,0 +1,213 @@
+{% extends 'admin/base_site.html' %}
+
+{% block title %}Monthly Contributions Dashboard - Admin{% endblock %}
+
+{% block content %}
+<style>
+    .dashboard-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem;
+        margin: -2rem -2rem 2rem -2rem;
+        border-radius: 0 0 1rem 1rem;
+    }
+    
+    .stat-card {
+        background: white;
+        border-radius: 0.5rem;
+        padding: 1.5rem;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        border-left: 4px solid #667eea;
+    }
+    
+    .stat-card.danger {
+        border-left-color: #dc2626;
+    }
+    
+    .stat-card.success {
+        border-left-color: #059669;
+    }
+    
+    .stat-value {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #1f2937;
+    }
+    
+    .stat-label {
+        color: #6b7280;
+        font-size: 0.875rem;
+        margin-top: 0.5rem;
+    }
+</style>
+
+<div class="dashboard-header">
+    <h1>📊 Monthly Contributions Dashboard</h1>
+    <p>Track worker 3% monthly salary contributions</p>
+</div>
+
+<!-- Summary Cards -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+    <div class="stat-card danger">
+        <div class="stat-label">💰 Total Due (Pending)</div>
+        <div class="stat-value">KES {{ total_due|floatformat:0 }}</div>
+        <div class="stat-label">{{ pending_count }} pending payment(s)</div>
+    </div>
+    
+    <div class="stat-card success">
+        <div class="stat-label">✓ Total Collected</div>
+        <div class="stat-value">KES {{ total_collected|floatformat:0 }}</div>
+        <div class="stat-label">{{ paid_count }} completed payment(s)</div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-label">📈 Collection Rate</div>
+        <div class="stat-value">
+            {% if paid_count|add:pending_count > 0 %}
+                {{ paid_count|add:pending_count|mul:100|div:paid_count|add:pending_count|floatformat:0 }}%
+            {% else %}
+                0%
+            {% endif %}
+        </div>
+        <div class="stat-label">{{ paid_count }} of {{ paid_count|add:pending_count }} records</div>
+    </div>
+</div>
+
+<!-- Filters -->
+<fieldset style="border: 1px solid #e5e7eb; border-radius: 0.5rem; padding: 1rem; margin-bottom: 2rem;">
+    <legend style="padding: 0 0.5rem;">🔍 Filter</legend>
+    <form method="get" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+        <div>
+            <label for="year">Year:</label>
+            <select name="year" id="year">
+                <option value="">All Years</option>
+                <option value="2024" {% if filter_year == '2024' %}selected{% endif %}>2024</option>
+                <option value="2025" {% if filter_year == '2025' %}selected{% endif %}>2025</option>
+            </select>
+        </div>
+        
+        <div>
+            <label for="month">Month:</label>
+            <select name="month" id="month">
+                <option value="">All Months</option>
+                <option value="1" {% if filter_month == '1' %}selected{% endif %}>January</option>
+                <option value="2" {% if filter_month == '2' %}selected{% endif %}>February</option>
+                <option value="3" {% if filter_month == '3' %}selected{% endif %}>March</option>
+                <option value="4" {% if filter_month == '4' %}selected{% endif %}>April</option>
+                <option value="5" {% if filter_month == '5' %}selected{% endif %}>May</option>
+                <option value="6" {% if filter_month == '6' %}selected{% endif %}>June</option>
+                <option value="7" {% if filter_month == '7' %}selected{% endif %}>July</option>
+                <option value="8" {% if filter_month == '8' %}selected{% endif %}>August</option>
+                <option value="9" {% if filter_month == '9' %}selected{% endif %}>September</option>
+                <option value="10" {% if filter_month == '10' %}selected{% endif %}>October</option>
+                <option value="11" {% if filter_month == '11' %}selected{% endif %}>November</option>
+                <option value="12" {% if filter_month == '12' %}selected{% endif %}>December</option>
+            </select>
+        </div>
+        
+        <div>
+            <label for="status">Status:</label>
+            <select name="status" id="status">
+                <option value="">All</option>
+                <option value="paid" {% if filter_status == 'paid' %}selected{% endif %}>✓ Paid</option>
+                <option value="pending" {% if filter_status == 'pending' %}selected{% endif %}>⏳ Pending</option>
+                <option value="ignored" {% if filter_status == 'ignored' %}selected{% endif %}>— Ignored</option>
+            </select>
+        </div>
+        
+        <div style="display: flex; gap: 0.5rem; align-items: flex-end;">
+            <button type="submit" class="button">Filter</button>
+            <a href="?">Clear</a>
+        </div>
+    </form>
+</fieldset>
+
+<!-- Pending Contributions List -->
+<h2 style="margin-top: 2rem; margin-bottom: 1rem;">⏳ Pending Payments (Top 50)</h2>
+<table style="width: 100%; border-collapse: collapse;">
+    <thead style="background: #f3f4f6; border-bottom: 2px solid #e5e7eb;">
+        <tr>
+            <th style="text-align: left; padding: 0.75rem; border: 1px solid #e5e7eb;">Worker</th>
+            <th style="text-align: left; padding: 0.75rem; border: 1px solid #e5e7eb;">Period</th>
+            <th style="text-align: right; padding: 0.75rem; border: 1px solid #e5e7eb;">Salary</th>
+            <th style="text-align: right; padding: 0.75rem; border: 1px solid #e5e7eb;">Amount Due</th>
+            <th style="text-align: center; padding: 0.75rem; border: 1px solid #e5e7eb;">Status</th>
+            <th style="text-align: center; padding: 0.75rem; border: 1px solid #e5e7eb;">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for contribution in pending_contributions %}
+        <tr style="border-bottom: 1px solid #e5e7eb;">
+            <td style="padding: 0.75rem; border: 1px solid #e5e7eb;">
+                <a href="{% url 'admin:accounts_customuser_change' contribution.worker.id %}">
+                    {{ contribution.worker.username }}
+                </a>
+            </td>
+            <td style="padding: 0.75rem; border: 1px solid #e5e7eb;">
+                {{ contribution.get_month_display }} {{ contribution.year }}
+            </td>
+            <td style="padding: 0.75rem; border: 1px solid #e5e7eb; text-align: right;">
+                KES {{ contribution.calculated_salary|floatformat:0 }}
+            </td>
+            <td style="padding: 0.75rem; border: 1px solid #e5e7eb; text-align: right; font-weight: bold; color: #dc2626;">
+                KES {{ contribution.amount_due|floatformat:0 }}
+            </td>
+            <td style="padding: 0.75rem; border: 1px solid #e5e7eb; text-align: center;">
+                <span style="background: #fef3c7; color: #b45309; padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.875rem;">
+                    ⏳ Pending
+                </span>
+            </td>
+            <td style="padding: 0.75rem; border: 1px solid #e5e7eb; text-align: center;">
+                <a href="{% url 'payments:admin_contribution_details' contribution.worker.id %}">View</a>
+                | 
+                <a href="{% url 'payments:admin_mark_contribution_paid' contribution.id %}">Mark Paid</a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="6" style="padding: 2rem; text-align: center; color: #6b7280;">
+                No pending contributions
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<!-- Collection Trend -->
+<h2 style="margin-top: 2rem; margin-bottom: 1rem;">📈 Collection Trend by Month</h2>
+<table style="width: 100%; border-collapse: collapse;">
+    <thead style="background: #f3f4f6; border-bottom: 2px solid #e5e7eb;">
+        <tr>
+            <th style="text-align: left; padding: 0.75rem; border: 1px solid #e5e7eb;">Period</th>
+            <th style="text-align: right; padding: 0.75rem; border: 1px solid #e5e7eb;">Records</th>
+            <th style="text-align: right; padding: 0.75rem; border: 1px solid #e5e7eb;">Total Amount</th>
+            <th style="text-align: center; padding: 0.75rem; border: 1px solid #e5e7eb;">Details</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for period in contributions_by_month %}
+        <tr style="border-bottom: 1px solid #e5e7eb;">
+            <td style="padding: 0.75rem; border: 1px solid #e5e7eb;">
+                {{ period.month|stringformat:'02d' }}/{{ period.year }}
+            </td>
+            <td style="padding: 0.75rem; border: 1px solid #e5e7eb; text-align: right;">
+                {{ period.count }}
+            </td>
+            <td style="padding: 0.75rem; border: 1px solid #e5e7eb; text-align: right; font-weight: bold;">
+                KES {{ period.total_amount|floatformat:0 }}
+            </td>
+            <td style="padding: 0.75rem; border: 1px solid #e5e7eb; text-align: center;">
+                <a href="?year={{ period.year }}&month={{ period.month }}">Filter</a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="4" style="padding: 2rem; text-align: center; color: #6b7280;">
+                No contribution records
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}
