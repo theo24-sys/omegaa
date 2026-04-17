@@ -142,6 +142,7 @@ def mpesa_payment(request, payment_id):
             
             if res.get('success'):
                 payment.is_mpesa_stk = True
+                payment.phone_number = normalized_phone
                 payment.stk_reference_id = res.get('checkout_request_id')
                 payment.stk_initiated_at = timezone.now()
                 payment.save()
@@ -153,6 +154,7 @@ def mpesa_payment(request, payment_id):
         'payment': payment,
         'till_number': settings.MPESA_TILL_NUMBER,
         'stk_error': stk_error,
+        'phone_number': payment.phone_number
     })
 
 

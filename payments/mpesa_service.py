@@ -23,6 +23,7 @@ class MpesaClient:
         self.consumer_secret = settings.MPESA_CONSUMER_SECRET
         self.passkey = settings.MPESA_PASSKEY
         self.short_code = settings.MPESA_SHORT_CODE
+        self.till_number = settings.MPESA_TILL_NUMBER
         self.environment = settings.MPESA_ENVIRONMENT  # 'sandbox' or 'production'
         
         if self.environment == 'sandbox':
@@ -118,7 +119,7 @@ class MpesaClient:
             "TransactionType": self.transaction_type,
             "Amount": int(amount),  # Must be integer
             "PartyA": phone_number,
-            "PartyB": self.short_code,
+            "PartyB": self.till_number,
             "PhoneNumber": phone_number,
             "CallBackURL": settings.MPESA_CALLBACK_URL,
             "AccountReference": reference_id,  # Your Payment ID
