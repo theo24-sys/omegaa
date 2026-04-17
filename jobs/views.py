@@ -5,7 +5,7 @@ from django.db.models import Q
 from .models import Job, Application
 from .forms import JobForm, ApplicationForm, JobSearchForm
 from notifications.utils import create_notification
-from payments.models import Payment
+from payments.models import Payment, UserSubscription
 from payments.mpesa_service import get_mpesa_client
 from django.conf import settings
 
@@ -69,13 +69,23 @@ def job_create(request):
             job.employer = request.user
             job.save()  # Save first so we have ID
 
-            # Payment logic (250 KES via STK Push)
+            # Strict Enforcement: Get fee from active subscription
+            features = UserSubscription.get_active_features(request.user)
+            job_fee = features.job_posting_fee if features else 250
+            
+            # Case 1: FREE Job Posting (Gold Plan)
+            if job_fee == 0:
+                job.posting_fee_paid = True
+                job.is_active = True
+                job.save()
+                messages.success(request, 'Job posted successfully! Your Gold Plan includes unlimited free postings.')
+                return redirect('jobs:my_jobs')
+
+            # Case 2: PAID Job Posting (Standard/Free plans)
+            phone_number = request.POST.get('phone_number')
             mpesa_code = request.POST.get('mpesa_code')
-            phone_number = request.POST.get('phone_number') # Get phone for STK push
             
-            job_fee = getattr(settings, 'JOB_POSTING_FEE', 250)
-            
-            # Create a generic payment record first
+            # Create payment record
             payment = Payment.objects.create(
                 user=request.user,
                 amount=job_fee,
@@ -119,7 +129,15 @@ def job_create(request):
     else:
         form = JobForm()
 
-    return render(request, 'jobs/job_form.html', {'form': form, 'action': 'Post New Job'})
+    features = UserSubscription.get_active_features(request.user)
+    job_fee = features.job_posting_fee if features else 250
+
+    return render(request, 'jobs/job_form.html', {
+        'form': form, 
+        'action': 'Post New Job',
+        'job_fee': job_fee,
+        'features': features
+    })
 
 
 @login_required

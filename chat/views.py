@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.utils import timezone
 from django.contrib.auth import get_user_model
 from .models import ChatSession, ChatMessage
-from payments.models import Payment
+from payments.models import Payment, UserSubscription
 
 User = get_user_model()
 
@@ -29,13 +29,14 @@ def chat_detail(request, session_id):
     if request.method == 'POST':
         text = request.POST.get('text')
         if text:
-            # Plan Restrictions Enforcement
-            if request.user.user_type == 'employer' and not request.user.is_verified and not request.user.is_superuser:
-                # Free Limit: Max 5 total messages across all chats
-                msg_count = ChatMessage.objects.filter(sender=request.user).count()
-                if msg_count >= 5:
-                    messages.warning(request, "You have reached your Free Plan limit. Please upgrade to Standard or Gold to continue chatting seamlessly!")
-                    return redirect('payments:payment_plans')
+            # Strict Plan Enforcement (Chat)
+            features = UserSubscription.get_active_features(request.user)
+            if request.user.user_type == 'employer' and not request.user.is_superuser:
+                if features.chat_message_limit > 0:
+                    msg_count = ChatMessage.objects.filter(sender=request.user).count()
+                    if msg_count >= features.chat_message_limit:
+                        messages.warning(request, f"Your {features.name} allows {features.chat_message_limit} messages. Upgrade your plan for unlimited communication!")
+                        return redirect('payments:payment_plans')
             
             msg = ChatMessage.objects.create(session=session, sender=request.user, text=text)
             session.updated_at = timezone.now()
@@ -55,13 +56,10 @@ def chat_detail(request, session_id):
             
             return redirect('chat:chat_detail', session_id=session.id)
             
-    is_gold = False
-    is_standard = False
-    if request.user.is_authenticated:
-        # Check if they have the 1000 KES active plan (Gold)
-        is_gold = Payment.objects.filter(user=request.user, status='completed', plan__price=1000).exists()
-        # Check if they have the 300 KES active plan (Standard)
-        is_standard = Payment.objects.filter(user=request.user, status='completed', plan__price=300).exists()
+    # Handle badges for UI
+    features = UserSubscription.get_active_features(request.user)
+    is_gold = features.name == "Gold Plan" if features else False
+    is_standard = features.name == "Standard Plan" if features else False
     
     return render(request, 'chat/detail.html', {
         'session': session,
@@ -78,26 +76,18 @@ def video_interview(request, session_id):
         messages.error(request, "You do not have permission to join this interview.")
         return redirect('chat:inbox')
 
-    # Plan Restrictions
-    is_gold = False
-    is_standard = False
-    if not request.user.is_superuser:
-        is_gold = Payment.objects.filter(user=request.user, status='completed', plan__price=1000).exists()
-        is_standard = Payment.objects.filter(user=request.user, status='completed', plan__price=300).exists()
-        
-        # If user is employer and not verified, block them
-        if request.user.user_type == 'employer' and not is_gold and not is_standard:
-            messages.warning(request, "Video Interviewing is a premium feature. Upgrade to Standard or Gold to start interviewing today!")
+    # Strict Plan Enforcement (Video)
+    features = UserSubscription.get_active_features(request.user)
+    if not request.user.is_superuser and request.user.user_type == 'employer':
+        if not features.can_use_video:
+            messages.warning(request, f"Video Interviewing is not available on the {features.name}. Upgrade to Standard or Gold to start interviewing today!")
             return redirect('payments:payment_plans')
-    else:
-        is_gold = True # Admins get gold access
 
     # Determine time limit in seconds
-    time_limit = 0 # 0 means unlimited
-    if is_standard and not is_gold:
-        time_limit = 15 * 60 # 15 minutes
+    time_limit = features.video_call_limit_mins * 60 if features else 0
+    is_gold = features.name == "Gold Plan" if features else False
         
-    # Mark interview as active for the next hour to alert the other party
+    # Mark interview as active
     session.interview_active_until = timezone.now() + timezone.timedelta(minutes=60)
     session.save()
 
@@ -167,12 +157,14 @@ def start_chat(request, user_id):
     session = ChatSession.objects.filter(participants=request.user).filter(participants=target_user).first()
     
     if not session:
-        # Plan Restrictions Enforcement
-        if request.user.user_type == 'employer' and not request.user.is_verified and not request.user.is_superuser:
-            total_sessions = ChatSession.objects.filter(participants=request.user).count()
-            if total_sessions >= 2:
-                messages.warning(request, "Free Plan Restriction: You can only start 2 conversations. Please upgrade to securely message more professionals.")
-                return redirect('payments:payment_plans')
+        # Strict Plan Enforcement (New Chat)
+        features = UserSubscription.get_active_features(request.user)
+        if request.user.user_type == 'employer' and not request.user.is_superuser:
+            if features.chat_conversation_limit > 0:
+                total_sessions = ChatSession.objects.filter(participants=request.user).count()
+                if total_sessions >= features.chat_conversation_limit:
+                    messages.warning(request, f"Your {features.name} restricts you to {features.chat_conversation_limit} active conversations. Upgrade for unlimited networking!")
+                    return redirect('payments:payment_plans')
                 
         session = ChatSession.objects.create()
         session.participants.add(request.user, target_user)

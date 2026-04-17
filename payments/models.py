@@ -25,6 +25,13 @@ class PaymentPlan(models.Model):
     duration_days = models.PositiveIntegerField(default=30)
     is_active = models.BooleanField(default=True)
 
+    # Technical Feature Enforcement
+    job_posting_fee = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    video_call_limit_mins = models.PositiveIntegerField(default=0, help_text="0 for unlimited")
+    can_use_video = models.BooleanField(default=True)
+    chat_conversation_limit = models.PositiveIntegerField(default=0, help_text="0 for unlimited")
+    chat_message_limit = models.PositiveIntegerField(default=0, help_text="0 for unlimited")
+
     class Meta:
         ordering = ['price']
 
@@ -104,6 +111,31 @@ class UserSubscription(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.plan.name} - {self.status}"
+
+    @classmethod
+    def get_active_features(cls, user):
+        """Helper to get features for a user based on active sub or Free fallback."""
+        if not user or not user.is_authenticated:
+            return None
+        
+        # 1. Check for active subscription
+        sub = cls.objects.filter(user=user, status='active', expires_at__gt=timezone.now()).select_related('plan').first()
+        if sub:
+            return sub.plan
+        
+        # 2. Fallback to Free Tier (0 price employer plan)
+        free_plan = PaymentPlan.objects.filter(target_group='employer', price=0, is_active=True).first()
+        if free_plan:
+            return free_plan
+            
+        # 3. Emergency Default (Literal Free logic)
+        return type('DefaultPlan', (), {
+            'job_posting_fee': 250,
+            'video_call_limit_mins': 0,
+            'can_use_video': False,
+            'chat_conversation_limit': 2,
+            'chat_message_limit': 5
+        })
 
 
 class MonthlyContribution(models.Model):
