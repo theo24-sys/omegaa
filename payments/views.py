@@ -65,7 +65,13 @@ def course_checkout(request, course_id):
 
 @login_required
 def mpesa_payment(request, payment_id):
-    payment = get_object_or_404(Payment, id=payment_id, user=request.user, status='pending')
+    payment = get_object_or_404(Payment, id=payment_id, user=request.user)
+    
+    # If already completed or submitted, redirect away from payment input
+    if payment.status == 'completed':
+        return redirect('payments:payment_detail', payment_id=payment.id)
+    if payment.status == 'verification_submitted':
+        return redirect('payments:payment_verification_submitted', payment_id=payment.id)
 
     if request.method == 'POST':
         transaction_id = request.POST.get('transaction_id')
@@ -111,6 +117,11 @@ def mpesa_payment(request, payment_id):
 
     # Automatically trigger STK push if phone number provided via query or last payment
     stk_error = None
+    
+    # If the payment failed, display the failure reason as the error
+    if payment.status == 'failed' and payment.verification_notes:
+        stk_error = payment.verification_notes
+
     if request.method == 'GET' and 'trigger_stk' in request.GET:
         phone = request.GET.get('phone') or request.user.phone_number or ""
         if phone:
