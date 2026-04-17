@@ -190,7 +190,7 @@ STORAGES = {
             "region_name": AWS_S3_REGION_NAME,
             "endpoint_url": AWS_S3_ENDPOINT_URL,
             "custom_domain": AWS_S3_CUSTOM_DOMAIN,
-            "location": "media",
+            "location": os.getenv('AWS_S3_LOCATION', 'media'),
             "file_overwrite": False,
         },
     },
@@ -199,13 +199,18 @@ STORAGES = {
     },
 }
 
-# Fallback for older apps/logic
+AWS_S3_LOCATION = os.getenv('AWS_S3_LOCATION', 'media')
 if not AWS_ACCESS_KEY_ID:
     STORAGES["default"]["BACKEND"] = "django.core.files.storage.FileSystemStorage"
     MEDIA_URL = '/media/'
     MEDIA_ROOT = BASE_DIR / 'media'
 else:
-    MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/media/' if AWS_S3_CUSTOM_DOMAIN else f'{AWS_S3_ENDPOINT_URL}/{AWS_STORAGE_BUCKET_NAME}/media/'
+    # Use the custom domain if available, otherwise fallback to endpoint/bucket pattern
+    if AWS_S3_CUSTOM_DOMAIN:
+        MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{AWS_S3_LOCATION}/'
+    else:
+        # Construct path-style URL for R2 or S3
+        MEDIA_URL = f'{AWS_S3_ENDPOINT_URL}/{AWS_STORAGE_BUCKET_NAME}/{AWS_S3_LOCATION}/'
 
 # ─── Crispy Forms ───────────────────────────────────────────────────────────────
 CRISPY_ALLOWED_TEMPLATE_PACKS = "tailwind"
