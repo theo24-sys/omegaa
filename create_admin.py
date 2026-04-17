@@ -8,7 +8,22 @@ django.setup()
 from accounts.models import CustomUser
 from payments.models import PaymentPlan
 
-# Admin user creation removed per request since you've successfully created it!
+# Restore an Admin user for recovery
+admin_phone = "+254700111222"
+admin_user, created = CustomUser.objects.get_or_create(
+    phone_number=admin_phone,
+    defaults={
+        'first_name': 'System',
+        'last_name': 'Admin',
+        'email': 'admin@charlady.co.ke',
+        'user_type': 'employer',
+    }
+)
+admin_user.set_password('Admin@2026Charlady')
+admin_user.is_staff = True
+admin_user.is_superuser = True
+admin_user.save()
+print(f"Fallback admin restored. Login with {admin_phone} and password 'Admin@2026Charlady'")
 
 # 2. Create/Update the Standard Plan (300 KES)
 # Use filter().first() to avoid crash if multiple exact matches exist
