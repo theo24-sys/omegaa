@@ -187,6 +187,7 @@ STORAGES = {
             "access_key": AWS_ACCESS_KEY_ID,
             "secret_key": AWS_SECRET_ACCESS_KEY,
             "bucket_name": AWS_STORAGE_BUCKET_NAME,
+            "region_name": AWS_S3_REGION_NAME,
             "endpoint_url": AWS_S3_ENDPOINT_URL,
             "custom_domain": AWS_S3_CUSTOM_DOMAIN,
             "location": "media",
