@@ -222,10 +222,10 @@
                             </div>
                         </div>
                         {% if agreement_template %}
-                        <p class="text-[11px] text-gray-500 mb-4 leading-relaxed">Download this blank template, fill in your details, and re-upload the signed copy below.</p>
+                        <p class="text-[11px] text-gray-500 mb-4 leading-relaxed">{{ agreement_template.description|default:"Download this template, fill in your details, and re-upload the signed copy below." }}</p>
                         <a href="{{ agreement_template.document_file.url }}" download class="w-full inline-flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-md">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1M7 11l5 5m0 0l5-5m-5 5V4"/></svg>
-                            Download Blank Template
+                            Download {{ agreement_template.name }}
                         </a>
                         {% else %}
                         <p class="text-[11px] text-gray-500 mb-0 italic">No master template uploaded by Admin yet.</p>
