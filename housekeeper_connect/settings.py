@@ -243,6 +243,10 @@ MPESA_TRANSACTION_TYPE = os.getenv('MPESA_TRANSACTION_TYPE', 'CustomerBuyGoodsOn
 # Callback URL for Safaricom to send payment results
 MPESA_CALLBACK_URL = os.getenv('MPESA_CALLBACK_URL', 'https://charlady.co.ke/payments/mpesa/callback/')
 
+# ─── Africa's Talking (SMS) ──────────────────────────────────────────────────
+AFRICASTALKING_USERNAME = os.getenv('AFRICASTALKING_USERNAME', 'sandbox')
+AFRICASTALKING_API_KEY = os.getenv('AFRICASTALKING_API_KEY', '')
+
 # ─── Jazzmin Admin Theme ────────────────────────────────────────────────────────
 JAZZMIN_SETTINGS = {
     "site_title": "Charlady Admin",
