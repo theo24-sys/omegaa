@@ -25,24 +25,6 @@
                 </button>
             </div>
 
-            <!-- Buttons -->
-            <div class="flex flex-col sm:flex-row gap-4 justify-end pt-6">
-                {% if request.user.user_type == 'employer' %}
-                <a href="{% url 'jobs:my_jobs' %}"
-                    class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-3 px-8 rounded-xl transition text-center">
-                    Cancel
-                </a>
-                {% else %}
-                <a href="{% url 'jobs:job_list' %}"
-                    class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-3 px-8 rounded-xl transition text-center">
-                    Cancel
-                </a>
-                {% endif %}
-                <button type="submit"
-                    class="bg-pink-600 hover:bg-pink-700 text-white font-bold py-3 px-8 rounded-xl transition focus:outline-none focus:ring-4 focus:ring-pink-300">
-                    {% if action == 'Edit Job' %}Update Job{% else %}Submit Job{% endif %}
-                </button>
-            </div>
         </form>
     </div>
 </div>
