@@ -291,6 +291,7 @@ def job_checkout(request, job_id):
         # Create payment record
         payment = Payment.objects.create(
             user=request.user,
+            job=job,
             amount=job_fee,
             payment_method='mpesa',
             status='pending',

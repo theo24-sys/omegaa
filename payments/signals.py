@@ -155,6 +155,23 @@ def on_payment_completed(sender, instance, created, update_fields, **kwargs):
                 related_object=subscription
             )
 
+    # ─── JOB ACTIVATION PAYMENTS ──────────────────────────────────────────
+    if instance.job:
+        logger.info(f"Activating job '{instance.job.title}' after payment {instance.id}")
+        job = instance.job
+        job.is_active = True
+        job.posting_fee_paid = True
+        job.save()
+
+        # Notify employer
+        create_notification(
+            recipient=user,
+            notification_type='system',
+            title='✓ Job Activated!',
+            message=f'Your job post "{job.title}" is now live and visible to all workers.',
+            related_object=job
+        )
+
 
 def check_expired_memberships():
     """
