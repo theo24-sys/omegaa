@@ -140,6 +140,11 @@ from payments.models import Payment, PaymentPlan, MonthlyContribution
     # Monthly Contribution logic
     pending_contribution = MonthlyContribution.objects.filter(worker=request.user, payment_status='pending').order_by('-year', '-month').first()
 
+from accounts.models import CustomUser, PlatformDocument
+...
+    # Agreements / Templates
+    agreement_template = PlatformDocument.objects.filter(doc_type='worker_agreement', is_active=True).first()
+
     context = {
         'applications': applications,
         'active_jobs': active_jobs,
@@ -149,6 +154,7 @@ from payments.models import Payment, PaymentPlan, MonthlyContribution
         'skills_list': skills_list,
         'study_tracker_courses': study_tracker_courses,
         'pending_contribution': pending_contribution,
+        'agreement_template': agreement_template,
     }
     return render(request, 'dashboard/housekeeper_dashboard.html', context)
 

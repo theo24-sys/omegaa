@@ -2,7 +2,13 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.utils import timezone
 from django.utils.html import format_html
-from .models import CustomUser
+from .models import CustomUser, PlatformDocument
+
+@admin.register(PlatformDocument)
+class PlatformDocumentAdmin(admin.ModelAdmin):
+    list_display = ('name', 'doc_type', 'is_active', 'updated_at')
+    list_filter = ('doc_type', 'is_active')
+    search_fields = ('name', 'description')
 from .forms import CustomUserCreationForm, CustomUserChangeForm
 from notifications.utils import create_notification
 

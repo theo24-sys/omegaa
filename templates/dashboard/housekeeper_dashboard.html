@@ -207,24 +207,49 @@
             <div class="theme-card rounded-[2.5rem] p-6 md:p-8 text-gray-900 relative overflow-hidden shadow-lg">
                 <h2 class="text-xl font-bold mb-6 flex items-center gap-3">
                     <span class="w-1.5 h-6 bg-indigo-500 rounded-full"></span>
-                    Professional Resources
+                    Resource Center
                 </h2>
                 <div class="space-y-4">
-                    <div class="p-4 rounded-2xl bg-indigo-50 border border-indigo-100 group hover:border-indigo-300 transition shadow-sm">
+                    <!-- Master Template Download -->
+                    <div class="p-4 rounded-2xl bg-indigo-50 border border-indigo-100 group transition shadow-sm {% if not agreement_template %}opacity-50{% endif %}">
                         <div class="flex items-center gap-4 mb-3">
                             <div class="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-indigo-600 shadow-sm">
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                             </div>
                             <div>
-                                <p class="text-sm font-bold text-gray-900 leading-tight">Employment Agreement</p>
-                                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-0.5">Template Doc</p>
+                                <p class="text-sm font-bold text-gray-900 leading-tight">Master Agreement</p>
+                                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-0.5">Template</p>
                             </div>
                         </div>
-                        <p class="text-[11px] text-gray-500 mb-4 leading-relaxed">Download this template to use when starting a new job. Ensure your rights and duties are documented.</p>
-                        <a href="{% static 'docs/Charlady_Worker_Agreement.docx' %}" download class="w-full inline-flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-md">
+                        {% if agreement_template %}
+                        <p class="text-[11px] text-gray-500 mb-4 leading-relaxed">Download this blank template, fill in your details, and re-upload the signed copy below.</p>
+                        <a href="{{ agreement_template.document_file.url }}" download class="w-full inline-flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-md">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1M7 11l5 5m0 0l5-5m-5 5V4"/></svg>
-                            Download Document
+                            Download Blank Template
                         </a>
+                        {% else %}
+                        <p class="text-[11px] text-gray-500 mb-0 italic">No master template uploaded by Admin yet.</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Progress Tracking -->
+                    <div class="p-4 rounded-2xl border-2 border-dashed {% if user.agreement_form %}border-green-200 bg-green-50/30{% else %}border-gray-200 bg-gray-50/30{% endif %}">
+                        <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Your Submission Status</p>
+                        {% if user.agreement_form %}
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-green-500"></span>
+                                <span class="text-xs font-bold text-green-700">Signed Copy Uploaded</span>
+                            </div>
+                            <a href="{{ user.agreement_form.url }}" target="_blank" class="text-[10px] font-bold text-indigo-600 underline">View My Copy</a>
+                        </div>
+                        {% else %}
+                        <div class="flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+                            <span class="text-xs font-bold text-amber-600">Please upload your signed copy</span>
+                        </div>
+                        <a href="{% url 'edit_profile' %}" class="mt-3 w-full inline-flex items-center justify-center bg-white border border-amber-200 text-amber-700 font-bold py-2 rounded-xl text-[10px] hover:bg-amber-50 transition">Go to Uploads</a>
+                        {% endif %}
                     </div>
                 </div>
             </div>
