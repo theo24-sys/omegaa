@@ -13,7 +13,7 @@
             {% endif %}
         </div>
         
-        <div class="text-center md:text-left">
+        <div class="text-center md:text-left flex-1">
             <h1 class="text-3xl font-bold text-dark">{{ user_profile.get_full_name }}</h1>
             <p class="text-gray-600">{{ user_profile.get_user_type_display }}</p>
             
@@ -31,7 +31,7 @@
                         {% endif %}
                     {% endfor %}
                 </div>
-                <span class="ml-2 text-gray-600">{{ avg_rating|floatformat:1 }} ({{ reviews.count }} review{{ reviews.count|pluralize }})</span>
+                <span class="ml-2 text-gray-600">{{ avg_rating|floatformat:1 }} ({{ review_count }} review{{ review_count|pluralize }})</span>
             </div>
             
             <div class="mt-4">
@@ -47,16 +47,66 @@
             </div>
         </div>
     </div>
+
+    <!-- Star Distribution Breakdown -->
+    {% if star_distribution %}
+    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+        <h3 class="text-lg font-bold text-dark mb-4">Rating Breakdown</h3>
+        <div class="space-y-3">
+            {% for star in "54321" %}
+                {% with distribution=star_distribution|add:star %}
+                    {% if distribution %}
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 text-right">
+                                <span class="font-semibold">{{ star }}★</span>
+                            </div>
+                            <div class="flex-1">
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-yellow-500 h-2 rounded-full" style="width: {{ distribution.percentage }}%"></div>
+                                </div>
+                            </div>
+                            <div class="w-16 text-right text-sm text-gray-600">
+                                {{ distribution.count }} ({{ distribution.percentage }}%)
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endwith %}
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
     
-    <h2 class="text-2xl font-bold text-dark mb-6">Reviews</h2>
+    <div class="mb-6 flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
+        <h2 class="text-2xl font-bold text-dark">Reviews</h2>
+        
+        <!-- Filter and Sort Controls -->
+        <div class="flex gap-3 flex-wrap">
+            <div class="flex gap-2">
+                <a href="?sort=-created_at" class="px-4 py-2 rounded-lg border {% if current_sort == '-created_at' %}bg-primary text-white border-primary{% else %}border-gray-300 text-gray-700 hover:bg-gray-100{% endif %}" title="Newest first">Newest</a>
+                <a href="?sort=created_at" class="px-4 py-2 rounded-lg border {% if current_sort == 'created_at' %}bg-primary text-white border-primary{% else %}border-gray-300 text-gray-700 hover:bg-gray-100{% endif %}" title="Oldest first">Oldest</a>
+                <a href="?sort=-rating" class="px-4 py-2 rounded-lg border {% if current_sort == '-rating' %}bg-primary text-white border-primary{% else %}border-gray-300 text-gray-700 hover:bg-gray-100{% endif %}" title="Highest rated">Highest</a>
+                <a href="?sort=rating" class="px-4 py-2 rounded-lg border {% if current_sort == 'rating' %}bg-primary text-white border-primary{% else %}border-gray-300 text-gray-700 hover:bg-gray-100{% endif %}" title="Lowest rated">Lowest</a>
+            </div>
+            
+            <!-- Star Filter -->
+            <select id="ratingFilter" class="px-4 py-2 rounded-lg border border-gray-300" onchange="filterByRating(this.value)">
+                <option value="">All Ratings</option>
+                <option value="5" {% if current_filter == '5' %}selected{% endif %}>5 Stars</option>
+                <option value="4" {% if current_filter == '4' %}selected{% endif %}>4 Stars</option>
+                <option value="3" {% if current_filter == '3' %}selected{% endif %}>3 Stars</option>
+                <option value="2" {% if current_filter == '2' %}selected{% endif %}>2 Stars</option>
+                <option value="1" {% if current_filter == '1' %}selected{% endif %}>1 Star</option>
+            </select>
+        </div>
+    </div>
     
     {% if reviews %}
         <div class="space-y-6">
             {% for review in reviews %}
                 <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-primary">
                     <div class="flex justify-between items-start mb-4">
-                        <div class="flex items-center">
-                            <div class="w-12 h-12 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center text-xl text-gray-400 mr-4">
+                        <div class="flex items-center flex-1">
+                            <div class="w-12 h-12 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center text-xl text-gray-400 mr-4 flex-shrink-0">
                                 {% if review.reviewer.profile_picture %}
                                     <img src="{{ review.reviewer.profile_picture.url }}" alt="{{ review.reviewer.get_full_name }}" class="w-full h-full object-cover">
                                 {% else %}
@@ -68,18 +118,29 @@
                                 <p class="text-gray-500 text-sm">{{ review.created_at|date:"F j, Y" }}</p>
                             </div>
                         </div>
-                        <div class="flex">
-                            {% for i in "12345" %}
-                                {% if forloop.counter <= review.rating %}
-                                    <svg class="w-5 h-5 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
-                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
-                                    </svg>
-                                {% else %}
-                                    <svg class="w-5 h-5 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
-                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
-                                    </svg>
-                                {% endif %}
-                            {% endfor %}
+                        
+                        <div class="flex items-center gap-4">
+                            <div class="flex">
+                                {% for i in "12345" %}
+                                    {% if forloop.counter <= review.rating %}
+                                        <svg class="w-5 h-5 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                        </svg>
+                                    {% else %}
+                                        <svg class="w-5 h-5 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                        </svg>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                            
+                            <!-- Edit/Delete buttons for reviewer or admin -->
+                            {% if user.is_authenticated and user == review.reviewer or user.is_staff %}
+                            <div class="flex gap-2 ml-4">
+                                <a href="{% url 'reviews:edit_review' review_id=review.id %}" class="text-blue-600 hover:text-blue-800 text-sm" title="Edit">✏️</a>
+                                <a href="{% url 'reviews:delete_review' review_id=review.id %}" class="text-red-600 hover:text-red-800 text-sm" title="Delete">🗑️</a>
+                            </div>
+                            {% endif %}
                         </div>
                     </div>
                     <p class="text-gray-700">{{ review.comment }}</p>
@@ -88,7 +149,13 @@
         </div>
     {% else %}
         <div class="bg-light p-8 rounded-lg text-center">
-            <p class="text-lg text-gray-600">No reviews yet for this user.</p>
+            <p class="text-lg text-gray-600">
+                {% if current_filter %}
+                    No {{ current_filter }}-star reviews found.
+                {% else %}
+                    No reviews yet for this user.
+                {% endif %}
+            </p>
             
             {% if user.is_authenticated and user != user_profile %}
                 <a href="{% url 'reviews:create_review' user_id=user_profile.id %}" class="text-primary hover:text-pink-700 font-semibold mt-2 inline-block">
@@ -98,5 +165,18 @@
         </div>
     {% endif %}
 </div>
+
+<script>
+function filterByRating(rating) {
+    const params = new URLSearchParams(window.location.search);
+    if (rating) {
+        params.set('rating', rating);
+    } else {
+        params.delete('rating');
+    }
+    window.location.search = params.toString();
+}
+</script>
+{% endblock %}
 {% endblock %}
 
