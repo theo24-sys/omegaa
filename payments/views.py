@@ -3,6 +3,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.utils import timezone
+from django.core.cache import cache
 from .models import PaymentPlan, Payment, UserSubscription, MonthlyContribution
 from jobs.models import Job
 from courses.models import Course
@@ -10,7 +11,11 @@ from notifications.utils import create_notification
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 import json
+import logging
 from .mpesa_service import MpesaClient
+from accounts.utils import normalize_kenyan_phone, validate_kenyan_phone
+
+logger = logging.getLogger(__name__)
 
 @login_required
 def payment_plans(request):
@@ -156,30 +161,31 @@ def mpesa_payment(request, payment_id):
             if payment.amount <= 0:
                 stk_error = "Payment amount must be greater than 0."
             else:
-                # Normalize for M-Pesa
-                normalized_phone = phone.strip()
-                if normalized_phone.startswith('+'): normalized_phone = normalized_phone[1:]
-                
-                client = MpesaClient()
-                name = payment.plan.name if payment.plan else (payment.course.title if payment.course else "Service")
-                
-                # Start STK Push
-                res = client.initiate_stk_push(
-                    phone_number=normalized_phone,
-                    amount=payment.amount,
-                    reference_id=str(payment.id),
-                    description=f"Payment for {name}"
-                )
-            
-            if res.get('success'):
-                payment.is_mpesa_stk = True
-                payment.phone_number = normalized_phone
-                payment.stk_reference_id = res.get('checkout_request_id')
-                payment.stk_initiated_at = timezone.now()
-                payment.save()
-                messages.info(request, "An M-Pesa prompt has been sent to your phone.")
-            else:
-                stk_error = res.get('message')
+                # Normalize for M-Pesa using central utility
+                normalized_phone = normalize_kenyan_phone(phone)
+                if not normalized_phone:
+                    stk_error = "Invalid Kenyan phone number format. Use 07... or 254..."
+                else:
+                    client = MpesaClient()
+                    name = payment.plan.name if payment.plan else (payment.course.title if payment.course else "Service")
+                    
+                    # Start STK Push
+                    res = client.initiate_stk_push(
+                        phone_number=normalized_phone,
+                        amount=payment.amount,
+                        reference_id=str(payment.id),
+                        description=f"Payment for {name}"
+                    )
+                    
+                    if res.get('success'):
+                        payment.is_mpesa_stk = True
+                        payment.phone_number = normalized_phone
+                        payment.stk_reference_id = res.get('checkout_request_id')
+                        payment.stk_initiated_at = timezone.now()
+                        payment.save()
+                        messages.info(request, "An M-Pesa prompt has been sent to your phone.")
+                    else:
+                        stk_error = res.get('message')
 
     return render(request, 'payments/mpesa_payment.html', {
         'payment': payment,
@@ -193,9 +199,24 @@ def mpesa_payment(request, payment_id):
 def mpesa_callback(request):
     """
     Endpoint for Safaricom to POST payment results
+    CRITICAL: Idempotent - must not process same callback twice
+    SECURITY: Rate limited to prevent DDoS attacks
     """
     if request.method != 'POST':
         return JsonResponse({"ResultCode": 1, "ResultDesc": "Invalid request method"}, status=405)
+
+    # ─── RATE LIMITING: Prevent DDoS ──────────────────────────────────────────
+    # Limit: 100 callbacks per hour per IP
+    client_ip = request.META.get('REMOTE_ADDR', 'unknown')
+    rate_limit_key = f'mpesa_callback_rate_{client_ip}'
+    
+    current_count = cache.get(rate_limit_key, 0)
+    if current_count >= 100:
+        logger.warning(f"M-Pesa callback rate limit exceeded for IP {client_ip}")
+        return JsonResponse({"ResultCode": 1, "ResultDesc": "Rate limit exceeded"}, status=429)
+    
+    cache.set(rate_limit_key, current_count + 1, 3600)  # 1 hour window
+    # ──────────────────────────────────────────────────────────────────────────
 
     try:
         data = json.loads(request.body)
@@ -207,6 +228,13 @@ def mpesa_callback(request):
         payment = Payment.objects.filter(stk_reference_id=checkout_request_id).first()
         if not payment:
             return JsonResponse({"ResultCode": 1, "ResultDesc": "Payment record not found"}, status=404)
+
+        # ─── IDEMPOTENCY CHECK ─────────────────────────────────────────────
+        # If already processed, acknowledge and exit (prevents duplicate signals)
+        if payment.status in ['completed', 'failed']:
+            logger.info(f"M-Pesa callback received for already processed payment {payment.id}")
+            return JsonResponse({"ResultCode": 0, "ResultDesc": "Success (Already Processed)"})
+        # ───────────────────────────────────────────────────────────────────
 
         if result_code == 0:
             # Success! Extract Receipt Number
@@ -233,8 +261,15 @@ def mpesa_callback(request):
             payment.save()
             return JsonResponse({"ResultCode": 0, "ResultDesc": "Acknowledged Failure"})
 
+    except json.JSONDecodeError:
+        logger.error("Invalid JSON in M-Pesa callback")
+        return JsonResponse({"ResultCode": 1, "ResultDesc": "Invalid JSON"}, status=400)
+    except Payment.DoesNotExist:
+        logger.warning("Payment not found in M-Pesa callback")
+        return JsonResponse({"ResultCode": 1, "ResultDesc": "Payment not found"}, status=404)
     except Exception as e:
-        return JsonResponse({"ResultCode": 1, "ResultDesc": str(e)}, status=500)
+        logger.error(f"Unexpected error in M-Pesa callback: {e}", exc_info=True)
+        return JsonResponse({"ResultCode": 1, "ResultDesc": "Internal error"}, status=500)
 
 
 @login_required
@@ -299,9 +334,14 @@ def job_checkout(request, job_id):
         )
         
         # Professional API Flow: STK Push
+        normalized_phone = normalize_kenyan_phone(phone_number)
+        if not normalized_phone:
+            messages.error(request, "Invalid Kenyan phone number format. Use 07... or 254...")
+            return redirect('payments:job_checkout', job_id=job.id)
+
         client = MpesaClient()
         response = client.initiate_stk_push(
-            phone_number=phone_number,
+            phone_number=normalized_phone,
             amount=job_fee,
             reference_id=f"JOB{job.id}",
             description=f"Job Post Activation"

@@ -8,8 +8,27 @@ import requests
 from datetime import datetime, timedelta
 from django.conf import settings
 from django.core.cache import cache
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.util.retry import Retry
 
 logger = logging.getLogger(__name__)
+
+
+def create_session_with_retries(max_retries=3, backoff_factor=0.5):
+    """
+    Create a requests session with automatic retry logic
+    """
+    session = requests.Session()
+    retry_strategy = Retry(
+        total=max_retries,
+        backoff_factor=backoff_factor,
+        status_forcelist=[429, 500, 502, 503, 504],
+        allowed_methods=["GET", "POST"]
+    )
+    adapter = HTTPAdapter(max_retries=retry_strategy)
+    session.mount("https://", adapter)
+    session.mount("http://", adapter)
+    return session
 
 
 class MpesaClient:
@@ -40,6 +59,7 @@ class MpesaClient:
         """
         Get OAuth token from M-Pesa
         Tokens valid for 1 hour, cached to reduce API calls
+        Includes automatic retry logic for transient failures
         Returns: access_token string or None if failed
         """
         # Check cache first
@@ -49,7 +69,8 @@ class MpesaClient:
             return cached_token
 
         try:
-            response = requests.get(
+            session = create_session_with_retries(max_retries=3, backoff_factor=0.5)
+            response = session.get(
                 self.auth_url,
                 auth=(self.consumer_key, self.consumer_secret),
                 timeout=10
@@ -67,7 +88,7 @@ class MpesaClient:
                 return None
 
         except requests.exceptions.RequestException as e:
-            logger.error(f"M-Pesa authentication failed: {str(e)}")
+            logger.error(f"M-Pesa authentication failed after retries: {str(e)}", exc_info=True)
             return None
 
     def initiate_stk_push(self, phone_number, amount, reference_id, description=""):
@@ -144,7 +165,8 @@ class MpesaClient:
                 "Content-Type": "application/json"
             }
             
-            response = requests.post(
+            session = create_session_with_retries(max_retries=3, backoff_factor=0.5)
+            response = session.post(
                 self.stk_url,
                 json=payload,
                 headers=headers,
@@ -163,7 +185,7 @@ class MpesaClient:
             }
 
         except requests.exceptions.RequestException as e:
-            logger.error(f"STK push failed: {str(e)}")
+            logger.error(f"STK push failed after retries: {str(e)}", exc_info=True)
             return {
                 'success': False,
                 'checkout_request_id': None,

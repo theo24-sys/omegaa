@@ -8,12 +8,14 @@ from datetime import timedelta
 import logging
 
 from .models import Payment, UserSubscription, MonthlyContribution
+from django.db import transaction
 from notifications.utils import create_notification
 
 logger = logging.getLogger(__name__)
 
 
 @receiver(post_save, sender=Payment)
+@transaction.atomic
 def on_payment_completed(sender, instance, created, update_fields, **kwargs):
     """
     Signal handler: When payment status changes to 'completed'

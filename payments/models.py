@@ -1,6 +1,7 @@
 from django.db import models
 from django.conf import settings
 from django.utils import timezone
+from django.core.cache import cache
 
 class PaymentPlan(models.Model):
     PLAN_TYPE_CHOICES = (
@@ -34,6 +35,8 @@ class PaymentPlan(models.Model):
 
     class Meta:
         ordering = ['price']
+        # Prevent duplicate plans for same type/group combination
+        unique_together = ('plan_type', 'target_group')
 
     def __str__(self):
         return f"{self.name} ({self.price} KSh)"
@@ -67,7 +70,13 @@ class Payment(models.Model):
     
     # STK Push fields
     is_mpesa_stk = models.BooleanField(default=False, help_text='Payment via M-Pesa STK push')
-    mpesa_transaction_id = models.CharField(max_length=100, blank=True, null=True, help_text='M-Pesa MpesaReceiptNumber from callback')
+    mpesa_transaction_id = models.CharField(
+        max_length=100, 
+        blank=True, 
+        null=True, 
+        unique=True,
+        help_text='M-Pesa MpesaReceiptNumber from callback - UNIQUE to prevent duplicates'
+    )
     stk_reference_id = models.CharField(max_length=100, blank=True, null=True, help_text='M-Pesa CheckoutRequestID')
     stk_initiated_at = models.DateTimeField(blank=True, null=True, help_text='When STK push was triggered')
     payment_verified_at = models.DateTimeField(blank=True, null=True, help_text='When M-Pesa confirmed success')
@@ -115,17 +124,42 @@ class UserSubscription(models.Model):
 
     @classmethod
     def get_active_features(cls, user):
-        """Helper to get features for a user based on active sub or Free fallback."""
+        """
+        Helper to get features for a user based on active subscription or Free fallback.
+        PERFORMANCE: Cached for 5 minutes to prevent race conditions.
+        """
         if not user or not user.is_authenticated:
             return None
         
+        # Check cache first (prevents race conditions)
+        cache_key = f'user_subscription_plan_{user.id}'
+        cached_plan_id = cache.get(cache_key)
+        
+        if cached_plan_id:
+            try:
+                return cls.objects.get(id=cached_plan_id).plan
+            except cls.DoesNotExist:
+                cache.delete(cache_key)
+        
         # 1. Check for active subscription
-        sub = cls.objects.filter(user=user, status='active', expires_at__gt=timezone.now()).select_related('plan').first()
+        sub = cls.objects.filter(
+            user=user, 
+            status='active', 
+            expires_at__gt=timezone.now()
+        ).select_related('plan').first()
+        
         if sub:
+            # Cache for 5 minutes
+            cache.set(cache_key, sub.id, 300)
             return sub.plan
         
         # 2. Fallback to Free Tier (0 price employer plan)
-        free_plan = PaymentPlan.objects.filter(target_group='employer', price=0, is_active=True).first()
+        free_plan = PaymentPlan.objects.filter(
+            target_group='employer', 
+            price=0, 
+            is_active=True
+        ).first()
+        
         if free_plan:
             return free_plan
             
@@ -136,7 +170,7 @@ class UserSubscription(models.Model):
             'can_use_video': False,
             'chat_conversation_limit': 2,
             'chat_message_limit': 5
-        })
+        })()
 
 
 class MonthlyContribution(models.Model):
@@ -162,4 +196,4 @@ class MonthlyContribution(models.Model):
         verbose_name_plural = 'Monthly Contributions'
 
     def __str__(self):
-        return f"{self.worker.username} - {self.month}/{self.year} - {self.payment_status}"
+        return f"{self.worker.username} - {self.month}/{self.year} - {self.payment_status}"

@@ -22,6 +22,10 @@ class PaymentAdmin(admin.ModelAdmin):
     search_fields = ('user__username', 'transaction_id', 'phone_number')
     readonly_fields = ('created_at', 'updated_at')
     date_hierarchy = 'created_at'
+    
+    # OPTIMIZATION: Add pagination and select_related
+    list_per_page = 50
+    list_select_related = ('user', 'plan')
 
     fieldsets = (
         (None, {'fields': ('user', 'plan', 'amount', 'payment_method')}),
