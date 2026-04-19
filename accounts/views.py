@@ -67,7 +67,7 @@ def login(request):
     if request.user.is_authenticated:
         # Check if househelp needs first-time verification
         if request.user.user_type == 'househelp' and not request.user.has_completed_first_verification:
-            return redirect('accounts:initiate_didit_verification')
+            return redirect('initiate_didit_verification')
         if request.user.user_type == 'househelp':
             return redirect('dashboard:housekeeper_dashboard')
         else:
@@ -84,7 +84,7 @@ def login(request):
                 # Check if househelp needs first-time verification
                 if user.user_type == 'househelp' and not user.has_completed_first_verification:
                     messages.info(request, 'Please complete identity verification to continue.')
-                    return redirect('accounts:initiate_didit_verification')
+                    return redirect('initiate_didit_verification')
                 if user.user_type == 'househelp':
                     return redirect('dashboard:housekeeper_dashboard')
                 else:

@@ -22,7 +22,7 @@ def first_time_verification_required(view_func):
         if request.user.is_authenticated and request.user.user_type == 'househelp':
             if not request.user.has_completed_first_verification:
                 messages.warning(request, 'Please complete identity verification to access your dashboard.')
-                return redirect('accounts:initiate_didit_verification')
+                return redirect('initiate_didit_verification')
         return view_func(request, *args, **kwargs)
     return wrapper
 
