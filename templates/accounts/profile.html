@@ -149,11 +149,11 @@
             <span class="block text-2xl font-bold text-primary">{{ avg_rating|floatformat:1 }}</span>
             <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">Rating</span>
         </div>
-        <div
-            class="bg-white/80 backdrop-blur-sm p-6 rounded-3xl border border-pink-100 shadow-sm text-center stat-card">
+        <a href="{% url 'reviews:user_reviews' user_id=user_profile.id %}"
+            class="bg-white/80 backdrop-blur-sm p-6 rounded-3xl border border-pink-100 shadow-sm text-center stat-card block hover:ring-2 hover:ring-pink-300 transition-all cursor-pointer">
             <span class="block text-2xl font-bold text-primary">{{ review_count }}</span>
             <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">Reviews</span>
-        </div>
+        </a>
         <div
             class="bg-white/80 backdrop-blur-sm p-6 rounded-3xl border border-pink-100 shadow-sm text-center stat-card">
             <span class="block text-2xl font-bold text-primary">{{ user_profile.date_joined|timesince|truncatewords:1 }}</span>

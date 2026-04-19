@@ -56,8 +56,12 @@
                                 {% endfor %}
                         </div>
                         <span class="ml-3 text-gray-600 font-medium">
-                            {{ avg_rating|floatformat:1 }} ({{ review_count }} {{
-                            review_count|pluralize:"review,reviews" }})
+                            {{ avg_rating|floatformat:1 }} 
+                            {% if review_count > 0 %}
+                            (<a href="{% url 'reviews:user_reviews' user_id=user_profile.id %}" class="hover:text-pink-600 hover:underline transition-colors">{{ review_count }} {{ review_count|pluralize:"review,reviews" }}</a>)
+                            {% else %}
+                            (0 reviews)
+                            {% endif %}
                         </span>
                     </div>
 
