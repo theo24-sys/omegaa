@@ -1,5 +1,7 @@
 """
 Migration to add unique constraints and optimize payments
+Note: The unique_together constraint on PaymentPlan is added in a separate migration
+after duplicate data is removed.
 """
 from django.db import migrations, models
 
@@ -23,9 +25,6 @@ class Migration(migrations.Migration):
                 unique=True,
             ),
         ),
-        # Add unique_together constraint to PaymentPlan
-        migrations.AlterUniqueTogether(
-            name='paymentplan',
-            unique_together={('plan_type', 'target_group')},
-        ),
+        # NOTE: unique_together for PaymentPlan is added in 0012_add_paymentplan_unique_constraint
+        # after duplicate data is removed in 0011_remove_duplicate_payment_plans
     ]
