@@ -109,11 +109,11 @@
                 <div class="bg-gradient-to-br from-slate-900 to-slate-800 rounded-[2rem] p-8 text-white shadow-2xl relative overflow-hidden">
                     <div class="absolute right-0 top-0 opacity-10">{{ user.get_verified_badge|safe }}</div>
                     <p class="text-[10px] font-black uppercase tracking-[0.2em] text-primary mb-4">Account Status</p>
-                    <div class="flex items-center gap-3 mb-2">
-                         <div class="bg-primary rounded-full p-1">{{ user.get_verified_badge|safe }}</div>
-                         <h3 class="font-bold">Identity Verified</h3>
+                    <div class="flex items-center gap-3 mb-4">
+                         <img src="{% static 'img/didit_logo.svg' %}" alt="Didit Verified" class="h-8 w-auto">
+                         <h3 class="font-bold text-lg">Identity Verified</h3>
                     </div>
-                    <p class="text-xs text-slate-400">Your profile carries the "Gold Trust" mark, visible to all premium employers.</p>
+                    <p class="text-xs text-slate-400">Your profile carries the "Gold Trust" mark with Didit verification, visible to all premium employers.</p>
                 </div>
                 {% endif %}
             </div>

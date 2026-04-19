@@ -1,0 +1,17 @@
+<svg width="200" height="60" viewBox="0 0 200 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Didit Logo -->
+  <!-- Background -->
+  <rect width="200" height="60" fill="#F5F5F5" rx="4"/>
+  
+  <!-- Blue checkmark circle (Didit's signature) -->
+  <circle cx="28" cy="30" r="16" fill="#0066FF"/>
+  
+  <!-- Checkmark -->
+  <path d="M22 30L26 34L36 24" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  
+  <!-- Didit text -->
+  <text x="55" y="40" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#0066FF">Didit</text>
+  
+  <!-- Subtext -->
+  <text x="55" y="54" font-family="Arial, sans-serif" font-size="10" fill="#666">Verified Identity</text>
+</svg>

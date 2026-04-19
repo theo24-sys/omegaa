@@ -39,9 +39,9 @@
                     <div>
                         <h2 class="text-xl font-black mb-1">M-Pesa Activation</h2>
                         <p class="text-green-100 text-sm font-medium">Automatic STK Push Payment</p>
-                        <p class="text-green-100 text-sm font-medium">Official M-Pesa API Integration</p>
+                        <p class="text-green-100 text-sm font-medium">Official Safaricom M-Pesa API</p>
                     </div>
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/1/15/M-Pesa_Logo-01.svg" class="h-10 w-auto brightness-0 invert" alt="M-Pesa">
+                    <img src="{% static 'img/mpesa_logo.svg' %}" alt="M-Pesa" class="h-10 w-auto">
                 </div>
             </div>
 
@@ -81,6 +81,11 @@
                         <span>Activate Job Now</span>
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                     </button>
+
+                    <!-- M-Pesa Terms -->
+                    <div class="mt-6">
+                        {% include "payments/mpesa_terms_section.html" %}
+                    </div>
                 </form>
 
                 <div class="mt-8 pt-8 border-t border-slate-50 flex items-center justify-center gap-6">

@@ -9,12 +9,13 @@
         
         <!-- Header -->
         <div class="text-center max-w-xl mx-auto mb-12">
-            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 border border-blue-200 text-blue-600 text-xs font-bold uppercase tracking-widest mb-4">
-                <span class="w-2 h-2 rounded-full bg-blue-600 animate-pulse"></span>
-                Limited Time Offer
+            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-50 border border-green-200 text-green-600 text-xs font-bold uppercase tracking-widest mb-4">
+                <img src="{% static 'img/mpesa_logo.svg' %}" alt="M-Pesa" class="h-3">
+                <span class="w-2 h-2 rounded-full bg-green-600 animate-pulse"></span>
+                M-Pesa Secure Payment
             </div>
             <h1 class="text-5xl font-black text-slate-900 mb-4">
-                Get <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">Verified Today</span>
+                Get <span class="text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-emerald-600">Verified Today</span>
             </h1>
             <p class="text-lg text-slate-600 font-medium">
                 Join our verified member community and get access to 3x more jobs!
@@ -57,26 +58,37 @@
         </div>
 
         <!-- Pricing Card -->
-        <div class="bg-gradient-to-b from-primary to-pink-700 rounded-3xl p-10 border-2 border-primary shadow-2xl mb-8">
+        <div class="bg-gradient-to-b from-green-600 to-emerald-700 rounded-3xl p-10 border-2 border-green-500 shadow-2xl mb-8">
             <div class="text-center mb-8">
-                <div class="text-white/80 text-sm uppercase tracking-widest font-bold mb-2">Annual Membership</div>
+                <div class="text-white/80 text-sm uppercase tracking-widest font-bold mb-2 flex items-center justify-center gap-2">
+                    <img src="{% static 'img/mpesa_logo.svg' %}" alt="M-Pesa" class="h-4">
+                    Annual Membership
+                </div>
                 <div class="text-6xl font-black text-white mb-2">KES 250</div>
-                <div class="text-white/90 text-sm">One-time payment for 1 year access</div>
+                <div class="text-white/90 text-sm">One-time payment for 1 year access via M-Pesa</div>
+            </div>
+
+            <!-- M-Pesa Terms -->
+            <div class="mb-6 bg-white/10 rounded-xl p-4 border border-white/20">
+                <p class="text-white text-xs font-semibold">✓ Instant STK Push • ✓ Safaricom Secure • ✓ No Hidden Fees</p>
             </div>
 
             <!-- Checkout Form -->
             <form method="post" class="space-y-4">
                 {% csrf_token %}
                 
-                <button type="submit" class="w-full bg-white hover:bg-slate-50 text-primary font-black py-4 px-6 rounded-2xl transition text-lg shadow-lg">
+                <button type="submit" class="w-full bg-white hover:bg-slate-50 text-green-600 font-black py-4 px-6 rounded-2xl transition text-lg shadow-lg">
                     Pay KES 250 with M-Pesa
                 </button>
                 
                 <p class="text-white/80 text-center text-xs">
-                    🔒 Secure payment via M-Pesa STK
+                    🔒 Secure M-Pesa STK Push Payment • Instant Verification
                 </p>
             </form>
         </div>
+
+        <!-- M-Pesa Full Terms Section -->
+        {% include "payments/mpesa_terms_section.html" %}
 
         <!-- FAQs -->
         <div class="bg-white rounded-3xl p-8 border border-slate-200">

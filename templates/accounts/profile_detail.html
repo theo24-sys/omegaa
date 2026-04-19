@@ -25,6 +25,13 @@
                                 {% endfor %}
                             </div>
 
+                        <!-- Didit Verification Badge -->
+                        {% if user_profile.is_verified %}
+                        <div class="flex items-center gap-2 px-3 py-1 bg-blue-50 rounded-full border border-blue-200">
+                            <img src="{% static 'img/didit_logo.svg' %}" alt="Didit Verified" class="h-5 w-auto">
+                        </div>
+                        {% endif %}
+
                         {{ user_profile.get_verified_badge|safe }}
                         {% endif %}
                     </h1>
