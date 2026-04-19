@@ -67,6 +67,7 @@ class CustomUser(AbstractUser):
         choices=[('none', 'None'), ('pending', 'Pending'), ('completed', 'Completed'), ('failed', 'Failed')],
         default='none'
     )
+    has_completed_first_verification = models.BooleanField(default=False, help_text='Track if worker completed first-time Didit verification')
 
     # Document uploads (housekeepers only) - required for job applications
     # Document uploads (Deprecated in favor of Didit)

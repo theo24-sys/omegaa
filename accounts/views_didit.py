@@ -4,9 +4,10 @@ import logging
 import json
 import requests
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, JsonResponse
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render
 from django.views.decorators.csrf import csrf_exempt
 from django.urls import reverse
 from .models import CustomUser
@@ -23,10 +24,35 @@ DIDIT_WEBHOOK_SECRET = getattr(settings, 'DIDIT_WEBHOOK_SECRET', '')
 @login_required
 def initiate_didit_verification(request):
     """
-    Creates a Didit session and redirects the user to the verification UI.
+    Two-step flow:
+    1. First visit: Display first_verification_required.html template
+    2. User clicks "Start Verification": Create Didit session and redirect
     """
     user = request.user
     
+    # Check if user is a housekeeper
+    if user.user_type != 'househelp':
+        messages.error(request, "Identity verification is only required for housekeepers.")
+        return redirect('home')
+    
+    # If already verified, redirect to dashboard
+    if user.has_completed_first_verification:
+        messages.info(request, "You have already completed identity verification.")
+        return redirect('dashboard:housekeeper_dashboard')
+    
+    # Check if user is confirming they want to proceed (second step)
+    if request.method == 'POST' or request.GET.get('proceed') == 'true':
+        # Create Didit session
+        return _create_didit_session(request, user)
+    
+    # First visit: Display information template
+    return render(request, 'accounts/first_verification_required.html')
+
+
+def _create_didit_session(request, user):
+    """
+    Internal function to create a Didit session and redirect user to verification UI.
+    """
     # Payload for session creation
     # Documentation: https://docs.didit.me
     payload = {
@@ -46,7 +72,7 @@ def initiate_didit_verification(request):
             f"{DIDIT_BASE_URL}/sessions", 
             json=payload, 
             headers=headers,
-            timeout=10 # Issue: Missing timeout
+            timeout=10
         )
         response.raise_for_status()
         data = response.json()
@@ -59,14 +85,19 @@ def initiate_didit_verification(request):
         # Redirect to Didit hosted UI
         verification_url = data.get('url')
         if verification_url:
+            # Store that this is a first-time verification attempt
+            request.session['didit_verification_in_progress'] = True
+            logger.info(f"Didit session created for user {user.id}: {data.get('id')}")
             return redirect(verification_url)
         else:
             logger.error(f"Didit session created but no URL returned for user {user.id}")
-            return HttpResponse("Error initiating verification. Please try again later.", status=500)
+            messages.error(request, "Error initiating verification. Please try again later.")
+            return render(request, 'accounts/first_verification_required.html')
             
     except Exception as e:
         logger.error(f"Failed to initiate Didit verification for user {user.id}: {e}")
-        return HttpResponse("Verification service is temporarily unavailable.", status=503)
+        messages.error(request, "Verification service is temporarily unavailable.")
+        return render(request, 'accounts/first_verification_required.html')
 
 @csrf_exempt
 def didit_webhook(request):
@@ -123,6 +154,7 @@ def didit_webhook(request):
             user.didit_verification_status = 'completed'
             user.is_verified = True
             user.badge_verified_id = True
+            user.has_completed_first_verification = True  # Mark first verification as complete
             user.save()
             logger.info(f"User {user.id} verified successfully via Didit")
         elif status == 'FAILED':

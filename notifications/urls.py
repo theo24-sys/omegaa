@@ -8,4 +8,8 @@ urlpatterns = [
     path('<int:notification_id>/mark-read/', views.mark_as_read, name='mark_notification_read'),
     path('mark-all-read/', views.mark_all_as_read, name='mark_all_notifications_read'),
     path('unread-count-badge/', views.unread_count_badge, name='unread_count_badge'),
+    
+    # Analytics endpoints
+    path('api/permission/', views.notification_permission_analytics, name='notification_permission_analytics'),
+    path('api/event/', views.notification_event_analytics, name='notification_event_analytics'),
 ]

@@ -65,10 +65,13 @@ def signup(request):
 
 def login(request):
     if request.user.is_authenticated:
+        # Check if househelp needs first-time verification
+        if request.user.user_type == 'househelp' and not request.user.has_completed_first_verification:
+            return redirect('accounts:initiate_didit_verification')
         if request.user.user_type == 'househelp':
             return redirect('dashboard:housekeeper_dashboard')
         else:
-            return redirect('/dashboard/employer/')
+            return redirect('dashboard:employer_dashboard')
 
     logger.info(f"Request method: {request.method}")
     if request.method == 'POST':
@@ -78,6 +81,10 @@ def login(request):
         if user is not None:
             if user.is_active:
                 auth_login(request, user)
+                # Check if househelp needs first-time verification
+                if user.user_type == 'househelp' and not user.has_completed_first_verification:
+                    messages.info(request, 'Please complete identity verification to continue.')
+                    return redirect('accounts:initiate_didit_verification')
                 if user.user_type == 'househelp':
                     return redirect('dashboard:housekeeper_dashboard')
                 else:

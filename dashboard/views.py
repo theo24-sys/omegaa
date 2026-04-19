@@ -10,9 +10,21 @@ from django.db import models
 from courses.models import Course, CourseCompletion
 from payments.models import MonthlyContribution
 from accounts.models import PlatformDocument
+from functools import wraps
 
 def is_admin(user):
     return user.is_authenticated and user.is_staff
+
+def first_time_verification_required(view_func):
+    """Decorator to ensure housekeeper has completed first-time Didit verification"""
+    @wraps(view_func)
+    def wrapper(request, *args, **kwargs):
+        if request.user.is_authenticated and request.user.user_type == 'househelp':
+            if not request.user.has_completed_first_verification:
+                messages.warning(request, 'Please complete identity verification to access your dashboard.')
+                return redirect('accounts:initiate_didit_verification')
+        return view_func(request, *args, **kwargs)
+    return wrapper
 
 # ────────────────────────────────────────────────
 # Admin Dashboard Views
@@ -111,6 +123,7 @@ def user_dashboard(request):
     return redirect('home')
 
 
+@first_time_verification_required
 @login_required
 def housekeeper_dashboard(request):
     if request.user.user_type != 'househelp':
