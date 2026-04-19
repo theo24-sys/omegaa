@@ -224,7 +224,7 @@ SESSION_COOKIE_SECURE = not DEBUG
 SESSION_COOKIE_SAMESITE = 'Lax'
 CSRF_COOKIE_SECURE = not DEBUG
 CSRF_COOKIE_SAMESITE = 'Lax'
-CSRF_USE_SESSIONS = True  # Helps with proxy issues
+CSRF_USE_SESSIONS = False  # Standard CSRF cookies are more reliable for unauthenticated forms
 
 SECURE_HSTS_SECONDS = 31536000 if not DEBUG else 0
 SECURE_HSTS_INCLUDE_SUBDOMAINS = not DEBUG
