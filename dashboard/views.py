@@ -133,32 +133,38 @@ def housekeeper_dashboard(request):
         return redirect('home')
         
     # --- SYNCHRONOUS DIDIT CHECK FALLBACK ---
-    if request.session.get('didit_verification_in_progress') and not request.user.has_completed_first_verification:
+    if not request.user.has_completed_first_verification and request.user.didit_session_id and request.user.didit_verification_status == 'pending':
         session_id = request.user.didit_session_id
-        if session_id:
-            try:
-                current_api_key = getattr(settings, 'DIDIT_API_KEY', '')
-                headers = {"x-api-key": current_api_key}
-                response = requests.get(f"https://verification.didit.me/v3/session/{session_id}/", headers=headers, timeout=5)
-                if response.status_code == 200:
-                    data = response.json()
-                    status = data.get('status', '').upper()
-                    
-                    if status in ['SUCCESS', 'APPROVED']:
-                        request.user.didit_verification_status = 'completed'
-                        request.user.is_verified = True
-                        request.user.badge_verified_id = True
-                        request.user.has_completed_first_verification = True
-                        request.user.save()
-                        messages.success(request, "Identity verification successful! Your profile is verified.")
-                        del request.session['didit_verification_in_progress']
-                    elif status in ['FAILED', 'DECLINED', 'EXPIRED']:
-                        request.user.didit_verification_status = status.lower()
-                        request.user.save()
-                        messages.error(request, f"Identity verification {status.lower()}. Please try again.")
-                        del request.session['didit_verification_in_progress']
-            except Exception as e:
-                pass # Fail silently, let the webhook handle it if it arrives later
+        import logging
+        logger = logging.getLogger(__name__)
+        try:
+            current_api_key = getattr(settings, 'DIDIT_API_KEY', '')
+            headers = {"x-api-key": current_api_key}
+            
+            logger.info(f"Dashboard Load: Sync checking Didit Session {session_id} for user {request.user.id}")
+            response = requests.get(f"https://verification.didit.me/v3/session/{session_id}/", headers=headers, timeout=5)
+            
+            if response.status_code == 200:
+                data = response.json()
+                status = data.get('status', '').upper()
+                logger.info(f"Didit API returned status: {status}")
+                
+                if status in ['SUCCESS', 'APPROVED']:
+                    request.user.didit_verification_status = 'completed'
+                    request.user.is_verified = True
+                    request.user.badge_verified_id = True
+                    request.user.has_completed_first_verification = True
+                    request.user.save()
+                    messages.success(request, "Identity verification successful! Your profile is verified.")
+                elif status in ['FAILED', 'DECLINED', 'EXPIRED']:
+                    request.user.didit_verification_status = status.lower()
+                    request.user.save()
+                    messages.error(request, f"Identity verification {status.lower()}. Please try again.")
+            else:
+                logger.error(f"Didit API Error {response.status_code}: {response.text}")
+        except Exception as e:
+            logger.error(f"Failed to check Didit sync API: {e}")
+            pass # Let webhook handle it if API fails
     # ----------------------------------------
 
     applications = Application.objects.filter(applicant=request.user).select_related('job').order_by('-created_at')
