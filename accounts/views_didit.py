@@ -49,20 +49,23 @@ def _create_didit_session(request, user):
     # Payload for session creation
     # Documentation: https://docs.didit.me
     payload = {
-        "vendor_id": str(user.id),
+        "vendor_data": str(user.id),
         "workflow_id": DIDIT_WORKFLOW_ID,
-        "callback_url": request.build_absolute_uri(reverse('dashboard:housekeeper_dashboard' if user.user_type == 'househelp' else 'dashboard:employer_dashboard')),
+        "callback": request.build_absolute_uri(reverse('dashboard:housekeeper_dashboard' if user.user_type == 'househelp' else 'dashboard:employer_dashboard')),
         "features": ["identity_document", "face_match"] # Adjust based on your workflow needs
     }
     
+    # Ensure we always fetch the latest key from settings in case of hot-reload cache issues
+    current_api_key = getattr(settings, 'DIDIT_API_KEY', DIDIT_API_KEY)
+    
     headers = {
-        "x-api-key": DIDIT_API_KEY,
+        "x-api-key": current_api_key,
         "Content-Type": "application/json"
     }
     
     try:
         response = requests.post(
-            f"{DIDIT_BASE_URL}/sessions", 
+            f"{DIDIT_BASE_URL}/sessions/", 
             json=payload, 
             headers=headers,
             timeout=10
