@@ -156,18 +156,30 @@ class CustomUser(AbstractUser):
         return int((filled / total) * 100)
 
     def get_verified_badge(self):
-        """Returns Instagram-style blue checkmark HTML if verified."""
-        if not self.is_verified and not self.is_paid_verified:
-            return ""
+        """Returns distinct badges for Didit Identity Verification vs Paid Verification."""
+        badges = []
+        
+        # Didit Identity Verification (Classic Meta Blue Check)
+        if self.is_verified:
+            badges.append("""
+            <span class="inline-flex items-center justify-center bg-[#0095f6] rounded-full p-[2px] w-4 h-4 md:w-5 md:h-5 ml-1 select-none shadow-sm" title="Identity Verified (Didit)">
+                <svg class="w-full h-full text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M5 13l4 4L19 7"></path>
+                </svg>
+            </span>
+            """)
             
-        # Meta Blue: #0095f6
-        return f"""
-        <span class="inline-flex items-center justify-center bg-[#0095f6] rounded-full p-[2px] w-4 h-4 md:w-5 md:h-5 ml-1 select-none shadow-sm" title="Verified">
-            <svg class="w-full h-full text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M5 13l4 4L19 7"></path>
-            </svg>
-        </span>
-        """
+        # Paid Verification (Premium Gold Star)
+        if self.is_paid_verified:
+            badges.append("""
+            <span class="inline-flex items-center justify-center bg-amber-500 rounded-full p-[2px] w-4 h-4 md:w-5 md:h-5 ml-1 select-none shadow-sm" title="Premium Paid Member">
+                <svg class="w-full h-full text-white p-[1px]" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                </svg>
+            </span>
+            """)
+            
+        return "".join(badges)
 
 User = get_user_model()
 
