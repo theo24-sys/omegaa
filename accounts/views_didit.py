@@ -24,9 +24,7 @@ DIDIT_WEBHOOK_SECRET = getattr(settings, 'DIDIT_WEBHOOK_SECRET', '')
 @login_required
 def initiate_didit_verification(request):
     """
-    Two-step flow:
-    1. First visit: Display first_verification_required.html template
-    2. User clicks "Start Verification": Create Didit session and redirect
+    Directly create Didit session and redirect to verification UI.
     """
     user = request.user
     
@@ -40,13 +38,8 @@ def initiate_didit_verification(request):
         messages.info(request, "You have already completed identity verification.")
         return redirect('dashboard:housekeeper_dashboard')
     
-    # Check if user is confirming they want to proceed (second step)
-    if request.method == 'POST' or request.GET.get('proceed') == 'true':
-        # Create Didit session
-        return _create_didit_session(request, user)
-    
-    # First visit: Display information template
-    return render(request, 'accounts/first_verification_required.html')
+    # Create Didit session directly
+    return _create_didit_session(request, user)
 
 
 def _create_didit_session(request, user):
@@ -91,13 +84,13 @@ def _create_didit_session(request, user):
             return redirect(verification_url)
         else:
             logger.error(f"Didit session created but no URL returned for user {user.id}")
-            messages.error(request, "Error initiating verification. Please try again later.")
-            return render(request, 'accounts/first_verification_required.html')
+            messages.error(request, "Error initiating verification: No URL returned. Please try again later.")
+            return redirect('home')
             
     except Exception as e:
         logger.error(f"Failed to initiate Didit verification for user {user.id}: {e}")
-        messages.error(request, "Verification service is temporarily unavailable.")
-        return render(request, 'accounts/first_verification_required.html')
+        messages.error(request, f"Verification service is temporarily unavailable. ({str(e)})")
+        return redirect('home')
 
 @csrf_exempt
 def didit_webhook(request):
