@@ -123,7 +123,6 @@ def user_dashboard(request):
     return redirect('home')
 
 
-@first_time_verification_required
 @login_required
 def housekeeper_dashboard(request):
     if request.user.user_type != 'househelp':

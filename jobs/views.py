@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.db.models import Q
 from .models import Job, Application
 from .forms import JobForm, ApplicationForm, JobSearchForm
+from dashboard.views import first_time_verification_required
 from notifications.utils import create_notification
 from payments.models import Payment, UserSubscription
 from payments.mpesa_service import get_mpesa_client
@@ -130,6 +131,7 @@ def job_delete(request, pk):
     return render(request, 'jobs/job_confirm_delete.html', {'job': job})
 
 
+@first_time_verification_required
 @login_required
 def job_apply(request, pk):
     job = get_object_or_404(Job, pk=pk, is_active=True)
@@ -185,6 +187,7 @@ def my_jobs(request):
     return render(request, 'jobs/my_jobs.html', {'jobs': jobs})
 
 
+@first_time_verification_required
 @login_required
 def my_applications(request):
     if request.user.user_type == 'employer':

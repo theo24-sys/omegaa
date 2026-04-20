@@ -45,6 +45,24 @@
 
 {% block content %}
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    {% if not user.has_completed_first_verification and user.user_type == 'househelp' %}
+    <!-- Verification Required Banner -->
+    <div class="mb-8 p-6 bg-red-50 border border-red-200 rounded-[2.5rem] flex flex-col md:flex-row items-center justify-between gap-4 shadow-sm animate-sapphire">
+        <div class="flex items-center gap-4">
+            <div class="w-12 h-12 bg-red-100 text-red-600 rounded-full flex items-center justify-center shrink-0">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+            </div>
+            <div>
+                <h3 class="text-lg font-bold text-red-900">Action Required: Verify Identity</h3>
+                <p class="text-sm text-red-700">You must complete Didit ID verification before you can fully interact with the platform.</p>
+            </div>
+        </div>
+        <button onclick="showVerifyModal()" class="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-8 rounded-xl transition shadow-lg shrink-0 whitespace-nowrap">
+            Verify Now
+        </button>
+    </div>
+    {% endif %}
+
     <!-- Premium Worker Header -->
     <div class="relative overflow-hidden rounded-[3rem] bg-white p-8 md:p-16 mb-12 border border-pink-100 shadow-2xl shadow-pink-50 animate-sapphire">
         <!-- Abstract Glows -->
@@ -72,7 +90,7 @@
             <!-- Communication Hub (WhatsApp/Instagram Style) -->
             <div class="flex items-center gap-6 bg-white p-3 rounded-[3rem] border border-pink-100 shadow-2xl">
                 <!-- Messages -->
-                <a href="{% url 'chat:inbox' %}" class="flex flex-col items-center gap-2 group">
+                <a href="{% url 'chat:inbox' %}" class="flex flex-col items-center gap-2 group restricted-action">
                     <div class="w-16 h-16 md:w-20 md:h-20 rounded-[2rem] bg-pink-50 flex items-center justify-center text-primary shadow-inner transition transform group-hover:scale-105 group-active:scale-95">
                         <svg class="w-8 h-8 md:w-10 md:h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
                     </div>
@@ -80,7 +98,7 @@
                 </a>
                 
                 <!-- Interviews -->
-                <a href="{% url 'chat:inbox' %}" class="flex flex-col items-center gap-2 group">
+                <a href="{% url 'chat:inbox' %}" class="flex flex-col items-center gap-2 group restricted-action">
                     <div class="w-16 h-16 md:w-20 md:h-20 rounded-[2rem] bg-primary flex items-center justify-center text-white shadow-2xl shadow-primary/30 transition transform group-hover:scale-105 group-active:scale-95">
                         <svg class="w-8 h-8 md:w-10 md:h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
                     </div>
@@ -338,7 +356,7 @@
                             <h2 class="text-2xl font-extrabold text-gray-900">Application Status</h2>
                             <p class="text-[10px] text-gray-400 font-black uppercase tracking-[0.2em] mt-1">Real-time Tracking</p>
                         </div>
-                        <a href="{% url 'jobs:my_applications' %}" class="text-primary font-bold text-sm flex items-center gap-1 group">
+                        <a href="{% url 'jobs:my_applications' %}" class="text-primary font-bold text-sm flex items-center gap-1 group restricted-action">
                             Manage All
                             <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>
                         </a>
@@ -381,7 +399,7 @@
                             <h2 class="text-2xl md:text-3xl font-black">Boost your skills. <br>Earn better <span class="text-white">Salaries.</span></h2>
                             <p class="text-pink-100 text-xs md:text-sm max-w-md mx-auto md:mx-0">Certified professionals get priority listings and earn up to 40% more average income. Start a specialized course today.</p>
                         </div>
-                        <a href="{% url 'courses:course_list' %}" class="bg-white text-primary font-black px-8 py-4 rounded-xl hover:scale-105 transition shadow-xl whitespace-nowrap w-full md:w-auto">Open Classroom</a>
+                        <a href="{% url 'courses:course_list' %}" class="bg-white text-primary font-black px-8 py-4 rounded-xl hover:scale-105 transition shadow-xl whitespace-nowrap w-full md:w-auto restricted-action">Open Classroom</a>
                     </div>
                 </div>
 
@@ -392,7 +410,7 @@
                             <h2 class="text-2xl font-extrabold text-gray-900">Recommended Jobs</h2>
                             <p class="text-[10px] text-gray-400 font-black uppercase tracking-[0.2em] mt-1">Based on location</p>
                         </div>
-                        <a href="{% url 'jobs:job_list' %}" class="text-primary font-bold text-sm flex items-center gap-1 group">
+                        <a href="{% url 'jobs:job_list' %}" class="text-primary font-bold text-sm flex items-center gap-1 group restricted-action">
                             Full Feed
                             <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
                         </a>
@@ -413,7 +431,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <a href="{% url 'jobs:job_apply' job.pk %}" class="bg-dark text-white font-bold px-8 py-3 rounded-xl hover:bg-black transition-all whitespace-nowrap w-full md:w-auto text-center">View Offer</a>
+                            <a href="{% url 'jobs:job_apply' job.pk %}" class="bg-dark text-white font-bold px-8 py-3 rounded-xl hover:bg-black transition-all whitespace-nowrap w-full md:w-auto text-center restricted-action">View Offer</a>
                         </div>
                         {% endfor %}
                     </div>
@@ -439,7 +457,7 @@
                                     <p class="text-[10px] text-gray-400 uppercase tracking-widest font-black mt-1">{% if course.is_mandatory %}Mandatory{% else %}Enrolled{% endif %}</p>
                                 </div>
                             </div>
-                            <a href="{% url 'courses:course_detail' course.id %}" class="bg-primary/10 text-primary hover:bg-primary hover:text-white px-5 py-2.5 rounded-xl text-xs font-bold transition w-full sm:w-auto text-center shrink-0">
+                            <a href="{% url 'courses:course_detail' course.id %}" class="bg-primary/10 text-primary hover:bg-primary hover:text-white px-5 py-2.5 rounded-xl text-xs font-bold transition w-full sm:w-auto text-center shrink-0 restricted-action">
                                 Resume
                             </a>
                         </div>
@@ -488,5 +506,60 @@
         else g.innerText = "Good Evening";
     }
     updateGreeting();
+
+    // Didit Verification Intercept
+    function showVerifyModal() {
+        const modal = document.getElementById('verify-modal');
+        if (modal) {
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+    }
+    
+    function hideVerifyModal() {
+        const modal = document.getElementById('verify-modal');
+        if (modal) {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const isVerified = {{ user.has_completed_first_verification|yesno:"true,false" }};
+        if (!isVerified && '{{ user.user_type }}' === 'househelp') {
+            const restrictedLinks = document.querySelectorAll('.restricted-action');
+            restrictedLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    showVerifyModal();
+                });
+            });
+        }
+    });
 </script>
+
+<!-- Didit Unverified Lock Modal -->
+<div id="verify-modal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4 bg-black/60 backdrop-blur-sm transition-opacity">
+    <div class="bg-white rounded-[2rem] w-full max-w-md p-8 shadow-2xl relative animate-sapphire flex flex-col items-center text-center">
+        <!-- Close button -->
+        <button onclick="hideVerifyModal()" class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center bg-gray-50 hover:bg-gray-100 rounded-full text-gray-500 transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+
+        <div class="w-20 h-20 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center mb-6">
+            <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+        </div>
+
+        <h2 class="text-2xl font-black text-slate-900 mb-2">Verification Required</h2>
+        <p class="text-sm text-slate-500 mb-8 px-4">
+            To ensure the safety of all platform participants, househelps must complete our automated Didit Identity Verification process before taking actions.
+        </p>
+
+        <a href="{% url 'initiate_didit_verification' %}" class="w-full bg-primary hover:bg-pink-600 text-white font-bold py-4 rounded-xl transition shadow-lg flex justify-center items-center gap-2">
+            Proceed to Verification
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+        </a>
+    </div>
+</div>
+
 {% endblock %}

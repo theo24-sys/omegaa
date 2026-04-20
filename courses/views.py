@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import Course, Lesson, CourseCompletion, LessonCompletion, Question, Choice, QuizAttempt
 from payments.models import Payment
+from dashboard.views import first_time_verification_required
 from django.http import HttpResponse
 
 @login_required
@@ -20,6 +21,7 @@ def course_list(request):
     }
     return render(request, 'courses/course_list.html', context)
 
+@first_time_verification_required
 @login_required
 def course_detail(request, course_id):
     course = get_object_or_404(Course, id=course_id)
@@ -56,6 +58,7 @@ def course_detail(request, course_id):
     }
     return render(request, 'courses/course_detail.html', context)
 
+@first_time_verification_required
 @login_required
 def lesson_detail(request, course_id, lesson_id):
     course = get_object_or_404(Course, id=course_id)
@@ -100,6 +103,7 @@ def lesson_detail(request, course_id, lesson_id):
     }
     return render(request, 'courses/lesson_detail.html', context)
 
+@first_time_verification_required
 @login_required
 def course_quiz(request, course_id, lesson_id=None):
     course = get_object_or_404(Course, id=course_id)

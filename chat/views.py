@@ -5,9 +5,11 @@ from django.utils import timezone
 from django.contrib.auth import get_user_model
 from .models import ChatSession, ChatMessage
 from payments.models import Payment, UserSubscription
+from dashboard.views import first_time_verification_required
 
 User = get_user_model()
 
+@first_time_verification_required
 @login_required
 def inbox(request):
     sessions = ChatSession.objects.filter(participants=request.user).prefetch_related('participants', 'messages')
@@ -15,6 +17,7 @@ def inbox(request):
     # Optional enhancement: flag Pro messages if the user is a Househelp receiving from an Employer
     return render(request, 'chat/inbox.html', {'sessions': sessions})
 
+@first_time_verification_required
 @login_required
 def chat_detail(request, session_id):
     session = get_object_or_404(ChatSession, id=session_id)
@@ -69,6 +72,7 @@ def chat_detail(request, session_id):
         'is_standard': is_standard
     })
 
+@first_time_verification_required
 @login_required
 def video_interview(request, session_id):
     session = get_object_or_404(ChatSession, id=session_id)
@@ -147,6 +151,7 @@ def check_invite(request):
     
     return render(request, 'chat/empty.html')
 
+@first_time_verification_required
 @login_required
 def start_chat(request, user_id):
     target_user = get_object_or_404(User, id=user_id)
