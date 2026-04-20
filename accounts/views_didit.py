@@ -126,7 +126,9 @@ def didit_webhook(request):
         event_type = data.get('event')
         session_data = data.get('session', {})
         session_id = session_data.get('id')
-        vendor_id = session_data.get('vendor_id')
+        
+        # Didit API v3 uses vendor_data, but fallback to vendor_id just in case
+        vendor_id = session_data.get('vendor_data') or session_data.get('vendor_id')
         status = session_data.get('status')
         
         # ─── INPUT VALIDATION ──────────────────────────────────────────────
