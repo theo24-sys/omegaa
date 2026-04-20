@@ -65,7 +65,7 @@ def _create_didit_session(request, user):
     
     try:
         response = requests.post(
-            f"{DIDIT_BASE_URL}/sessions/", 
+            f"{DIDIT_BASE_URL}/session/", 
             json=payload, 
             headers=headers,
             timeout=10
