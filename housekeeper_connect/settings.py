@@ -257,6 +257,11 @@ MPESA_TRANSACTION_TYPE = os.getenv('MPESA_TRANSACTION_TYPE', 'CustomerBuyGoodsOn
 
 # Callback URL for Safaricom to send payment results
 MPESA_CALLBACK_URL = os.getenv('MPESA_CALLBACK_URL', 'https://charlady.co.ke/payments/mpesa/callback/')
+
+# Didit Verification API Configuration
+DIDIT_APP_ID = os.getenv('DIDIT_APP_ID', '')
+DIDIT_API_KEY = os.getenv('DIDIT_API_KEY', '')
+DIDIT_WORKFLOW_ID = os.getenv('DIDIT_WORKFLOW_ID', '')
 DIDIT_WEBHOOK_SECRET = os.getenv('DIDIT_WEBHOOK_SECRET', '')
 
 # ─── Africa's Talking (SMS) ──────────────────────────────────────────────────
