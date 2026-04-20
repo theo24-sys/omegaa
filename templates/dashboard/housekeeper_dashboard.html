@@ -107,20 +107,20 @@
             </div>
 
             <!-- Dashboard Stats Row -->
-            <div class="flex items-center gap-8 p-6 rounded-[2.5rem] bg-pink-50 border border-pink-100 w-full md:w-auto shadow-inner">
-                <div class="flex items-center gap-12 w-full md:w-auto justify-around">
-                    <div class="flex flex-col text-center">
-                        <span class="text-3xl md:text-4xl font-black text-slate-900 leading-none">{{ applications.count }}</span>
+            <div class="flex items-center gap-4 sm:gap-8 p-6 rounded-[2.5rem] bg-pink-50 border border-pink-100 w-full md:w-auto shadow-inner overflow-x-auto hidescrollbar">
+                <div class="flex items-center gap-4 sm:gap-8 md:gap-12 w-full md:w-auto justify-around min-w-max">
+                    <div class="flex flex-col text-center px-2">
+                        <span class="text-3xl md:text-4xl font-black text-slate-900 leading-none whitespace-nowrap">{{ applications.count }}</span>
                         <span class="text-[10px] text-slate-400 uppercase font-bold tracking-widest mt-2 whitespace-nowrap">Placed</span>
                     </div>
                     <div class="w-px h-10 bg-pink-200"></div>
-                    <div class="flex flex-col text-center">
-                        <span class="text-3xl md:text-4xl font-black text-slate-900 leading-none">{{ review_count }}</span>
+                    <div class="flex flex-col text-center px-2">
+                        <span class="text-3xl md:text-4xl font-black text-slate-900 leading-none whitespace-nowrap">{{ review_count }}</span>
                         <span class="text-[10px] text-slate-400 uppercase font-bold tracking-widest mt-2 whitespace-nowrap">Reviews</span>
                     </div>
                     <div class="w-px h-10 bg-pink-200"></div>
-                    <div class="flex flex-col text-center">
-                        <span class="text-3xl md:text-4xl font-black text-slate-900 leading-none">{{ avg_rating|floatformat:1 }}</span>
+                    <div class="flex flex-col text-center px-2">
+                        <span class="text-3xl md:text-4xl font-black text-slate-900 leading-none whitespace-nowrap">{{ avg_rating|floatformat:1 }}</span>
                         <span class="text-[10px] text-slate-400 uppercase font-bold tracking-widest mt-2 whitespace-nowrap">Rating</span>
                     </div>
                 </div>
