@@ -11,6 +11,9 @@ from courses.models import Course, CourseCompletion
 from payments.models import MonthlyContribution
 from accounts.models import PlatformDocument
 from functools import wraps
+import requests
+import json
+from django.conf import settings
 
 def is_admin(user):
     return user.is_authenticated and user.is_staff
@@ -123,9 +126,6 @@ def user_dashboard(request):
     return redirect('home')
 
 
-import requests
-from django.conf import settings
-
 @login_required
 def housekeeper_dashboard(request):
     if request.user.user_type != 'househelp':
@@ -133,7 +133,7 @@ def housekeeper_dashboard(request):
         return redirect('home')
         
     # --- SYNCHRONOUS DIDIT CHECK FALLBACK ---
-    if not request.user.has_completed_first_verification and request.user.didit_session_id and request.user.didit_verification_status == 'pending':
+    if not request.user.has_completed_first_verification and request.user.didit_session_id:
         session_id = request.user.didit_session_id
         import logging
         logger = logging.getLogger(__name__)
@@ -146,7 +146,8 @@ def housekeeper_dashboard(request):
             
             if response.status_code == 200:
                 data = response.json()
-                status = data.get('status', '').upper()
+                status_raw = data.get('status') or data.get('session', {}).get('status', '')
+                status = str(status_raw).upper()
                 logger.info(f"Didit API returned status for user {request.user.id}: {status}")
                 
                 if status in ['SUCCESS', 'APPROVED', 'COMPLETED']:
@@ -156,19 +157,15 @@ def housekeeper_dashboard(request):
                     request.user.has_completed_first_verification = True
                     request.user.save()
                     messages.success(request, "Identity verification successful! Your profile is verified.")
-                    logger.info(f"User {request.user.id} synced as VERIFIED via dashboard check.")
                 elif status in ['FAILED', 'DECLINED', 'EXPIRED']:
                     request.user.didit_verification_status = status.lower()
                     request.user.save()
                     messages.error(request, f"Identity verification {status.lower()}. Please try again.")
-                    logger.warning(f"User {request.user.id} synced as {status} via dashboard check.")
-                else:
-                    logger.info(f"User {request.user.id} still has status {status} in Didit.")
             else:
-                logger.error(f"Didit API Error {response.status_code}: {response.text}")
+                logger.error(f"Didit API Error {response.status_code} for user {request.user.id}: {response.text}")
         except Exception as e:
-            logger.error(f"Failed to check Didit sync API: {e}")
-            pass # Let webhook handle it if API fails
+            logger.error(f"Error in Didit sync fallback for user {request.user.id}: {str(e)}")
+
     # ----------------------------------------
 
     applications = Application.objects.filter(applicant=request.user).select_related('job').order_by('-created_at')
@@ -182,13 +179,18 @@ def housekeeper_dashboard(request):
     # Study Tracker Logic
     completed_course_ids = CourseCompletion.objects.filter(user=request.user).values_list('course_id', flat=True)
     has_bundle = Payment.objects.filter(user=request.user, plan__plan_type='academy_bundle', status='completed').exists()
+    
     if has_bundle:
+        total_courses = Course.objects.all().count()
         accessible_courses = Course.objects.exclude(id__in=completed_course_ids)
     else:
+        total_courses = Course.objects.filter(id__in=completed_course_ids).count()
         paid_course_ids = Payment.objects.filter(user=request.user, course__isnull=False, status='completed').values_list('course_id', flat=True)
         accessible_courses = Course.objects.filter(
             models.Q(is_free=True) | models.Q(is_mandatory=True) | models.Q(id__in=paid_course_ids)
         ).exclude(id__in=completed_course_ids)
+
+    completion_percentage = (len(completed_course_ids) / total_courses * 100) if total_courses > 0 else 0
     study_tracker_courses = accessible_courses.order_by('-is_mandatory')[:3]
 
     # Monthly Contribution logic
@@ -204,6 +206,9 @@ def housekeeper_dashboard(request):
         'avg_rating': round(avg_rating, 1),
         'review_count': review_count,
         'skills_list': skills_list,
+        'completion_percentage': round(completion_percentage),
+        'completed_courses_count': len(completed_course_ids),
+        'total_courses_count': total_courses,
         'study_tracker_courses': study_tracker_courses,
         'pending_contribution': pending_contribution,
         'agreement_template': agreement_template,
@@ -218,7 +223,6 @@ def employer_dashboard(request):
         return redirect('home')
 
     jobs = Job.objects.filter(employer=request.user).order_by('-created_at')
-    # Filter: Only show applications where the applicant has a profile picture
     applications = Application.objects.filter(
         job__employer=request.user
     ).exclude(
@@ -239,3 +243,55 @@ def employer_dashboard(request):
         'review_count': review_count,
     }
     return render(request, 'dashboard/employer_dashboard.html', context)
+
+
+@login_required
+def force_didit_sync(request):
+    """View to manually force a sync with Didit API"""
+    if request.user.user_type != 'househelp':
+        return redirect('home')
+        
+    if not request.user.didit_session_id:
+        messages.warning(request, "No verification session found. Please start verification first.")
+        return redirect('accounts:initiate_didit_verification')
+        
+    session_id = request.user.didit_session_id
+    import logging
+    logger = logging.getLogger(__name__)
+    
+    try:
+        current_api_key = getattr(settings, 'DIDIT_API_KEY', '')
+        headers = {"x-api-key": current_api_key}
+        
+        logger.info(f"Manual Sync: Checking Didit Session {session_id} for user {request.user.id}")
+        response = requests.get(f"https://verification.didit.me/v3/session/{session_id}/", headers=headers, timeout=10)
+        
+        if response.status_code == 200:
+            data = response.json()
+            logger.info(f"Manual Sync Response for user {request.user.id}: {json.dumps(data)}")
+            
+            status_raw = data.get('status') or data.get('session', {}).get('status', '')
+            status = str(status_raw).upper()
+            
+            if status in ['SUCCESS', 'APPROVED', 'COMPLETED']:
+                request.user.didit_verification_status = 'completed'
+                request.user.is_verified = True
+                request.user.badge_verified_id = True
+                request.user.has_completed_first_verification = True
+                request.user.save()
+                messages.success(request, "Success! Your identity has been verified.")
+            elif status in ['FAILED', 'DECLINED', 'EXPIRED']:
+                request.user.didit_verification_status = status.lower()
+                request.user.save()
+                messages.error(request, f"Verification {status.lower()}.")
+            else:
+                messages.info(request, f"Verification is still in progress (Status: {status}).")
+        else:
+            logger.error(f"Manual Sync API Error {response.status_code}: {response.text}")
+            messages.error(request, "Could not reach verification service. Please try again later.")
+            
+    except Exception as e:
+        logger.error(f"Manual Sync Error: {str(e)}")
+        messages.error(request, "An error occurred during synchronization.")
+        
+    return redirect('dashboard:housekeeper_dashboard')

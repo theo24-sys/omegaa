@@ -57,9 +57,17 @@
                 <p class="text-sm text-red-700">You must complete Didit ID verification before you can fully interact with the platform.</p>
             </div>
         </div>
-        <button onclick="showVerifyModal()" class="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-8 rounded-xl transition shadow-lg shrink-0 whitespace-nowrap">
-            Verify Now
-        </button>
+        <div class="flex flex-wrap gap-3 shrink-0">
+            <button onclick="showVerifyModal()" class="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-8 rounded-xl transition shadow-lg whitespace-nowrap">
+                Verify Now
+            </button>
+            <a href="{% url 'dashboard:force_didit_sync' %}" class="bg-white border border-red-200 hover:bg-red-50 text-red-700 font-bold py-3 px-6 rounded-xl transition shadow-sm whitespace-nowrap flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                </svg>
+                Sync Status
+            </a>
+        </div>
     </div>
     {% endif %}
 

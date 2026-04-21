@@ -123,21 +123,23 @@ def didit_webhook(request):
     
     try:
         data = json.loads(request.body)
-        event_type = data.get('event')
-        session_data = data.get('session', {})
-        session_id = session_data.get('id')
+        logger.info(f"Incoming Didit webhook payload: {json.dumps(data)}")
         
-        # Didit API v3 uses vendor_data, but fallback to vendor_id just in case
-        vendor_id = session_data.get('vendor_data') or session_data.get('vendor_id')
-        status = session_data.get('status')
+        # Didit V3 can send nested 'session' object or flat payload
+        session_data = data.get('session', data) 
+        
+        # Extract fields from nested or flat structure
+        session_id = session_data.get('id') or data.get('session_id')
+        vendor_id = session_data.get('vendor_data') or session_data.get('vendor_id') or data.get('metadata', {}).get('user_id')
+        status = session_data.get('status') or data.get('status')
         
         # ─── INPUT VALIDATION ──────────────────────────────────────────────
         if not vendor_id:
-            logger.warning("Missing vendor_id in Didit webhook")
+            logger.warning(f"Missing vendor_id/user_id in Didit webhook. Payload keys: {list(data.keys())}")
             return JsonResponse({"error": "missing vendor_id"}, status=400)
         
         if not status:
-            logger.warning("Missing status in Didit webhook")
+            logger.warning(f"Missing status in Didit webhook. Payload keys: {list(data.keys())}")
             return JsonResponse({"error": "missing status"}, status=400)
         # ────────────────────────────────────────────────────────────────────
             
