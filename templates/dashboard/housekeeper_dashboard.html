@@ -72,35 +72,47 @@
     {% endif %}
 
     <!-- Premium Worker Header -->
-    <div class="relative overflow-hidden rounded-[3rem] bg-white p-8 md:p-16 mb-12 border border-pink-100 shadow-2xl shadow-pink-50 animate-sapphire">
+    <div class="relative overflow-hidden rounded-[4rem] bg-white p-8 md:p-16 mb-12 border border-pink-100 shadow-2xl shadow-pink-50 animate-sapphire">
         <!-- Abstract Glows -->
-        <div class="absolute top-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-[100px] -mr-48 -mt-48"></div>
-        <div class="absolute bottom-0 left-0 w-64 h-64 bg-accent/5 rounded-full blur-[100px] -ml-32 -mb-32"></div>
+        <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[120px] -mr-64 -mt-64"></div>
+        <div class="absolute bottom-0 left-0 w-80 h-80 bg-accent/5 rounded-full blur-[100px] -ml-40 -mb-40"></div>
 
-        <div class="relative z-10 flex flex-col items-center text-center gap-10">
-            <!-- New Premium Avatar with Overlaid Badges -->
-            <div class="group relative">
-                <div class="absolute -inset-1 bg-gradient-to-r from-primary to-accent rounded-full blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
-                <div class="w-40 h-40">
-                    {{ user.get_avatar_html|safe }}
-                </div>
+        <!-- Top Corner Greeting -->
+        <div class="absolute top-8 left-8 md:top-12 md:left-12">
+            <div class="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-pink-50 border border-pink-100 text-primary text-[10px] font-black uppercase tracking-[0.2em]">
+                <span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+                <span id="greeting-time">Welcome</span>, {{ user.first_name|default:user.username }}
             </div>
+        </div>
 
-            <div class="space-y-6">
-                <div class="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-pink-50 border border-pink-100 text-primary text-xs font-black uppercase tracking-widest">
-                    <span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
-                    Verified Member Portal
+        <div class="relative z-10 flex flex-col items-center text-center gap-10 mt-8 md:mt-0">
+            <!-- 1. Centered Enlarged Profile (Smiling at badges) -->
+            <div class="flex flex-col items-center gap-6">
+                <div class="relative group">
+                    <div class="absolute -inset-2 bg-gradient-to-r from-primary to-accent rounded-full blur opacity-20 group-hover:opacity-40 transition duration-1000"></div>
+                    <div class="w-40 h-40 md:w-56 md:h-56 rounded-full border-[10px] border-white shadow-2xl overflow-hidden relative z-10 bg-white">
+                        {{ user.get_avatar_html|safe }}
+                    </div>
                 </div>
-                <h1 class="text-4xl md:text-7xl font-black text-slate-900 tracking-tight leading-none">
-                    <span id="greeting-time">Welcome</span>, <br>
-                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent flex items-center justify-center gap-2">
+
+                <div class="space-y-4">
+                    <h1 class="text-4xl md:text-6xl font-black text-slate-900 tracking-tight leading-none flex items-center justify-center gap-3">
                         {{ user.get_full_name|default:user.username }}
                         {{ user.get_verified_badge|safe }}
-                    </span>
-                </h1>
-                <p class="text-slate-500 text-lg md:text-xl font-medium max-w-xl mx-auto leading-relaxed">
-                    Elevating professional standards for Kenyan househelps. Manage your career and certifications with ease.
-                </p>
+                    </h1>
+                    
+                    <!-- Badges Row (Smiling at badges) -->
+                    <div class="flex flex-wrap justify-center gap-3 mt-4">
+                        {% for badge_key, badge_data in user.get_badges_list %}
+                            {% if badge_data.earned %}
+                            <div class="flex items-center gap-2 px-5 py-2.5 bg-white rounded-2xl border border-pink-100 shadow-sm transition hover:scale-110 hover:shadow-md" title="{{ badge_data.label }}">
+                                <span class="text-2xl">{{ badge_data.icon }}</span>
+                                <span class="text-xs font-black uppercase tracking-widest text-primary">{{ badge_data.label }}</span>
+                            </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
             </div>
 
             <!-- Communication Hub (WhatsApp/Instagram Style) -->
@@ -143,6 +155,7 @@
             </div>
         </div>
     </div>
+
     <!-- Main Layout Grid -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 md:gap-12 animate-sapphire" style="animation-delay: 0.1s;">
         <!-- Left Sidebar: Profile & Achievements -->
@@ -169,9 +182,7 @@
                                 
                                 <!-- Premium Custom SVG Badges -->
                                 <div class="w-10 h-10 flex items-center justify-center p-1">
-                                    <img src="{% static 'img/badges/'|add:badge_data.icon|add:'.svg' %}" 
-                                         alt="{{ badge_data.label }}" 
-                                         class="w-full h-full object-contain">
+                                    <span class="text-2xl">{{ badge_data.icon }}</span>
                                 </div>
 
                                 <!-- Locked Overlay -->
@@ -185,7 +196,7 @@
                             <!-- Badge Label -->
                             <div class="text-center space-y-1">
                                 <span class="block text-[9px] font-black uppercase tracking-widest leading-none 
-                                    {% if badge_data.earned %}text-white{% else %}text-gray-500{% endif %}">
+                                    {% if badge_data.earned %}text-primary{% else %}text-gray-500{% endif %}">
                                     {{ badge_data.label }}
                                 </span>
                                 <span class="block text-[7px] font-bold uppercase tracking-tighter
@@ -238,99 +249,6 @@
                 <a href="{% url 'edit_profile' %}" class="mt-8 w-full inline-flex items-center justify-center bg-primary/5 hover:bg-primary/10 text-primary font-bold py-3 rounded-xl transition border border-primary/20">
                     Edit Identity
                 </a>
-            </div>
-
-            <!-- Professional Resources Section -->
-            <div class="theme-card rounded-[2.5rem] p-6 md:p-8 text-gray-900 relative overflow-hidden shadow-lg">
-                <h2 class="text-xl font-bold mb-6 flex items-center gap-3">
-                    <span class="w-1.5 h-6 bg-indigo-500 rounded-full"></span>
-                    Resource Center
-                </h2>
-                <div class="space-y-4">
-                    <!-- Master Template Download -->
-                    <div class="p-4 rounded-2xl bg-indigo-50 border border-indigo-100 group transition shadow-sm {% if not agreement_template %}opacity-50{% endif %}">
-                        <div class="flex items-center gap-4 mb-3">
-                            <div class="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-indigo-600 shadow-sm">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                            </div>
-                            <div>
-                                <p class="text-sm font-bold text-gray-900 leading-tight">Master Agreement</p>
-                                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-0.5">Template</p>
-                            </div>
-                        </div>
-                        {% if agreement_template %}
-                        <p class="text-[11px] text-gray-500 mb-4 leading-relaxed">{{ agreement_template.description|default:"Download this template, fill in your details, and re-upload the signed copy below." }}</p>
-                        <a href="{{ agreement_template.document_file.url }}" download class="w-full inline-flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-md">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1M7 11l5 5m0 0l5-5m-5 5V4"/></svg>
-                            Download {{ agreement_template.name }}
-                        </a>
-                        {% else %}
-                        <p class="text-[11px] text-gray-500 mb-0 italic">No master template uploaded by Admin yet.</p>
-                        {% endif %}
-                    </div>
-
-                    <!-- Progress Tracking -->
-                    <div class="p-4 rounded-2xl border-2 border-dashed {% if user.agreement_form %}border-green-200 bg-green-50/30{% else %}border-gray-200 bg-gray-50/30{% endif %}">
-                        <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Your Submission Status</p>
-                        {% if user.agreement_form %}
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center gap-2">
-                                <span class="w-2 h-2 rounded-full bg-green-500"></span>
-                                <span class="text-xs font-bold text-green-700">Signed Copy Uploaded</span>
-                            </div>
-                            <a href="{{ user.agreement_form.url }}" target="_blank" class="text-[10px] font-bold text-indigo-600 underline">View My Copy</a>
-                        </div>
-                        {% else %}
-                        <div class="flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
-                            <span class="text-xs font-bold text-amber-600">Please upload your signed copy</span>
-                        </div>
-                        <a href="{% url 'edit_profile' %}" class="mt-3 w-full inline-flex items-center justify-center bg-white border border-amber-200 text-amber-700 font-bold py-2 rounded-xl text-[10px] hover:bg-amber-50 transition">Go to Uploads</a>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-
-            <!-- Monthly Contribution Section -->
-            <div class="theme-card rounded-[2.5rem] p-6 md:p-8 text-gray-900 relative overflow-hidden shadow-lg border-2 border-primary/5">
-                <div class="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -mr-16 -mt-16"></div>
-                
-                <h2 class="text-xl font-bold mb-6 flex items-center justify-between">
-                    <div class="flex items-center gap-3">
-                        <span class="w-1.5 h-6 bg-primary rounded-full"></span>
-                        Contributions
-                    </div>
-                    <a href="{% url 'payments:contribution_list' %}" class="text-[10px] text-primary hover:underline font-bold uppercase tracking-widest">History</a>
-                </h2>
-
-                {% if pending_contribution %}
-                <div class="bg-gradient-to-br from-primary/5 to-transparent p-5 rounded-3xl border border-primary/10">
-                    <div class="flex items-center justify-between mb-4">
-                        <div>
-                            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Due for {{ pending_contribution.month }}/{{ pending_contribution.year }}</p>
-                            <p class="text-2xl font-black text-gray-900 mt-1">KSh {{ pending_contribution.amount_due }}</p>
-                        </div>
-                        <div class="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                        </div>
-                    </div>
-                    <p class="text-[11px] text-gray-500 mb-4 leading-relaxed">
-                        Your monthly platform contribution is calculated as 3% of your earnings. Please settle to keep your account in good standing.
-                    </p>
-                    <a href="{% url 'payments:pay_contribution' pending_contribution.id %}" class="w-full inline-flex items-center justify-center gap-2 bg-primary hover:bg-primary-dark text-white font-bold py-3 rounded-xl shadow-lg shadow-primary/20 transition-all active:scale-95">
-                        <span>Pay Contribution</span>
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-                    </a>
-                </div>
-                {% else %}
-                <div class="text-center py-6">
-                    <div class="w-16 h-16 bg-green-50 text-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>
-                    </div>
-                    <p class="text-sm font-bold text-gray-900">All caught up!</p>
-                    <p class="text-xs text-gray-400 mt-1">No pending contributions at this time.</p>
-                </div>
-                {% endif %}
             </div>
         </div>
 

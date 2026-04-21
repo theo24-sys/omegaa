@@ -36,27 +36,47 @@
 {% block content %}
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10">
     <!-- VIP Command Center Header -->
-    <div class="relative overflow-hidden rounded-[3rem] bg-white p-8 md:p-16 mb-12 border border-pink-100 shadow-2xl shadow-pink-50 animate-vip">
-        <!-- Abstract Gold Accent -->
-        <div class="absolute top-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-[100px] -mr-48 -mt-48"></div>
-        <div class="absolute bottom-0 left-0 w-64 h-64 bg-accent/5 rounded-full blur-[100px] -ml-32 -mb-32"></div>
+    <div class="relative overflow-hidden rounded-[4rem] bg-white p-8 md:p-16 mb-12 border border-pink-100 shadow-2xl shadow-pink-50 animate-vip">
+        <!-- Abstract Background Accents -->
+        <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[120px] -mr-64 -mt-64"></div>
+        <div class="absolute bottom-0 left-0 w-80 h-80 bg-accent/5 rounded-full blur-[100px] -ml-40 -mb-40"></div>
 
-        <div class="relative z-10 flex flex-col items-center text-center gap-10">
-            <div class="space-y-6">
-                <div class="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-pink-50 border border-pink-100 text-primary text-xs font-black uppercase tracking-[0.2em]">
-                    <span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
-                    Premium Employer Command Center
+        <!-- Top Corner Greeting -->
+        <div class="absolute top-8 left-8 md:top-12 md:left-12">
+            <div class="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-pink-50 border border-pink-100 text-primary text-[10px] font-black uppercase tracking-[0.2em]">
+                <span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+                <span id="greeting-time">Welcome</span>, {{ user.first_name|default:user.username }}
+            </div>
+        </div>
+
+        <div class="relative z-10 flex flex-col items-center text-center gap-10 mt-8 md:mt-0">
+            <!-- 1. Centered Enlarged Profile -->
+            <div class="flex flex-col items-center gap-6">
+                <div class="relative group">
+                    <div class="absolute -inset-2 bg-gradient-to-r from-primary to-accent rounded-full blur opacity-20 group-hover:opacity-40 transition duration-1000"></div>
+                    <div class="w-40 h-40 md:w-56 md:h-56 rounded-full border-[10px] border-white shadow-2xl overflow-hidden relative z-10">
+                        {{ user.get_avatar_html|safe }}
+                    </div>
                 </div>
-                <h1 class="text-4xl md:text-7xl font-black text-slate-900 tracking-tight leading-none">
-                    <span id="greeting-time">Welcome</span>, <br>
-                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent flex items-center justify-center gap-2">
+
+                <div class="space-y-4">
+                    <h1 class="text-4xl md:text-6xl font-black text-slate-900 tracking-tight leading-none flex items-center justify-center gap-3">
                         {{ user.get_full_name|default:user.username }}
                         {{ user.get_verified_badge|safe }}
-                    </span>
-                </h1>
-                <p class="text-slate-500 text-lg md:text-xl font-medium max-w-xl mx-auto leading-relaxed">
-                    Source and manage top-tier domestic talent with Africa's leading platform.
-                </p>
+                    </h1>
+                    
+                    <!-- Full Badges Row (Smiling at badges) -->
+                    <div class="flex flex-wrap justify-center gap-3 mt-4">
+                        {% for badge_key, badge_data in user.get_badges_list %}
+                            {% if badge_data.earned %}
+                            <div class="flex items-center gap-2 px-4 py-2 bg-white rounded-2xl border border-pink-100 shadow-sm transition hover:scale-110 hover:shadow-md" title="{{ badge_data.label }}">
+                                <span class="text-xl">{{ badge_data.icon }}</span>
+                                <span class="text-[9px] font-black uppercase tracking-widest text-primary">{{ badge_data.label }}</span>
+                            </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
             </div>
 
             <!-- WhatsApp/Style Communication Hub -->
@@ -88,26 +108,21 @@
             </div>
 
             <!-- Dashboard Stats Row -->
-            <div class="flex items-center gap-10 p-6 rounded-[2.5rem] bg-pink-50 border border-pink-100 w-full md:w-auto shadow-inner">
-                <div class="w-16 h-16 md:w-24 md:h-24 rounded-[1.5rem] overflow-hidden border-4 border-white shadow-xl flex-shrink-0 bg-white">
-                    <img src="{{ user.get_avatar_url }}" alt="{{ user.username }}" class="w-full h-full object-cover">
-                </div>
-                <div class="flex flex-col text-left">
-                    <p class="text-xl md:text-2xl font-black text-slate-900 leading-none mb-1 flex items-center gap-2">
-                        {{ user.get_full_name|default:user.username }}
-                        {{ user.get_verified_badge|safe }}
-                    </p>
-                    <p class="text-[10px] text-primary font-black uppercase tracking-[0.2em]">Premium Employer since {{ user.date_joined|date:"Y" }}</p>
-                    <div class="flex items-center gap-6 mt-4">
-                        <div class="flex flex-col">
-                            <span class="text-2xl font-black text-slate-900 leading-none">{{ avg_rating|floatformat:1 }}</span>
-                            <span class="text-[9px] text-slate-400 uppercase font-black tracking-widest mt-1">Rating</span>
-                        </div>
-                        <div class="w-px h-6 bg-pink-200"></div>
-                        <div class="flex flex-col">
-                            <span class="text-2xl font-black text-slate-900 leading-none">{{ review_count }}</span>
-                            <span class="text-[9px] text-slate-400 uppercase font-black tracking-widest mt-1">Reviews</span>
-                        </div>
+            <div class="flex items-center gap-6 md:gap-10 p-6 rounded-[2.5rem] bg-pink-50 border border-pink-100 w-full md:w-auto shadow-inner">
+                <div class="flex items-center gap-6 md:gap-10 justify-center w-full">
+                    <div class="flex flex-col text-center">
+                        <span class="text-3xl md:text-4xl font-black text-slate-900 leading-none">{{ avg_rating|floatformat:1 }}</span>
+                        <span class="text-[10px] text-slate-400 uppercase font-black tracking-widest mt-1">Rating</span>
+                    </div>
+                    <div class="w-px h-10 bg-pink-200"></div>
+                    <div class="flex flex-col text-center">
+                        <span class="text-3xl md:text-4xl font-black text-slate-900 leading-none">{{ review_count }}</span>
+                        <span class="text-[10px] text-slate-400 uppercase font-black tracking-widest mt-1">Reviews</span>
+                    </div>
+                    <div class="w-px h-10 bg-pink-200"></div>
+                    <div class="flex flex-col text-center">
+                        <span class="text-3xl md:text-4xl font-black text-slate-900 leading-none">{{ jobs.count }}</span>
+                        <span class="text-[10px] text-slate-400 uppercase font-black tracking-widest mt-1">Active Posts</span>
                     </div>
                 </div>
             </div>
@@ -126,71 +141,6 @@
 
     <!-- VIP Command Center: Stats & Actions -->
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-8 md:mb-12 animate-vip" style="animation-delay: 0.1s;">
-        <!-- Stats Row -->
-        <div class="col-span-2 md:col-span-4 grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-4 md:mb-8">
-            <div
-                class="p-6 md:p-8 rounded-[2rem] bg-white shadow-lg border border-pink-100 flex flex-col justify-between group hover:border-primary/30 transition-all">
-                <span class="text-[10px] md:text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 md:mb-4">Operational Status</span>
-                <div class="flex items-end justify-between">
-                    <span class="text-3xl md:text-4xl font-black text-gray-900">{{ jobs.count }} <span
-                            class="text-sm md:text-lg font-bold text-gray-400">Listings</span></span>
-                    <div class="w-8 h-8 md:w-10 md:h-10 rounded-full bg-green-50 flex items-center justify-center text-green-500">
-                        <svg class="w-5 h-5 md:w-6 md:h-6" fill="currentColor" viewBox="0 0 24 24">
-                            <path fill-rule="evenodd"
-                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                                clip-rule="evenodd" />
-                        </svg>
-                    </div>
-                </div>
-            </div>
-            <div
-                class="p-6 md:p-8 rounded-[2rem] bg-white shadow-lg border border-pink-100 flex flex-col justify-between group hover:border-primary/30 transition-all">
-                <span class="text-[10px] md:text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 md:mb-4">Talent Acquisition</span>
-                <div class="flex items-end justify-between">
-                    <span class="text-3xl md:text-4xl font-black text-gray-900">{{ applications.count }} <span
-                            class="text-sm md:text-lg font-bold text-gray-400">Total</span></span>
-                    <div class="w-8 h-8 md:w-10 md:h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-500">
-                        <svg class="w-5 h-5 md:w-6 md:h-6" fill="currentColor" viewBox="0 0 20 20">
-                            <path
-                                d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" />
-                        </svg>
-                    </div>
-                </div>
-            </div>
-            {% if user.is_verified %}
-            <div
-                class="p-6 md:p-8 rounded-[2rem] bg-gradient-to-br from-dark to-primary text-white shadow-lg flex flex-col justify-between relative overflow-hidden group">
-                <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform">
-                    <svg class="w-16 h-16 md:w-20 md:h-20" fill="currentColor" viewBox="0 0 24 24">
-                        <path
-                            d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                    </svg>
-                </div>
-                <span class="text-[10px] md:text-xs font-bold text-pink-200 uppercase tracking-widest mb-2 md:mb-4 flex items-center z-10">Membership Status</span>
-                <div class="flex items-end justify-between z-10">
-                    <span class="text-2xl md:text-3xl font-black text-white">Verified</span>
-                    <span
-                        class="px-2 py-0.5 rounded text-[10px] font-black bg-white text-primary uppercase shadow">Premium</span>
-                </div>
-            </div>
-            {% else %}
-            <a href="{% url 'payments:payment_plans' %}"
-                class="p-6 md:p-8 rounded-[2rem] bg-gradient-to-br from-slate-700 to-slate-900 text-white shadow-lg flex flex-col justify-between relative overflow-hidden group hover:from-primary hover:to-accent transition-all cursor-pointer">
-                <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform">
-                    <svg class="w-16 h-16 md:w-20 md:h-20" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4" />
-                    </svg>
-                </div>
-                <span class="text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 md:mb-4 flex items-center z-10">Membership Status</span>
-                <div class="flex items-end justify-between z-10">
-                    <span class="text-2xl md:text-3xl font-black text-white">Unverified</span>
-                    <span
-                        class="px-2 py-0.5 rounded text-[10px] font-black bg-pink-500 text-white uppercase shadow">Get Verified</span>
-                </div>
-            </a>
-            {% endif %}
-        </div>
-
         <!-- Quick Action Tiles -->
         <a href="{% url 'jobs:job_create' %}"
             class="theme-card rounded-[2rem] p-4 md:p-8 flex flex-col gap-4 text-gray-900 group relative overflow-hidden h-full">
