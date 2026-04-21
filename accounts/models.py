@@ -64,7 +64,16 @@ class CustomUser(AbstractUser):
     didit_session_id = models.CharField(max_length=255, blank=True, null=True)
     didit_verification_status = models.CharField(
         max_length=50, 
-        choices=[('none', 'None'), ('pending', 'Pending'), ('completed', 'Completed'), ('failed', 'Failed')],
+        choices=[
+            ('none', 'None'), 
+            ('pending', 'Pending'), 
+            ('completed', 'Completed'), 
+            ('failed', 'Failed'),
+            ('approved', 'Approved'),
+            ('declined', 'Declined'),
+            ('expired', 'Expired'),
+            ('in_review', 'In Review')
+        ],
         default='none'
     )
     has_completed_first_verification = models.BooleanField(default=False, help_text='Track if worker completed first-time Didit verification')

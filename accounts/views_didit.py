@@ -147,27 +147,30 @@ def didit_webhook(request):
             return JsonResponse({"error": "user not found"}, status=404)
             
         # ─── UPDATE STATUS BASED ON VERIFICATION RESULT ───────────────────
-        # Detailed status handling
-        if status == 'SUCCESS':
+        # Use case-insensitive comparison for status
+        status_upper = status.upper()
+        logger.info(f"Processing Didit webhook for user {user.id} with status: {status_upper}")
+
+        if status_upper in ['SUCCESS', 'APPROVED', 'COMPLETED']:
             user.didit_verification_status = 'completed'
             user.is_verified = True
             user.badge_verified_id = True
             user.has_completed_first_verification = True  # Mark first verification as complete
             user.save()
-            logger.info(f"User {user.id} verified successfully via Didit")
-        elif status == 'FAILED':
+            logger.info(f"User {user.id} verified successfully via Didit (Status: {status_upper})")
+        elif status_upper in ['FAILED', 'DECLINED']:
             user.didit_verification_status = 'failed'
             user.save()
-            logger.warning(f"User {user.id} verification FAILED via Didit")
-        elif status == 'PENDING':
-            user.didit_verification_status = 'pending'
-            user.save()
-        elif status == 'EXPIRED':
+            logger.warning(f"User {user.id} verification FAILED via Didit (Status: {status_upper})")
+        elif status_upper == 'EXPIRED':
             user.didit_verification_status = 'expired'
             user.save()
             logger.warning(f"User {user.id} Didit verification session expired")
+        elif status_upper in ['PENDING', 'IN_PROGRESS', 'IN_REVIEW']:
+            user.didit_verification_status = status_upper.lower()
+            user.save()
         else:
-            logger.warning(f"Unknown Didit status: {status}")
+            logger.warning(f"Unhandled Didit status: {status_upper}")
             user.didit_verification_status = 'pending'
             user.save()
         # ────────────────────────────────────────────────────────────────────

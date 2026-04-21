@@ -147,19 +147,23 @@ def housekeeper_dashboard(request):
             if response.status_code == 200:
                 data = response.json()
                 status = data.get('status', '').upper()
-                logger.info(f"Didit API returned status: {status}")
+                logger.info(f"Didit API returned status for user {request.user.id}: {status}")
                 
-                if status in ['SUCCESS', 'APPROVED']:
+                if status in ['SUCCESS', 'APPROVED', 'COMPLETED']:
                     request.user.didit_verification_status = 'completed'
                     request.user.is_verified = True
                     request.user.badge_verified_id = True
                     request.user.has_completed_first_verification = True
                     request.user.save()
                     messages.success(request, "Identity verification successful! Your profile is verified.")
+                    logger.info(f"User {request.user.id} synced as VERIFIED via dashboard check.")
                 elif status in ['FAILED', 'DECLINED', 'EXPIRED']:
                     request.user.didit_verification_status = status.lower()
                     request.user.save()
                     messages.error(request, f"Identity verification {status.lower()}. Please try again.")
+                    logger.warning(f"User {request.user.id} synced as {status} via dashboard check.")
+                else:
+                    logger.info(f"User {request.user.id} still has status {status} in Didit.")
             else:
                 logger.error(f"Didit API Error {response.status_code}: {response.text}")
         except Exception as e:
