@@ -150,13 +150,14 @@ class CustomUser(AbstractUser):
         avatar_url = self.get_avatar_url()
         badge_icons = ""
         
-        # The Paramount Meta-Style Blue Check
+        # The Paramount Purple Instagram-Style Check
         if self.is_paid_verified:
             badge_icons += """
             <div class="absolute -bottom-[5%] -right-[5%] bg-white rounded-full p-[5%] shadow-sm z-10">
-                <div class="bg-[#0095f6] rounded-full p-[5%] w-full h-full flex items-center justify-center border-2 border-white">
-                    <svg class="w-full h-full text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M5 13l4 4L19 7"></path>
+                <div class="bg-[#8a3ab9] rounded-full p-[5%] w-full h-full flex items-center justify-center border-2 border-white">
+                    <svg class="w-full h-full text-white" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2L13.73 4.27L16.4 3.93L17.27 6.47L19.86 7.14L19.46 9.8L21.46 11.67L20.13 14.27L21.13 16.87L18.66 17.8L17.53 20.27L14.86 19.93L13.13 22.2L10.5 21.53L8.87 23.8L6.2 23.46L5.33 21L2.74 20.33L3.14 17.67L1.14 15.8L2.47 13.2L1.47 10.6L3.94 9.67L5.07 7.2L7.74 7.54L9.47 5.27L12 2Z" />
+                        <path d="M10 15.5L7 12.5L8.4 11.1L10 12.7L15.6 7.1L17 8.5L10 15.5Z" fill="white" />
                     </svg>
                 </div>
             </div>
@@ -191,25 +192,32 @@ class CustomUser(AbstractUser):
         return int((filled / total) * 100)
 
     def get_verified_badge(self):
-        """Returns distinct badges for Didit Identity Verification vs Paid Verification."""
+        """Returns distinct badges for Identity Verification vs Paid Verification."""
         badges = []
         
-        # Paid Verification (The Paramount Meta-Style Blue Check)
+        # Paid Verification (The Paramount Purple Instagram-Style Rosette)
         if self.is_paid_verified:
             badges.append("""
-            <span class="inline-flex items-center justify-center bg-[#0095f6] rounded-full p-[2px] w-4 h-4 md:w-5 md:h-5 ml-1 select-none shadow-md border-2 border-white" title="Paid Verified Member (Meta Style)">
-                <svg class="w-full h-full text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M5 13l4 4L19 7"></path>
+            <span class="inline-flex items-center justify-center ml-1" title="Paid Verified Member">
+                <svg class="w-4 h-4 md:w-5 md:h-5 text-[#8a3ab9]" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2L13.73 4.27L16.4 3.93L17.27 6.47L19.86 7.14L19.46 9.8L21.46 11.67L20.13 14.27L21.13 16.87L18.66 17.8L17.53 20.27L14.86 19.93L13.13 22.2L10.5 21.53L8.87 23.8L6.2 23.46L5.33 21L2.74 20.33L3.14 17.67L1.14 15.8L2.47 13.2L1.47 10.6L3.94 9.67L5.07 7.2L7.74 7.54L9.47 5.27L12 2Z" />
+                    <path d="M10 15.5L7 12.5L8.4 11.1L10 12.7L15.6 7.1L17 8.5L10 15.5Z" fill="white" />
                 </svg>
             </span>
             """)
             
-        # Didit Identity Verification (Sleek Purple Shield)
+        # Identity Verification (ID Card Style with Purple Seal - Inspired by Image)
         if self.is_verified:
             badges.append("""
-            <span class="inline-flex items-center justify-center bg-purple-600 rounded-full p-[3px] w-4 h-4 md:w-5 md:h-5 ml-1 select-none shadow-sm border border-white/20" title="Identity Verified (Didit)">
-                <svg class="w-full h-full text-white" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+            <span class="inline-flex items-center justify-center ml-1" title="Identity Verified">
+                <svg class="w-5 h-5 md:w-6 md:h-6 text-[#9c27b0]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="2" y="5" width="20" height="14" rx="2" fill="#F3E5F5" stroke="currentColor" stroke-width="0.5"/>
+                    <circle cx="7" cy="10" r="2.5" fill="currentColor"/>
+                    <rect x="12" y="9" width="6" height="1" rx="0.5" fill="currentColor"/>
+                    <rect x="12" y="11" width="6" height="1" rx="0.5" fill="currentColor"/>
+                    <rect x="12" y="13" width="4" height="1" rx="0.5" fill="currentColor"/>
+                    <circle cx="18" cy="15" r="4" fill="white" stroke="currentColor" stroke-width="0.5"/>
+                    <path d="M16.5 15L17.5 16L19.5 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
             </span>
             """)
