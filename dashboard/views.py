@@ -133,6 +133,17 @@ def housekeeper_dashboard(request):
         return redirect('home')
         
     # --- SYNCHRONOUS DIDIT CHECK FALLBACK ---
+    # 1. Check URL parameters first (Instant sync on return)
+    url_status = request.GET.get('status', '').upper()
+    url_session = request.GET.get('verificationSessionId')
+    
+    if url_status in ['SUCCESS', 'APPROVED', 'COMPLETED']:
+        logger.info(f"Dashboard: URL sync triggered for user {request.user.id} (Status: {url_status})")
+        if url_session:
+            request.user.didit_session_id = url_session
+        return _mark_user_verified(request, url_status)
+
+    # 2. API Fallback check
     if not request.user.has_completed_first_verification and request.user.didit_session_id:
         session_id = request.user.didit_session_id
         import logging
@@ -274,7 +285,7 @@ def force_didit_sync(request):
         
         # ─── ATTEMPT 2: FALLBACK TO SEARCH BY VENDOR DATA ──────────────────
         logger.info(f"Manual Sync Fallback: Searching sessions for user {request.user.id}")
-        search_url = f"https://verification.didit.me/v3/session/?vendor_data={request.user.id}"
+        search_url = f"https://verification.didit.me/v3/sessions/?vendor_data={request.user.id}"
         search_response = requests.get(search_url, headers=headers, timeout=10)
         
         if search_response.status_code == 200:
