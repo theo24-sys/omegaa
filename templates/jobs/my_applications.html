@@ -35,7 +35,7 @@
                 </thead>
                 <tbody class="divide-y divide-pink-100 bg-white">
                     {% for app in applications %}
-                    <tr class="hover:bg-pink-50 transition">
+                    <tr class="hover:bg-pink-50 transition cursor-pointer" onclick="window.location='{% url 'jobs:job_application_detail' app.pk %}'">
                         <td class="px-6 py-4">
                             <a href="{% url 'jobs:job_application_detail' app.pk %}"
                                 class="text-pink-600 hover:text-pink-800 font-bold">
@@ -45,23 +45,29 @@
                         </td>
                         <td class="px-6 py-4">
                             {% if request.user.user_type == 'employer' %}
-                            <div class="flex flex-col">
-                                <a href="{% url 'profile_detail' user_id=app.applicant.pk %}"
-                                    class="text-pink-600 hover:text-pink-800 font-bold mb-1">
-                                    {{ app.applicant.get_full_name|default:app.applicant.username }}
-                                </a>
-                                <div class="flex flex-wrap gap-1">
-                                    {% for badge_key, badge_data in app.applicant.get_badges_list %}
-                                        {% if badge_data.earned %}
-                                        <span class="inline-flex items-center justify-center w-5 h-5 rounded bg-pink-50 text-[10px] border border-pink-100" title="{{ badge_data.label }}">
-                                            {{ badge_data.icon }}
-                                        </span>
-                                        {% endif %}
-                                    {% endfor %}
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 flex-shrink-0">
+                                    {{ app.applicant.get_avatar_html|safe }}
+                                </div>
+                                <div class="flex flex-col">
+                                    <span class="text-pink-600 font-bold mb-0.5 flex items-center gap-1">
+                                        {{ app.applicant.get_full_name|default:app.applicant.username }}
+                                        {{ app.applicant.get_verified_badge|safe }}
+                                    </span>
+                                    <div class="flex flex-wrap gap-1">
+                                        {% for badge_key, badge_data in app.applicant.get_badges_list %}
+                                            {% if badge_data.earned %}
+                                            <div class="flex items-center gap-1 px-1.5 py-0.5 rounded bg-pink-50 border border-pink-100" title="{{ badge_data.label }}">
+                                                <span class="text-[10px]">{{ badge_data.icon }}</span>
+                                                <span class="text-[8px] font-black uppercase tracking-tighter text-primary">{{ badge_data.label }}</span>
+                                            </div>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
                                 </div>
                             </div>
                             {% else %}
-                            {{ app.job.employer.get_full_name|default:app.job.employer.username }}
+                            <span class="font-bold text-gray-700">{{ app.job.employer.get_full_name|default:app.job.employer.username }}</span>
                             {% endif %}
                         </td>
                         <td class="px-6 py-4">
@@ -71,7 +77,7 @@
                         </td>
                         {% if request.user.user_type == 'employer' %}
                         <td class="px-6 py-4">
-                            {% if app.applicant.documents_verified %}
+                            {% if app.applicant.is_verified %}
                             <div class="flex flex-col gap-2">
                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                                     ✓ Verified
@@ -88,7 +94,7 @@
                             {{ app.created_at|date:"M d, Y" }}
                         </td>
                         {% if request.user.user_type == 'employer' %}
-                        <td class="px-6 py-4">
+                        <td class="px-6 py-4" onclick="event.stopPropagation();">
                             <form method="post" action="{% url 'jobs:update_application_status' app.pk %}"
                                 class="flex items-center gap-2">
                                 {% csrf_token %}
@@ -116,13 +122,18 @@
         <!-- Mobile Card View (Hidden on Desktop) -->
         <div class="md:hidden divide-y divide-pink-100">
             {% for app in applications %}
-            <div class="p-5 space-y-4">
+            <a href="{% url 'jobs:job_application_detail' app.pk %}" class="block p-5 space-y-4 hover:bg-pink-50 transition-colors">
                 <div class="flex justify-between items-start">
-                    <div>
-                        <p class="text-[10px] font-black uppercase tracking-widest text-pink-300 mb-1">Job Application</p>
-                        <a href="{% url 'jobs:job_application_detail' app.pk %}" class="text-lg font-bold text-gray-900 leading-tight">
-                            {{ app.job.title }}
-                        </a>
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 flex-shrink-0">
+                            {{ app.applicant.get_avatar_html|safe }}
+                        </div>
+                        <div>
+                            <p class="text-[10px] font-black uppercase tracking-widest text-pink-300 mb-0.5">Job Application</p>
+                            <h3 class="text-base font-bold text-gray-900 leading-tight">
+                                {{ app.job.title }}
+                            </h3>
+                        </div>
                     </div>
                     <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest {{ app.get_status_class }}">
                         {{ app.get_status_display }}
@@ -134,15 +145,27 @@
                         <p class="text-[9px] font-black uppercase tracking-widest text-gray-400">
                             {% if request.user.user_type == 'employer' %}Applicant{% else %}Employer{% endif %}
                         </p>
-                        <div class="mt-1">
+                        <div class="mt-1 flex flex-col gap-1.5">
+                            <div class="flex items-center gap-1">
+                                <span class="text-sm font-bold text-pink-600">
+                                    {{ app.applicant.get_full_name|default:app.applicant.username }}
+                                </span>
+                                {% if request.user.user_type == 'employer' %}
+                                    {{ app.applicant.get_verified_badge|safe }}
+                                {% endif %}
+                            </div>
+                            <!-- Earned Badges Row (Mobile) -->
                             {% if request.user.user_type == 'employer' %}
-                            <a href="{% url 'profile_detail' user_id=app.applicant.pk %}" class="text-sm font-bold text-pink-600">
-                                {{ app.applicant.get_full_name|default:app.applicant.username }}
-                            </a>
-                            {% else %}
-                            <p class="text-sm font-bold text-gray-700">
-                                {{ app.job.employer.get_full_name|default:app.job.employer.username }}
-                            </p>
+                            <div class="flex flex-wrap gap-1">
+                                {% for badge_key, badge_data in app.applicant.get_badges_list %}
+                                    {% if badge_data.earned %}
+                                    <div class="flex items-center gap-1 px-1.5 py-0.5 bg-pink-50 rounded border border-pink-100" title="{{ badge_data.label }}">
+                                        <span class="text-[8px]">{{ badge_data.icon }}</span>
+                                        <span class="text-[7px] font-black uppercase tracking-tighter text-primary">{{ badge_data.label }}</span>
+                                    </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
                             {% endif %}
                         </div>
                     </div>
@@ -153,10 +176,10 @@
                 </div>
 
                 {% if request.user.user_type == 'employer' %}
-                <div class="pt-4 border-t border-pink-50 flex flex-col gap-4">
-                    <div class="flex items-center justify-between">
+                <div class="pt-4 border-t border-pink-50" onclick="event.stopPropagation();">
+                    <div class="flex items-center justify-between mb-4">
                         <p class="text-[9px] font-black uppercase tracking-widest text-gray-400">Documents</p>
-                        {% if app.applicant.documents_verified %}
+                        {% if app.applicant.is_verified %}
                         <span class="text-[10px] font-bold text-green-600 flex items-center gap-1">
                             <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
                             Verified
@@ -177,7 +200,7 @@
                     </form>
                 </div>
                 {% endif %}
-            </div>
+            </a>
             {% endfor %}
         </div>
     </div>

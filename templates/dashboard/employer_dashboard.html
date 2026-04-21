@@ -135,7 +135,7 @@
                     <span class="text-3xl md:text-4xl font-black text-gray-900">{{ jobs.count }} <span
                             class="text-sm md:text-lg font-bold text-gray-400">Listings</span></span>
                     <div class="w-8 h-8 md:w-10 md:h-10 rounded-full bg-green-50 flex items-center justify-center text-green-500">
-                        <svg class="w-5 h-5 md:w-6 md:h-6" fill="currentColor" viewBox="0 0 20 20">
+                        <svg class="w-5 h-5 md:w-6 md:h-6" fill="currentColor" viewBox="0 0 24 24">
                             <path fill-rule="evenodd"
                                 d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
                                 clip-rule="evenodd" />
@@ -380,19 +380,31 @@
             <div class="space-y-4">
                 {% if applications %}
                 {% for app in applications|slice:":4" %}
-                <div
-                    class="p-4 rounded-[2rem] bg-white border border-pink-50 shadow-sm hover:shadow-xl hover:border-pink-200 transition-all flex items-center justify-between gap-4 group">
+                <a href="{% url 'jobs:job_application_detail' app.pk %}"
+                    class="p-4 rounded-[2rem] bg-white border border-pink-50 shadow-sm hover:shadow-xl hover:border-pink-200 transition-all flex items-center justify-between gap-4 group block">
                     <div class="flex items-center gap-4">
                         <div class="w-14 h-14 flex-shrink-0">
                             {{ app.applicant.get_avatar_html|safe }}
                         </div>
                         <div>
-                            <h3 class="font-black text-slate-900 leading-none mb-1 group-hover:text-primary transition-colors">
+                            <h3 class="font-black text-slate-900 leading-none mb-1 group-hover:text-primary transition-colors flex items-center gap-2">
                                 {{ app.applicant.get_full_name|default:app.applicant.username }}
+                                {{ app.applicant.get_verified_badge|safe }}
                             </h3>
-                            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest truncate max-w-[150px]">
+                            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest truncate max-w-[150px] mb-2">
                                 {{ app.job.title }}
                             </p>
+                            <!-- Earned Badges Row -->
+                            <div class="flex flex-wrap gap-1.5">
+                                {% for badge_key, badge_data in app.applicant.get_badges_list %}
+                                    {% if badge_data.earned %}
+                                    <div class="flex items-center gap-1 px-2 py-0.5 bg-pink-50 rounded-lg border border-pink-100" title="{{ badge_data.label }}">
+                                        <span class="text-[10px]">{{ badge_data.icon }}</span>
+                                        <span class="text-[8px] font-black uppercase tracking-tighter text-primary">{{ badge_data.label }}</span>
+                                    </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
                         </div>
                     </div>
                     <div class="flex flex-col items-end gap-2">
@@ -403,9 +415,9 @@
                                         {% else %}bg-slate-50 text-slate-600 border border-slate-100{% endif %}">
                             {{ app.get_status_display }}
                         </span>
-                        <a href="{% url 'jobs:job_application_detail' app.pk %}" class="text-[10px] font-black text-primary hover:text-accent transition uppercase tracking-tighter">View Dossier →</a>
+                        <span class="text-[10px] font-black text-primary group-hover:text-accent transition uppercase tracking-tighter">View Dossier →</span>
                     </div>
-                </div>
+                </a>
                 {% endfor %}
                 {% else %}
                 <p class="text-gray-500 italic text-center py-10">No talent is currently in the queue.</p>

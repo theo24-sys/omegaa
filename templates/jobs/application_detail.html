@@ -26,7 +26,18 @@
                                     {{ app.applicant.get_full_name|default:app.applicant.username }}
                                     {{ app.applicant.get_verified_badge|safe }}
                                 </h1>
-                                <p class="text-pink-600 font-bold tracking-widest uppercase text-xs">Job Applicant</p>
+                                <p class="text-pink-600 font-bold tracking-widest uppercase text-xs mb-3">Job Applicant</p>
+                                <!-- Earned Badges Row -->
+                                <div class="flex flex-wrap gap-2">
+                                    {% for badge_key, badge_data in app.applicant.get_badges_list %}
+                                        {% if badge_data.earned %}
+                                        <div class="flex items-center gap-1.5 px-3 py-1 bg-pink-50 rounded-xl border border-pink-100 shadow-sm" title="{{ badge_data.label }}">
+                                            <span class="text-lg">{{ badge_data.icon }}</span>
+                                            <span class="text-[10px] font-black uppercase tracking-widest text-primary">{{ badge_data.label }}</span>
+                                        </div>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
                             </div>
                         </div>
                         <div class="flex flex-col items-end gap-2">
