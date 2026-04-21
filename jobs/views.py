@@ -152,7 +152,7 @@ def job_apply(request, pk):
         return redirect('jobs:job_detail', pk=pk)
 
     if request.method == 'POST':
-        form = ApplicationForm(request.POST, request.FILES)
+        form = ApplicationForm(request.POST, request.FILES, job=job)
         if form.is_valid():
             application = form.save(commit=False)
             application.job = job
@@ -172,9 +172,35 @@ def job_apply(request, pk):
             messages.success(request, 'Application submitted!')
             return redirect('jobs:my_applications')
     else:
-        form = ApplicationForm()
+        form = ApplicationForm(job=job)
 
     return render(request, 'jobs/job_apply.html', {'form': form, 'job': job})
+
+
+@login_required
+def application_detail(request, pk):
+    """
+    Detailed view of a job application.
+    Employers see applicant details, requirements met, and plan-sensitive contact options.
+    """
+    application = get_object_or_404(Application, pk=pk)
+    
+    # Permission check: Only employer of the job or the applicant themselves
+    if request.user != application.job.employer and request.user != application.applicant:
+        messages.error(request, "Access denied.")
+        return redirect('jobs:my_applications')
+    
+    # Get plan features for the employer
+    features = None
+    if request.user == application.job.employer:
+        features = UserSubscription.get_active_features(request.user)
+    
+    context = {
+        'app': application,
+        'features': features,
+        'is_employer': request.user == application.job.employer,
+    }
+    return render(request, 'jobs/application_detail.html', context)
 
 
 @login_required

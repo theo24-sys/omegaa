@@ -128,6 +128,9 @@ class Application(models.Model):
     )
     preferred_hours = models.CharField(max_length=100, blank=True, help_text="e.g. 8 AM - 5 PM")
     additional_notes = models.TextField(blank=True)
+    
+    # Requirements tracking
+    requirements_met = models.JSONField(default=list, blank=True, help_text="List of requirements the applicant satisfies")
 
     class Meta:
         unique_together = ('job', 'applicant')

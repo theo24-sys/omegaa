@@ -163,19 +163,39 @@ class JobForm(forms.ModelForm):
 
 
 class ApplicationForm(forms.ModelForm):
+    requirements_met = forms.MultipleChoiceField(
+        required=False,
+        widget=forms.CheckboxSelectMultiple,
+        label="Select the requirements you satisfy"
+    )
+
     class Meta:
         model = Application
-        fields = ['cover_letter', 'resume', 'experience', 'availability', 'preferred_hours', 'additional_notes']
+        fields = [
+            'requirements_met', 'cover_letter', 'resume', 
+            'experience', 'availability', 'preferred_hours', 'additional_notes'
+        ]
         widgets = {
             'cover_letter': forms.Textarea(attrs={'rows': 6}),
             'additional_notes': forms.Textarea(attrs={'rows': 4}),
         }
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, job=None, **kwargs):
         super().__init__(*args, **kwargs)
         common_class = 'w-full px-4 py-3 rounded-lg border border-pink-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-200 bg-white transition'
-        for field in self.fields.values():
-            field.widget.attrs.update({'class': common_class})
+        
+        if job and job.requirements:
+            # Parse requirements: usually stored as "- Requirement" lines
+            lines = [line.strip("- ").strip() for line in job.requirements.split('\n') if line.strip()]
+            self.fields['requirements_met'].choices = [(line, line) for line in lines]
+        else:
+            # Hide if no requirements
+            self.fields['requirements_met'].widget = forms.HiddenInput()
+            self.fields['requirements_met'].required = False
+
+        for name, field in self.fields.items():
+            if name != 'requirements_met':
+                field.widget.attrs.update({'class': common_class})
 
 class JobSearchForm(forms.Form):
     keyword = forms.CharField(required=False, widget=forms.TextInput(attrs={'placeholder': 'Search jobs...'}))
