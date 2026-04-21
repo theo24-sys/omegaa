@@ -10,7 +10,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.home, name='home'),  # ← changed to use the function view
     path('accounts/', include('accounts.urls')),
-    path('jobs/', include(('jobs.urls', 'jobs'), namespace='jobs')),
+    path('jobs/', include('jobs.urls')),
     path('dashboard/', include(('dashboard.urls', 'dashboard'), namespace='dashboard')),
     path('notifications/', include(('notifications.urls', 'notifications'), namespace='notifications')),
     path('reviews/', include(('reviews.urls', 'reviews'), namespace='reviews')),
