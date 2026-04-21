@@ -78,6 +78,14 @@
         <div class="absolute bottom-0 left-0 w-64 h-64 bg-accent/5 rounded-full blur-[100px] -ml-32 -mb-32"></div>
 
         <div class="relative z-10 flex flex-col items-center text-center gap-10">
+            <!-- New Premium Avatar with Overlaid Badges -->
+            <div class="group relative">
+                <div class="absolute -inset-1 bg-gradient-to-r from-primary to-accent rounded-full blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
+                <div class="w-40 h-40">
+                    {{ user.get_avatar_html|safe }}
+                </div>
+            </div>
+
             <div class="space-y-6">
                 <div class="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-pink-50 border border-pink-100 text-primary text-xs font-black uppercase tracking-widest">
                     <span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>

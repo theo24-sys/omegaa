@@ -185,8 +185,8 @@
                     <!-- User Menu -->
                     <div class="relative group">
                         <button class="flex items-center space-x-2 hover:text-pink-100 transition">
-                            <div class="w-9 h-9 rounded-full bg-white overflow-hidden shadow-inner border border-pink-100">
-                                <img src="{{ user.get_avatar_url }}" alt="{{ user.username }}" class="w-full h-full object-cover">
+                            <div class="w-10 h-10">
+                                {{ user.get_avatar_html|safe }}
                             </div>
                             <span class="font-medium flex items-center">
                                <span class="text-star">{{ user.get_full_name|default:user.username }}</span>

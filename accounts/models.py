@@ -133,7 +133,7 @@ class CustomUser(AbstractUser):
         from django.templatetags.static import static
         import os
         
-        placeholder = static('img/placeholder.svg')
+        placeholder = static('img/placeholder-avatar.svg')
         if not self.profile_picture:
             return placeholder
             
@@ -144,6 +144,32 @@ class CustomUser(AbstractUser):
             pass
             
         return placeholder
+
+    def get_avatar_html(self):
+        """Returns HTML for avatar with badges overlaid (Instagram/Meta style)."""
+        avatar_url = self.get_avatar_url()
+        badge_icons = ""
+        
+        # The Paramount Meta-Style Blue Check
+        if self.is_paid_verified:
+            badge_icons += """
+            <div class="absolute -bottom-[5%] -right-[5%] bg-white rounded-full p-[5%] shadow-sm z-10">
+                <div class="bg-[#0095f6] rounded-full p-[5%] w-full h-full flex items-center justify-center border-2 border-white">
+                    <svg class="w-full h-full text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                </div>
+            </div>
+            """
+        
+        html = f"""
+        <div class="relative avatar-with-badges shadow-xl rounded-full border-4 border-white">
+            <img src="{avatar_url}" alt="{self.username}" class="w-full h-full object-cover rounded-full">
+            <div class="absolute inset-0 rounded-full ring-1 ring-black/5"></div>
+            {badge_icons}
+        </div>
+        """
+        return html
 
     @property
     def completion_percentage(self):
@@ -168,22 +194,22 @@ class CustomUser(AbstractUser):
         """Returns distinct badges for Didit Identity Verification vs Paid Verification."""
         badges = []
         
-        # Didit Identity Verification (Classic Meta Blue Check)
-        if self.is_verified:
+        # Paid Verification (The Paramount Meta-Style Blue Check)
+        if self.is_paid_verified:
             badges.append("""
-            <span class="inline-flex items-center justify-center bg-[#0095f6] rounded-full p-[2px] w-4 h-4 md:w-5 md:h-5 ml-1 select-none shadow-sm" title="Identity Verified (Didit)">
+            <span class="inline-flex items-center justify-center bg-[#0095f6] rounded-full p-[2px] w-4 h-4 md:w-5 md:h-5 ml-1 select-none shadow-md border-2 border-white" title="Paid Verified Member (Meta Style)">
                 <svg class="w-full h-full text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M5 13l4 4L19 7"></path>
                 </svg>
             </span>
             """)
             
-        # Paid Verification (Premium Gold Star)
-        if self.is_paid_verified:
+        # Didit Identity Verification (Sleek Purple Shield)
+        if self.is_verified:
             badges.append("""
-            <span class="inline-flex items-center justify-center bg-amber-500 rounded-full p-[2px] w-4 h-4 md:w-5 md:h-5 ml-1 select-none shadow-sm" title="Premium Paid Member">
-                <svg class="w-full h-full text-white p-[1px]" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+            <span class="inline-flex items-center justify-center bg-purple-600 rounded-full p-[3px] w-4 h-4 md:w-5 md:h-5 ml-1 select-none shadow-sm border border-white/20" title="Identity Verified (Didit)">
+                <svg class="w-full h-full text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                 </svg>
             </span>
             """)

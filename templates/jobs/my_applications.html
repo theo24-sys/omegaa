@@ -14,7 +14,8 @@
 
     {% if applications %}
     <div class="bg-white rounded-2xl shadow-xl border border-pink-100 overflow-hidden">
-        <div class="overflow-x-auto">
+        <!-- Desktop Table View (Hidden on Mobile) -->
+        <div class="hidden md:block overflow-x-auto">
             <table class="min-w-full divide-y divide-pink-100">
                 <thead class="bg-pink-50">
                     <tr>
@@ -74,12 +75,6 @@
                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                                     ✓ Verified
                                 </span>
-                                {% if app.applicant.agreement_form %}
-                                <a href="{{ app.applicant.agreement_form.url }}" target="_blank" class="text-[10px] text-pink-600 font-bold hover:underline flex items-center gap-1">
-                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
-                                    View Signed Contract
-                                </a>
-                                {% endif %}
                             </div>
                             {% else %}
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
@@ -97,7 +92,7 @@
                                 class="flex items-center gap-2">
                                 {% csrf_token %}
                                 <select name="status"
-                                    class="border border-pink-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-pink-200">
+                                    class="border border-pink-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-pink-200 bg-white">
                                     {% for value, label in app.STATUS_CHOICES %}
                                     <option value="{{ value }}" {% if app.status == value %}selected{% endif %}>
                                         {{ label }}
@@ -105,7 +100,7 @@
                                     {% endfor %}
                                 </select>
                                 <button type="submit"
-                                    class="bg-pink-600 hover:bg-pink-700 text-white px-3 py-1.5 rounded text-sm transition">
+                                    class="bg-pink-600 hover:bg-pink-700 text-white px-3 py-1 rounded text-sm transition font-bold">
                                     Update
                                 </button>
                             </form>
@@ -115,6 +110,74 @@
                     {% endfor %}
                 </tbody>
             </table>
+        </div>
+
+        <!-- Mobile Card View (Hidden on Desktop) -->
+        <div class="md:hidden divide-y divide-pink-100">
+            {% for app in applications %}
+            <div class="p-5 space-y-4">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-[10px] font-black uppercase tracking-widest text-pink-300 mb-1">Job Application</p>
+                        <a href="{% url 'jobs:job_detail' app.job.pk %}" class="text-lg font-bold text-gray-900 leading-tight">
+                            {{ app.job.title }}
+                        </a>
+                    </div>
+                    <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest {{ app.get_status_class }}">
+                        {{ app.get_status_display }}
+                    </span>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 pt-2">
+                    <div>
+                        <p class="text-[9px] font-black uppercase tracking-widest text-gray-400">
+                            {% if request.user.user_type == 'employer' %}Applicant{% else %}Employer{% endif %}
+                        </p>
+                        <div class="mt-1">
+                            {% if request.user.user_type == 'employer' %}
+                            <a href="{% url 'profile_detail' user_id=app.applicant.pk %}" class="text-sm font-bold text-pink-600">
+                                {{ app.applicant.get_full_name|default:app.applicant.username }}
+                            </a>
+                            {% else %}
+                            <p class="text-sm font-bold text-gray-700">
+                                {{ app.job.employer.get_full_name|default:app.job.employer.username }}
+                            </p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div>
+                        <p class="text-[9px] font-black uppercase tracking-widest text-gray-400">Applied On</p>
+                        <p class="text-sm font-medium text-gray-600 mt-1">{{ app.created_at|date:"M d, Y" }}</p>
+                    </div>
+                </div>
+
+                {% if request.user.user_type == 'employer' %}
+                <div class="pt-4 border-t border-pink-50 flex flex-col gap-4">
+                    <div class="flex items-center justify-between">
+                        <p class="text-[9px] font-black uppercase tracking-widest text-gray-400">Documents</p>
+                        {% if app.applicant.documents_verified %}
+                        <span class="text-[10px] font-bold text-green-600 flex items-center gap-1">
+                            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                            Verified
+                        </span>
+                        {% else %}
+                        <span class="text-[10px] font-bold text-amber-600">Pending</span>
+                        {% endif %}
+                    </div>
+
+                    <form method="post" action="{% url 'jobs:update_application_status' app.pk %}" class="grid grid-cols-2 gap-2">
+                        {% csrf_token %}
+                        <select name="status" class="w-full border border-pink-100 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-pink-200 bg-gray-50">
+                            {% for value, label in app.STATUS_CHOICES %}
+                            <option value="{{ value }}" {% if app.status == value %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                        <button type="submit" class="w-full bg-pink-600 text-white font-bold py-2 rounded-xl text-xs shadow-md">Update</button>
+                    </form>
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
         </div>
     </div>
     {% else %}
