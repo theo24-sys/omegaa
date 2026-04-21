@@ -153,7 +153,7 @@ class CustomUser(AbstractUser):
         # The Paramount Purple Instagram-Style Check
         if self.is_paid_verified:
             badge_icons += """
-            <div class="absolute -bottom-[5%] -right-[5%] bg-white rounded-full p-[5%] shadow-sm z-10">
+            <div class="absolute -top-[5%] -right-[5%] bg-white rounded-full p-[5%] shadow-xl z-20">
                 <div class="bg-[#8a3ab9] rounded-full p-[5%] w-full h-full flex items-center justify-center border-2 border-white">
                     <svg class="w-full h-full text-white" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M12 2L13.73 4.27L16.4 3.93L17.27 6.47L19.86 7.14L19.46 9.8L21.46 11.67L20.13 14.27L21.13 16.87L18.66 17.8L17.53 20.27L14.86 19.93L13.13 22.2L10.5 21.53L8.87 23.8L6.2 23.46L5.33 21L2.74 20.33L3.14 17.67L1.14 15.8L2.47 13.2L1.47 10.6L3.94 9.67L5.07 7.2L7.74 7.54L9.47 5.27L12 2Z" />
