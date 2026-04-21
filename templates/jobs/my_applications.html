@@ -37,10 +37,11 @@
                     {% for app in applications %}
                     <tr class="hover:bg-pink-50 transition">
                         <td class="px-6 py-4">
-                            <a href="{% url 'jobs:job_detail' app.job.pk %}"
-                                class="text-pink-600 hover:text-pink-800 font-medium">
+                            <a href="{% url 'jobs:application_detail' app.pk %}"
+                                class="text-pink-600 hover:text-pink-800 font-bold">
                                 {{ app.job.title }}
                             </a>
+                            <p class="text-[10px] text-gray-400">View Full Details →</p>
                         </td>
                         <td class="px-6 py-4">
                             {% if request.user.user_type == 'employer' %}
@@ -119,7 +120,7 @@
                 <div class="flex justify-between items-start">
                     <div>
                         <p class="text-[10px] font-black uppercase tracking-widest text-pink-300 mb-1">Job Application</p>
-                        <a href="{% url 'jobs:job_detail' app.job.pk %}" class="text-lg font-bold text-gray-900 leading-tight">
+                        <a href="{% url 'jobs:application_detail' app.pk %}" class="text-lg font-bold text-gray-900 leading-tight">
                             {{ app.job.title }}
                         </a>
                     </div>
