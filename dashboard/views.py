@@ -251,10 +251,6 @@ def force_didit_sync(request):
     if request.user.user_type != 'househelp':
         return redirect('home')
         
-    if not request.user.didit_session_id:
-        messages.warning(request, "No verification session found. Please start verification first.")
-        return redirect('accounts:initiate_didit_verification')
-        
     session_id = request.user.didit_session_id
     import logging
     logger = logging.getLogger(__name__)
@@ -263,35 +259,61 @@ def force_didit_sync(request):
         current_api_key = getattr(settings, 'DIDIT_API_KEY', '')
         headers = {"x-api-key": current_api_key}
         
-        logger.info(f"Manual Sync: Checking Didit Session {session_id} for user {request.user.id}")
-        response = requests.get(f"https://verification.didit.me/v3/session/{session_id}/", headers=headers, timeout=10)
+        # ─── ATTEMPT 1: SYNC BY SESSION ID ─────────────────────────────────
+        if session_id:
+            logger.info(f"Manual Sync: Checking Didit Session {session_id} for user {request.user.id}")
+            response = requests.get(f"https://verification.didit.me/v3/session/{session_id}/", headers=headers, timeout=10)
+            
+            if response.status_code == 200:
+                data = response.json()
+                status_raw = data.get('status') or data.get('session', {}).get('status', '')
+                status = str(status_raw).upper()
+                
+                if status in ['SUCCESS', 'APPROVED', 'COMPLETED']:
+                    return _mark_user_verified(request, status)
         
-        if response.status_code == 200:
-            data = response.json()
-            logger.info(f"Manual Sync Response for user {request.user.id}: {json.dumps(data)}")
+        # ─── ATTEMPT 2: FALLBACK TO SEARCH BY VENDOR DATA ──────────────────
+        logger.info(f"Manual Sync Fallback: Searching sessions for user {request.user.id}")
+        search_url = f"https://verification.didit.me/v3/session/?vendor_data={request.user.id}"
+        search_response = requests.get(search_url, headers=headers, timeout=10)
+        
+        if search_response.status_code == 200:
+            search_data = search_response.json()
+            # Handle list response
+            sessions = search_data if isinstance(search_data, list) else search_data.get('results', [])
             
-            status_raw = data.get('status') or data.get('session', {}).get('status', '')
-            status = str(status_raw).upper()
+            # Find the most recent successful session
+            for s in sessions:
+                status = str(s.get('status', '')).upper()
+                if status in ['SUCCESS', 'APPROVED', 'COMPLETED']:
+                    # Update the missing session ID too
+                    request.user.didit_session_id = s.get('id')
+                    return _mark_user_verified(request, status)
             
-            if status in ['SUCCESS', 'APPROVED', 'COMPLETED']:
-                request.user.didit_verification_status = 'completed'
-                request.user.is_verified = True
-                request.user.badge_verified_id = True
-                request.user.has_completed_first_verification = True
-                request.user.save()
-                messages.success(request, "Success! Your identity has been verified.")
-            elif status in ['FAILED', 'DECLINED', 'EXPIRED']:
-                request.user.didit_verification_status = status.lower()
-                request.user.save()
-                messages.error(request, f"Verification {status.lower()}.")
+            if sessions:
+                latest_status = sessions[0].get('status', 'unknown')
+                messages.info(request, f"Found {len(sessions)} sessions, but none are approved yet (Latest: {latest_status}).")
             else:
-                messages.info(request, f"Verification is still in progress (Status: {status}).")
+                messages.warning(request, "No verification sessions found for your account on Didit.")
         else:
-            logger.error(f"Manual Sync API Error {response.status_code}: {response.text}")
+            logger.error(f"Manual Sync Search Error {search_response.status_code}: {search_response.text}")
             messages.error(request, "Could not reach verification service. Please try again later.")
             
     except Exception as e:
         logger.error(f"Manual Sync Error: {str(e)}")
-        messages.error(request, "An error occurred during synchronization.")
+        messages.error(request, f"An error occurred: {str(e)}")
+        
+    return redirect('dashboard:housekeeper_dashboard')
+
+def _mark_user_verified(request, status):
+    """Helper to mark user as verified and return redirect"""
+    request.user.didit_verification_status = 'completed'
+    request.user.is_verified = True
+    request.user.badge_verified_id = True
+    request.user.has_completed_first_verification = True
+    request.user.save()
+    messages.success(request, f"Success! Your identity has been verified (Status: {status}).")
+    return redirect('dashboard:housekeeper_dashboard')
+
         
     return redirect('dashboard:housekeeper_dashboard')
