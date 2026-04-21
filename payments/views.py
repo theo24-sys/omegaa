@@ -304,6 +304,16 @@ def payment_history(request):
 
 
 @login_required
+def contribution_list(request):
+    """View to list all monthly contributions for a worker"""
+    if request.user.user_type != 'househelp':
+        return redirect('home')
+        
+    contributions = MonthlyContribution.objects.filter(worker=request.user).order_by('-year', '-month')
+    return render(request, 'payments/contribution_list.html', {'contributions': contributions})
+
+
+@login_required
 def job_checkout(request, job_id):
     job = get_object_or_404(Job, id=job_id, employer=request.user)
     

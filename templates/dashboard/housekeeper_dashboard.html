@@ -282,6 +282,48 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Monthly Contribution Section -->
+            <div class="theme-card rounded-[2.5rem] p-6 md:p-8 text-gray-900 relative overflow-hidden shadow-lg border-2 border-primary/5">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -mr-16 -mt-16"></div>
+                
+                <h2 class="text-xl font-bold mb-6 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <span class="w-1.5 h-6 bg-primary rounded-full"></span>
+                        Contributions
+                    </div>
+                    <a href="{% url 'payments:contribution_list' %}" class="text-[10px] text-primary hover:underline font-bold uppercase tracking-widest">History</a>
+                </h2>
+
+                {% if pending_contribution %}
+                <div class="bg-gradient-to-br from-primary/5 to-transparent p-5 rounded-3xl border border-primary/10">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Due for {{ pending_contribution.month }}/{{ pending_contribution.year }}</p>
+                            <p class="text-2xl font-black text-gray-900 mt-1">KSh {{ pending_contribution.amount_due }}</p>
+                        </div>
+                        <div class="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        </div>
+                    </div>
+                    <p class="text-[11px] text-gray-500 mb-4 leading-relaxed">
+                        Your monthly platform contribution is calculated as 3% of your earnings. Please settle to keep your account in good standing.
+                    </p>
+                    <a href="{% url 'payments:pay_contribution' pending_contribution.id %}" class="w-full inline-flex items-center justify-center gap-2 bg-primary hover:bg-primary-dark text-white font-bold py-3 rounded-xl shadow-lg shadow-primary/20 transition-all active:scale-95">
+                        <span>Pay Contribution</span>
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                    </a>
+                </div>
+                {% else %}
+                <div class="text-center py-6">
+                    <div class="w-16 h-16 bg-green-50 text-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>
+                    </div>
+                    <p class="text-sm font-bold text-gray-900">All caught up!</p>
+                    <p class="text-xs text-gray-400 mt-1">No pending contributions at this time.</p>
+                </div>
+                {% endif %}
+            </div>
         </div>
 
         <!-- Center/Right: Activity & Search -->
