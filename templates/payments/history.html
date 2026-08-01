@@ -38,8 +38,8 @@
                             </div>
                         </td>
                         <td class="px-6 py-5 whitespace-nowrap">
-                            <div class="text-sm font-medium text-gray-900">{{ payment.plan.name }}</div>
-                            <div class="text-xs text-gray-600">{{ payment.plan.get_plan_type_display }}</div>
+                            <div class="text-sm font-medium text-gray-900">{{ payment.get_item_name }}</div>
+                            <div class="text-xs text-gray-600">{{ payment.get_item_type_label }}</div>
                         </td>
                         <td class="px-6 py-5 whitespace-nowrap">
                             <div class="text-sm font-bold text-green-600">
@@ -63,6 +63,11 @@
                                 class="text-pink-600 hover:text-pink-800 font-medium transition">
                                 View Details →
                             </a>
+                            {% if payment.status == 'failed' %}
+                            <div class="mt-2">
+                                <a href="{% url 'payments:retry_payment' payment.id %}" class="text-xs font-bold text-green-700 hover:text-green-900">Retry payment</a>
+                            </div>
+                            {% endif %}
                         </td>
                     </tr>
                     {% endfor %}

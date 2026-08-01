@@ -20,11 +20,11 @@
                     <div>
                         <h3 class="text-xl font-semibold text-pink-700 mb-4">Plan Purchased</h3>
                         <div class="bg-pink-50 p-6 rounded-xl">
-                            <h4 class="text-2xl font-bold text-pink-700 mb-2">{{ payment.plan.name }}</h4>
-                            <p class="text-gray-700 mb-4">{{ payment.plan.description|linebreaks }}</p>
+                            <h4 class="text-2xl font-bold text-pink-700 mb-2">{{ payment.get_item_name }}</h4>
+                            <p class="text-gray-700 mb-4">{{ payment.get_item_description|linebreaks }}</p>
                             <div class="flex justify-between text-lg">
                                 <span class="font-medium">Duration:</span>
-                                <span>{{ payment.plan.duration_days }} days</span>
+                                <span>{% if payment.plan %}{{ payment.plan.duration_days }} days{% else %}—{% endif %}</span>
                             </div>
                         </div>
                     </div>
@@ -45,11 +45,7 @@
                             </div>
                             <div class="flex justify-between text-lg">
                                 <span class="font-medium text-gray-700">Status:</span>
-                                <span class="px-4 py-1 rounded-full text-sm font-medium 
-                                    {% if payment.status == 'completed' %}bg-green-100 text-green-800
-                                    {% elif payment.status == 'verification_submitted' %}bg-yellow-100 text-yellow-800
-                                    {% elif payment.status == 'failed' %}bg-red-100 text-red-800
-                                    {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                <span class="px-4 py-1 rounded-full text-sm font-medium {{ payment.get_status_badge_class }}">
                                     {{ payment.get_status_display }}
                                 </span>
                             </div>
@@ -100,6 +96,14 @@
                 <p class="text-yellow-700 font-medium text-lg">
                     Your payment is being verified — we'll notify you soon!
                 </p>
+                {% elif payment.status == 'failed' %}
+                <div class="space-y-4">
+                    <p class="text-red-700 font-medium text-lg">This payment failed. You can create a new payment request using the same details.</p>
+                    <a href="{% url 'payments:retry_payment' payment.id %}"
+                        class="inline-block bg-pink-600 hover:bg-pink-700 text-white font-bold py-4 px-10 rounded-xl transition">
+                        Retry Payment
+                    </a>
+                </div>
                 {% endif %}
                 <div class="mt-6">
                     <a href="{% url 'payments:payment_history' %}" class="text-pink-600 hover:text-pink-800 font-medium">

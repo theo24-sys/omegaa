@@ -21,7 +21,7 @@
         <div class="p-8 md:p-12">
             <h1 class="text-4xl md:text-5xl font-bold text-pink-700 mb-6">Verification Submitted!</h1>
             <p class="text-xl text-gray-700 mb-8">
-                Thank you! Your payment for <strong>{{ payment.plan.name }}</strong> is now being verified.
+                Thank you! Your payment for <strong>{{ payment.get_item_name }}</strong> is now being verified.
             </p>
 
             <!-- Payment Summary -->
@@ -30,7 +30,7 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <div>
                         <p class="text-gray-600">Plan</p>
-                        <p class="text-xl font-bold text-gray-900">{{ payment.plan.name }}</p>
+                        <p class="text-xl font-bold text-gray-900">{{ payment.get_item_name }}</p>
                     </div>
                     <div>
                         <p class="text-gray-600">Amount</p>
@@ -67,6 +67,24 @@
                     <li>You'll receive a notification once approved.</li>
                     <li>Your plan benefits will activate immediately after verification.</li>
                 </ol>
+            </div>
+
+            <div class="bg-white rounded-xl p-6 mb-10 border border-yellow-100 text-left max-w-2xl mx-auto">
+                <h3 class="font-bold text-gray-800 mb-4">Verification Timeline</h3>
+                <div class="space-y-3 text-sm">
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-600">Payment submitted</span>
+                        <span class="font-bold text-green-700">Done</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-600">Admin verification</span>
+                        <span class="font-bold text-yellow-700">In progress</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-600">Benefits activated</span>
+                        <span class="font-bold text-gray-400">Pending</span>
+                    </div>
+                </div>
             </div>
 
             <!-- Buttons -->

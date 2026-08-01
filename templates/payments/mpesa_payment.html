@@ -40,6 +40,13 @@
             </div>
             {% endif %}
 
+            {% if payment.status == 'failed' %}
+            <div class="mb-6 p-4 bg-amber-50 border-l-4 border-amber-500 text-amber-800 rounded-r-xl shadow-sm">
+                <p class="font-bold">This payment failed verification.</p>
+                <p class="text-sm mt-1">You can retry from the failed-payment page if you want a fresh request.</p>
+            </div>
+            {% endif %}
+
             <!-- Form -->
             <form id="stk-form" method="post" class="space-y-6 relative min-h-[250px]">
                 {% csrf_token %}

@@ -100,6 +100,51 @@ class Payment(models.Model):
     def is_verified(self):
         return self.status == 'completed'
 
+    def get_item_name(self):
+        if self.plan:
+            return self.plan.name
+        if self.course:
+            return self.course.title
+        if self.job:
+            return self.job.title
+        if self.contribution:
+            return f"Contribution {self.contribution.month}/{self.contribution.year}"
+        return f"Payment {self.id}"
+
+    def get_item_description(self):
+        if self.plan:
+            return self.plan.description
+        if self.course:
+            return self.course.description
+        if self.job:
+            return self.job.description
+        if self.contribution:
+            return f"Monthly contribution for {self.contribution.month}/{self.contribution.year}"
+        return "Payment record"
+
+    def get_item_type_label(self):
+        if self.plan:
+            return self.plan.get_plan_type_display()
+        if self.course:
+            return 'Course'
+        if self.job:
+            return 'Job Activation'
+        if self.contribution:
+            return 'Monthly Contribution'
+        return 'Payment'
+
+    def can_retry(self):
+        return self.status == 'failed' and any([self.plan, self.course, self.job, self.contribution])
+
+    def get_status_badge_class(self):
+        return {
+            'completed': 'bg-green-100 text-green-800',
+            'verification_submitted': 'bg-yellow-100 text-yellow-800',
+            'failed': 'bg-red-100 text-red-800',
+            'refunded': 'bg-slate-100 text-slate-800',
+            'pending': 'bg-gray-100 text-gray-800',
+        }.get(self.status, 'bg-gray-100 text-gray-800')
+
 
 class UserSubscription(models.Model):
     STATUS_CHOICES = (

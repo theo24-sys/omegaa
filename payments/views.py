@@ -17,6 +17,27 @@ from accounts.utils import normalize_kenyan_phone, validate_kenyan_phone
 
 logger = logging.getLogger(__name__)
 
+
+def _clone_payment_for_retry(payment):
+    retry_kwargs = {
+        'user': payment.user,
+        'amount': payment.amount,
+        'payment_method': payment.payment_method or 'mpesa',
+        'status': 'pending',
+        'verification_notes': payment.verification_notes,
+    }
+
+    if payment.plan:
+        retry_kwargs['plan'] = payment.plan
+    if payment.course:
+        retry_kwargs['course'] = payment.course
+    if payment.job:
+        retry_kwargs['job'] = payment.job
+    if payment.contribution:
+        retry_kwargs['contribution'] = payment.contribution
+
+    return Payment.objects.create(**retry_kwargs)
+
 @login_required
 def payment_plans(request):
     user_type = getattr(request.user, 'user_type', 'employer')
@@ -104,6 +125,8 @@ def mpesa_payment(request, payment_id):
         return redirect('payments:payment_detail', payment_id=payment.id)
     if payment.status == 'verification_submitted':
         return redirect('payments:payment_verification_submitted', payment_id=payment.id)
+    if payment.status == 'failed':
+        return redirect('payments:payment_failed', payment_id=payment.id)
 
     if request.method == 'POST':
         transaction_id = request.POST.get('transaction_id')
@@ -122,7 +145,7 @@ def mpesa_payment(request, payment_id):
         payment.save()
 
         # Handle Course vs Plan for notifications
-        name = payment.plan.name if payment.plan else (payment.course.title if payment.course else "Item")
+        name = payment.get_item_name()
 
         # Notify user
         create_notification(
@@ -167,7 +190,7 @@ def mpesa_payment(request, payment_id):
                     stk_error = "Invalid Kenyan phone number format. Use 07... or 254..."
                 else:
                     client = MpesaClient()
-                    name = payment.plan.name if payment.plan else (payment.course.title if payment.course else "Service")
+                    name = payment.get_item_name()
                     
                     # Start STK Push
                     res = client.initiate_stk_push(
@@ -192,6 +215,40 @@ def mpesa_payment(request, payment_id):
         'till_number': settings.MPESA_TILL_NUMBER,
         'stk_error': stk_error,
         'phone_number': payment.phone_number
+    })
+
+
+@login_required
+def retry_payment(request, payment_id):
+    payment = get_object_or_404(Payment, id=payment_id, user=request.user)
+
+    if not payment.can_retry():
+        messages.info(request, 'This payment cannot be retried.')
+        return redirect('payments:payment_detail', payment_id=payment.id)
+
+    if request.method == 'POST':
+        retry_payment = _clone_payment_for_retry(payment)
+        if payment.verification_notes:
+            retry_payment.verification_notes = payment.verification_notes
+            retry_payment.save(update_fields=['verification_notes'])
+
+        messages.success(request, 'A fresh payment request has been created. Please try again.')
+        return redirect('payments:mpesa_payment', payment_id=retry_payment.id)
+
+    return render(request, 'payments/retry_payment.html', {'payment': payment})
+
+
+@login_required
+def payment_failed(request, payment_id):
+    payment = get_object_or_404(Payment, id=payment_id, user=request.user)
+
+    if payment.status != 'failed':
+        return redirect('payments:payment_detail', payment_id=payment.id)
+
+    reason = request.GET.get('reason', 'declined')
+    return render(request, 'payments/failure.html', {
+        'payment': payment,
+        'reason': reason,
     })
 
 
