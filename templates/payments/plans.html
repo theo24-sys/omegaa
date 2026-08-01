@@ -1,0 +1,194 @@
+{% extends 'base.html' %}
+
+{% block title %}Pricing Plans - Charlady{% endblock %}
+
+{% block extra_head %}
+<style>
+    .glow-card {
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .glow-card:hover {
+        transform: translateY(-8px);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="bg-slate-50 min-h-screen py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <!-- Header -->
+        <div class="text-center max-w-3xl mx-auto mb-16">
+            <h1 class="text-4xl md:text-5xl font-black text-slate-900 tracking-tight mb-4">
+                Hire <span class="text-transparent bg-clip-text bg-gradient-to-r from-pink-600 to-primary">Faster & Safer</span>
+            </h1>
+            <p class="text-lg md:text-xl text-slate-600 font-medium">
+                Choose the plan that fits your hiring needs. Upgrade anytime to access verified workers instantly.
+            </p>
+        </div>
+
+        <!-- Pricing Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            
+            <!-- 1. Free Plan -->
+            <div class="glow-card bg-white rounded-3xl p-8 border border-slate-200 shadow-sm flex flex-col relative overflow-hidden">
+                <div class="mb-8">
+                    <span class="inline-block px-4 py-1.5 rounded-full bg-slate-100 text-slate-600 text-xs font-bold uppercase tracking-widest mb-4">Starter</span>
+                    <h2 class="text-3xl font-black text-slate-900 mb-2">Free Plan</h2>
+                    <div class="flex items-baseline gap-1 text-slate-900">
+                        <span class="text-5xl font-black">KES {{ free_plan.price|floatformat:0 }}</span>
+                    </div>
+                    <p class="text-sm text-slate-500 font-medium mt-2">Job Posting Fee: KES {{ free_plan.job_posting_fee|floatformat:0 }} / post</p>
+                </div>
+
+                <div class="flex-grow space-y-4 mb-8">
+                    <div class="flex items-start gap-3">
+                        <svg class="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                        <span class="text-slate-600 font-medium">Browse househelp profiles</span>
+                    </div>
+                    <div class="flex items-start gap-3">
+                        <svg class="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                        <span class="text-slate-600 font-medium">View basic details</span>
+                    </div>
+                    <div class="flex items-start gap-3">
+                        <svg class="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                        <span class="text-slate-600 font-medium">Post jobs (pay per post)</span>
+                    </div>
+                    <div class="flex items-start gap-3 opacity-70">
+                        <svg class="w-5 h-5 text-amber-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M20 12H4"/></svg>
+                        <span class="text-slate-600">Limited chats (slow response)</span>
+                    </div>
+                    <div class="flex items-start gap-3 opacity-70">
+                        <svg class="w-5 h-5 text-slate-300 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                        <span class="text-slate-500">Access to non-verified workers mostly</span>
+                    </div>
+                </div>
+
+                <a href="{% url 'dashboard:employer_dashboard' %}" class="w-full block text-center bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold py-4 rounded-2xl transition">
+                    Try Charlady
+                </a>
+            </div>
+
+            <!-- 2. Standard Plan (Main) -->
+            <div class="glow-card bg-gradient-to-b from-primary to-pink-700 rounded-3xl p-8 border-2 border-primary shadow-2xl flex flex-col relative overflow-hidden transform md:-translate-y-4">
+                <!-- Highlight Ribbon -->
+                <div class="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-yellow-300 to-amber-500"></div>
+                <div class="absolute top-0 right-0 bg-yellow-400 text-yellow-900 text-[10px] font-black tracking-widest uppercase px-3 py-1 rounded-bl-xl shadow-sm">
+                    Most Popular ⭐
+                </div>
+
+                <div class="mb-8 mt-2">
+                    <span class="inline-block px-4 py-1.5 rounded-full bg-white/20 text-white text-xs font-bold uppercase tracking-widest mb-4 backdrop-blur-sm">Main Plan</span>
+                    <h2 class="text-3xl font-black text-white mb-2">Standard</h2>
+                    <div class="flex items-baseline gap-1 text-white">
+                        <span class="text-5xl font-black">KES {{ standard_plan.price|floatformat:0 }}</span>
+                        <span class="text-pink-200 font-bold uppercase tracking-widest text-xs">/ month</span>
+                    </div>
+                    <p class="text-sm text-pink-100 font-medium mt-2">Job Posting Fee: KES {{ standard_plan.job_posting_fee|floatformat:0 }} / post</p>
+                </div>
+
+                <div class="flex-grow space-y-4 mb-8">
+                    <div class="flex items-start gap-3">
+                        <svg class="w-5 h-5 text-white mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                        <span class="text-white font-medium">Unlimited browsing</span>
+                    </div>
+                    <div class="flex items-start gap-3">
+                        <svg class="w-5 h-5 text-white mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                        <span class="text-white font-medium">Post jobs at discounted rate</span>
+                    </div>
+                    <div class="flex items-start gap-3">
+                        <svg class="w-5 h-5 text-white mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                        <span class="text-white font-medium">Chat with workers (faster response)</span>
+                    </div>
+                    <div class="flex items-start gap-3 bg-white/10 p-3 rounded-xl border border-white/20 mt-2">
+                        <svg class="w-5 h-5 text-yellow-300 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                        <div>
+                            <span class="text-white font-bold block leading-tight">Access to Verified Workers</span>
+                            <span class="text-[10px] text-pink-100 uppercase tracking-widest font-bold">Recommended for Safety</span>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-3">
+                        <svg class="w-5 h-5 text-white mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                        <span class="text-white font-medium">See ratings & reviews</span>
+                    </div>
+                    <div class="flex items-start gap-3">
+                        <svg class="w-5 h-5 text-white mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                        <span class="text-white font-black bg-pink-900/40 px-2 py-0.5 rounded shadow-sm border border-pink-400/30">15-Min Video Interviews</span>
+                    </div>
+                    <div class="flex items-start gap-3">
+                        <svg class="w-5 h-5 text-white mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                        <span class="text-white font-medium">Priority in worker search results</span>
+                    </div>
+                </div>
+
+                <a href="{% if standard_plan %}{% url 'payments:checkout' standard_plan.id %}{% else %}#{% endif %}" class="w-full block text-center bg-white hover:bg-slate-50 text-primary font-black py-4 rounded-2xl transition shadow-[0_0_20px_rgba(255,255,255,0.2)] hover:shadow-[0_0_25px_rgba(255,255,255,0.4)]">
+                    Choose Standard
+                </a>
+            </div>
+
+            <!-- 3. Gold Plan -->
+            <div class="glow-card bg-gradient-to-br from-yellow-200 via-yellow-400 to-amber-500 rounded-3xl p-8 border-2 border-yellow-300 shadow-xl flex flex-col relative overflow-hidden">
+                 <!-- Shimmer effect overlay -->
+                 <div class="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/40 to-white/0 opacity-50"></div>
+                 
+                 <div class="mb-8 relative z-10">
+                    <span class="inline-block px-4 py-1.5 rounded-full bg-yellow-900/10 text-yellow-900 text-xs font-bold uppercase tracking-widest mb-4 border border-yellow-900/20 shadow-sm">Premium Experience</span>
+                    <h2 class="text-3xl font-black text-yellow-950 mb-2">Gold Plan</h2>
+                    <div class="flex items-baseline gap-1 text-yellow-950">
+                        <span class="text-5xl font-black">KES {{ pro_plan.price|floatformat:0 }}</span>
+                        <span class="text-yellow-800 font-bold uppercase tracking-widest text-xs">/ month</span>
+                    </div>
+                    <p class="text-sm border border-yellow-900/30 bg-yellow-900/10 text-yellow-900 font-black px-3 py-1 rounded inline-block mt-3 shadow-sm">
+                        Job Posting Fee: {% if pro_plan.job_posting_fee == 0 %}FREE{% else %}KES {{ pro_plan.job_posting_fee|floatformat:0 }}{% endif %}
+                    </p>
+                </div>
+
+                <div class="flex-grow space-y-4 mb-8 relative z-10">
+                    <div class="flex items-start gap-3">
+                        <svg class="w-5 h-5 text-yellow-800 mt-0.5 flex-shrink-0 drop-shadow-sm" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                        <span class="text-yellow-900 font-medium"><span class="text-yellow-950 font-black">Unlimited</span> job postings</span>
+                    </div>
+                    <div class="flex items-start gap-3">
+                        <svg class="w-5 h-5 text-yellow-800 mt-0.5 flex-shrink-0 drop-shadow-sm" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                        <span class="text-yellow-900 font-medium">Unlimited chats (instant priority)</span>
+                    </div>
+                    <div class="flex items-start gap-3">
+                        <svg class="w-5 h-5 text-yellow-800 mt-0.5 flex-shrink-0 drop-shadow-sm" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                        <span class="text-yellow-950 font-black"><span class="text-yellow-900 drop-shadow-sm">Unlimited Time</span> HD Video Interviews</span>
+                    </div>
+                    <div class="flex items-start gap-3 bg-yellow-900/10 p-3 rounded-xl border border-yellow-900/20 mt-2 shadow-sm">
+                        <svg class="w-5 h-5 text-yellow-800 mt-0.5 flex-shrink-0 drop-shadow-sm" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                        <span class="text-yellow-950 font-black block leading-tight">Access to Top-Rated Verified Workers Only</span>
+                    </div>
+                    <div class="flex items-start gap-3">
+                        <svg class="w-5 h-5 text-yellow-800 mt-0.5 flex-shrink-0 drop-shadow-sm" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                        <span class="text-yellow-900 font-medium">AI Smart match recommendations</span>
+                    </div>
+                    <div class="flex items-start gap-3">
+                        <svg class="w-5 h-5 text-yellow-800 mt-0.5 flex-shrink-0 drop-shadow-sm" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                        <span class="text-yellow-900 font-medium">Featured employer status</span>
+                    </div>
+                    <div class="flex items-start gap-3">
+                        <svg class="w-5 h-5 text-yellow-800 mt-0.5 flex-shrink-0 drop-shadow-sm" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                        <span class="text-yellow-900 font-medium">Transport assist coordination options</span>
+                    </div>
+                    <div class="flex items-start gap-3">
+                        <svg class="w-5 h-5 text-yellow-800 mt-0.5 flex-shrink-0 drop-shadow-sm" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                        <span class="text-yellow-900 font-medium">"Urgent Hire" Badge</span>
+                    </div>
+                </div>
+
+                <a href="{% if pro_plan %}{% url 'payments:checkout' pro_plan.id %}{% else %}#{% endif %}" class="relative z-10 w-full block text-center bg-yellow-950 hover:bg-black text-yellow-400 font-black py-4 rounded-2xl transition ring-4 ring-yellow-950/20 hover:ring-black/40 shadow-xl">
+                    Hire Faster 🚀
+                </a>
+            </div>
+        </div>
+
+        <!-- Need Help -->
+        <div class="mt-16 text-center">
+            <p class="text-slate-500 font-medium">Need help choosing a plan or organizing high-volume hiring? <a href="mailto:support@charlady.co.ke" class="text-primary hover:text-pink-700 font-bold underline decoration-2 underline-offset-4">Talk to Sales</a></p>
+        </div>
+        
+    </div>
+</div>
+{% endblock %}

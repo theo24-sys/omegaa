@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Activate Job - Charlady{% endblock %}
+
+{% block content %}
+<div class="bg-slate-50 min-h-screen py-16">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <!-- Job Context Header -->
+        <div class="bg-white rounded-3xl p-8 mb-8 border border-slate-100 shadow-sm relative overflow-hidden">
+            <div class="absolute top-0 right-0 p-4">
+                <span class="px-3 py-1 bg-amber-100 text-amber-700 text-[10px] font-black uppercase tracking-widest rounded-full">Pending Activation</span>
+            </div>
+            
+            <h1 class="text-3xl font-black text-slate-900 mb-2">Activate Your Job Post</h1>
+            <p class="text-slate-500 font-medium mb-6">Complete the payment to make <span class="text-primary font-bold">"{{ job.title }}"</span> live for all verified workers.</p>
+            
+            <div class="flex items-center gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                <div class="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-sm border border-slate-100 text-green-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                </div>
+                <div>
+                    <span class="text-xs text-slate-400 font-bold uppercase tracking-tight">Active Plan</span>
+                    <span class="block text-slate-700 font-black">{{ features.name|default:"Free Tier" }}</span>
+                </div>
+                <div class="ml-auto text-right">
+                    <span class="text-xs text-slate-400 font-bold uppercase tracking-tight">Fee Due</span>
+                    <span class="block text-2xl font-black text-slate-900">KSh {{ job_fee }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Checkout Form Card -->
+        <div class="bg-white rounded-3xl shadow-xl border border-green-100 overflow-hidden">
+            <!-- Header -->
+            <div class="bg-gradient-to-r from-green-600 to-emerald-700 px-8 py-6 text-white">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-xl font-black mb-1">M-Pesa Activation</h2>
+                        <p class="text-green-100 text-sm font-medium">Automatic STK Push Payment</p>
+                        <p class="text-green-100 text-sm font-medium">Official Safaricom M-Pesa API</p>
+                    </div>
+                    <img src="{% static 'img/mpesa_logo.svg' %}" alt="M-Pesa" class="h-10 w-auto">
+                </div>
+            </div>
+
+            <div class="p-8">
+                <!-- Progress Indicator -->
+                <div class="grid grid-cols-3 gap-4 mb-10">
+                    <div class="flex flex-col items-center gap-2">
+                        <div class="w-8 h-8 rounded-full bg-green-600 text-white flex items-center justify-center font-bold text-sm">1</div>
+                        <span class="text-[10px] font-black text-green-600 uppercase tracking-tight">Enter Phone</span>
+                    </div>
+                    <div class="flex flex-col items-center gap-2">
+                        <div class="w-8 h-8 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center font-bold text-sm">2</div>
+                        <span class="text-[10px] font-black text-slate-400 uppercase tracking-tight">Pin Entry</span>
+                    </div>
+                    <div class="flex flex-col items-center gap-2">
+                        <div class="w-8 h-8 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center font-bold text-sm">3</div>
+                        <span class="text-[10px] font-black text-slate-400 uppercase tracking-tight">Go Live</span>
+                    </div>
+                </div>
+
+                <form method="POST" class="space-y-6">
+                    {% csrf_token %}
+                    <div>
+                        <label class="block text-sm font-black text-slate-700 mb-3 uppercase tracking-tight">M-Pesa Phone Number</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <span class="text-slate-400 font-bold">+254</span>
+                            </div>
+                            <input type="text" name="phone_number" value="{{ request.user.phone_number }}" required
+                                class="w-full pl-16 pr-4 py-5 rounded-2xl border-2 border-slate-100 focus:border-green-600 focus:ring-4 focus:ring-green-50 transition-all font-bold text-lg text-slate-700 shadow-inner"
+                                placeholder="7XXXXXXXX">
+                        </div>
+                        <p class="text-slate-400 text-xs mt-3 px-1">We will send a payment request for <span class="font-bold text-slate-600">KSh {{ job_fee }}</span> to this number.</p>
+                    </div>
+
+                    <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-black py-5 rounded-2xl shadow-lg hover:shadow-green-200 transition-all transform hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-3">
+                        <span>Activate Job Now</span>
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                    </button>
+
+                    <!-- M-Pesa Terms -->
+                    <div class="mt-6">
+                        {% include "payments/mpesa_terms_section.html" %}
+                    </div>
+                </form>
+
+                <div class="mt-8 pt-8 border-t border-slate-50 flex items-center justify-center gap-6">
+                    <img src="https://cdn-icons-png.flaticon.com/512/2092/2092663.png" class="h-6 opacity-30 grayscale" alt="Secure">
+                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest text-center">Encrypted & Secure API Activation</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cancel/Defer -->
+        <div class="mt-8 text-center">
+            <a href="{% url 'jobs:my_jobs' %}" class="text-slate-400 hover:text-slate-600 font-bold text-xs uppercase tracking-widest transition">Activate Later</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

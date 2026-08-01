@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+
+{% block title %}Reviews for {{ user_profile.get_full_name }} - Charlady{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8 max-w-4xl">
+    <!-- Profile Header -->
+    <div class="bg-white rounded-2xl shadow-xl border border-pink-100 overflow-hidden mb-10">
+        <div class="p-8 md:p-10 flex flex-col md:flex-row items-center md:items-start gap-8">
+            <!-- Avatar -->
+            <div
+                class="w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden bg-pink-50 border-4 border-pink-100 flex-shrink-0">
+                {% if user_profile.profile_picture %}
+                <img src="{{ user_profile.profile_picture.url }}" alt="{{ user_profile.get_full_name }}"
+                    class="w-full h-full object-cover">
+                {% else %}
+                <div
+                    class="w-full h-full flex items-center justify-center text-5xl md:text-6xl text-pink-400 bg-pink-100">
+                    {{ user_profile.get_full_name|default:user_profile.username|first|upper }}
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Info -->
+            <div class="text-center md:text-left">
+                <h1 class="text-3xl md:text-4xl font-bold text-pink-700 mb-2">
+                    {{ user_profile.get_full_name|default:user_profile.username }}
+                </h1>
+                <p class="text-xl text-purple-600 mb-4">{{ user_profile.get_user_type_display }}</p>
+
+                <!-- Rating -->
+                <div class="flex items-center justify-center md:justify-start gap-2 mb-4">
+                    <div class="flex">
+                        {% for i in "12345" %}
+                        {% if forloop.counter <= avg_rating|floatformat:0 %} <svg class="w-8 h-8 text-yellow-400"
+                            fill="currentColor" viewBox="0 0 20 20">
+                            <path
+                                d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                            </svg>
+                            {% else %}
+                            <svg class="w-8 h-8 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
+                                <path
+                                    d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                            </svg>
+                            {% endif %}
+                            {% endfor %}
+                    </div>
+                    <span class="text-2xl font-bold text-gray-800">
+                        {{ avg_rating|floatformat:1 }}
+                    </span>
+                    <span class="text-lg text-gray-500">
+                        ({{ reviews.count }} review{{ reviews.count|pluralize }})
+                    </span>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex flex-wrap gap-4 justify-center md:justify-start">
+                    <a href="{% url 'profile_detail' user_id=user_profile.id %}"
+                        class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-3 px-8 rounded-xl transition">
+                        Back to Profile
+                    </a>
+                    {% if user.is_authenticated and user != user_profile %}
+                    <a href="{% url 'reviews:create_review' user_id=user_profile.id %}"
+                        class="bg-pink-600 hover:bg-pink-700 text-white font-bold py-3 px-8 rounded-xl transition">
+                        Write a Review
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reviews List -->
+    <h2 class="text-3xl font-bold text-gray-900 mb-8 text-center md:text-left">Reviews</h2>
+
+    {% if reviews %}
+    <div class="space-y-8">
+        {% for review in reviews %}
+        <div class="bg-white rounded-2xl shadow-lg border border-pink-100 p-6 md:p-8 hover:shadow-xl transition">
+            <div class="flex flex-col sm:flex-row sm:items-start gap-5 mb-5">
+                <!-- Reviewer Avatar -->
+                <div class="w-16 h-16 rounded-full overflow-hidden bg-pink-50 border-2 border-pink-100 flex-shrink-0">
+                    {% if review.reviewer.profile_picture %}
+                    <img src="{{ review.reviewer.profile_picture.url }}" alt="{{ review.reviewer.get_full_name }}"
+                        class="w-full h-full object-cover">
+                    {% else %}
+                    <div class="w-full h-full flex items-center justify-center text-2xl text-pink-400 bg-pink-100">
+                        {{ review.reviewer.get_full_name|default:review.reviewer.username|first|upper }}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Info & Rating -->
+                <div class="flex-1">
+                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2">
+                        <div>
+                            <h3 class="text-xl font-bold text-pink-700">
+                                {{ review.reviewer.get_full_name|default:review.reviewer.username }}
+                            </h3>
+                            <p class="text-sm text-gray-500">
+                                {{ review.created_at|date:"F j, Y" }}
+                            </p>
+                        </div>
+                        <div class="flex">
+                            {% for i in "12345" %}
+                            {% if forloop.counter <= review.rating %} <svg class="w-6 h-6 text-yellow-400"
+                                fill="currentColor" viewBox="0 0 20 20">
+                                <path
+                                    d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                </svg>
+                                {% else %}
+                                <svg class="w-6 h-6 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
+                                    <path
+                                        d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                </svg>
+                                {% endif %}
+                                {% endfor %}
+                        </div>
+                    </div>
+                    <p class="text-gray-700 mt-4 leading-relaxed">{{ review.comment|linebreaks }}</p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="bg-white rounded-2xl shadow-xl border border-pink-100 p-12 text-center">
+        <div class="text-6xl mb-6">⭐</div>
+        <h2 class="text-2xl font-semibold text-gray-700 mb-4">No reviews yet</h2>
+        <p class="text-lg text-gray-600 mb-6">
+            Be the first to share your experience with {{ user_profile.get_full_name|default:user_profile.username }}.
+        </p>
+        {% if user.is_authenticated and user != user_profile %}
+        <a href="{% url 'reviews:create_review' user_id=user_profile.id %}"
+            class="inline-block bg-pink-600 hover:bg-pink-700 text-white font-bold py-3 px-8 rounded-xl transition">
+            Write a Review
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

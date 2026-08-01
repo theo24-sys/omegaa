@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% block title %}My Messages | Charlady{% endblock %}
+
+{% block content %}
+<div class="bg-slate-50 min-h-screen py-10">
+    <div class="max-w-4xl mx-auto px-4">
+        
+        <div class="flex items-center justify-between mb-8">
+            <h1 class="text-3xl font-black text-slate-900">My Inbox</h1>
+            <span class="bg-pink-100 text-pink-700 font-black text-xs uppercase tracking-widest px-3 py-1 rounded-full">{{ sessions.count }} Conversations</span>
+        </div>
+
+        {% if messages %}
+        <div class="mb-6 space-y-2">
+            {% for message in messages %}
+                <div class="p-4 rounded-xl text-sm font-bold shadow-sm {% if message.tags == 'error' or message.tags == 'warning' %}bg-red-50 text-red-600 border border-red-200{% else %}bg-green-50 text-green-700 border border-green-200{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden divide-y divide-slate-100">
+            {% for session in sessions %}
+                {% with other_user=session.participants.all|first %}
+                <!-- Simple logic to pick the other user in template just for display purposes if not passed from view -->
+                {% for u in session.participants.all %}
+                    {% if u != request.user %}
+                    <a href="{% url 'chat:chat_detail' session.id %}" class="block p-6 hover:bg-slate-50 transition group relative">
+                        <!-- Unread dot -->
+                        {% if session.messages.last.sender != request.user and not session.messages.last.is_read %}
+                        <div class="absolute left-3 top-1/2 -translate-y-1/2 w-2.5 h-2.5 bg-pink-500 rounded-full animate-pulse"></div>
+                        {% endif %}
+
+                        <div class="flex items-center gap-5 ml-4">
+                            {% if u.profile_picture %}
+                                <div class="w-16 h-16 rounded-full bg-slate-200 overflow-hidden flex-shrink-0 border-2 border-white shadow-md">
+                                    <img src="{{ u.profile_picture.url }}" alt="Profile" class="w-full h-full object-cover">
+                                </div>
+                            {% else %}
+                                <div class="w-16 h-16 rounded-full bg-gradient-to-br from-pink-400 to-purple-600 flex items-center justify-center text-white font-bold text-xl flex-shrink-0 shadow-md">
+                                    {{ u.username|make_list|first|upper }}
+                                </div>
+                            {% endif %}
+                            
+                            <div class="flex-grow min-w-0">
+                                <div class="flex justify-between items-center mb-1">
+                                    <h3 class="text-lg font-bold text-slate-900 truncate pr-4">{{ u.username }}</h3>
+                                    <span class="text-xs font-medium text-slate-400 flex-shrink-0">{{ session.updated_at|timesince }} ago</span>
+                                </div>
+                                <p class="text-sm text-slate-500 truncate {% if session.messages.last.sender != request.user and not session.messages.last.is_read %}font-bold text-slate-800{% endif %}">
+                                    {% if session.messages.last %}
+                                        {{ session.messages.last.text }}
+                                    {% else %}
+                                        No messages yet...
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                    </a>
+                    {% endif %}
+                {% endfor %}
+                {% endwith %}
+            {% empty %}
+                <div class="p-12 text-center text-slate-500">
+                    <svg class="w-16 h-16 mx-auto mb-4 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+                    <p class="font-medium text-lg">Your inbox is empty.</p>
+                    <p class="text-sm mt-2">When you start a conversation, it will appear here.</p>
+                </div>
+            {% endfor %}
+        </div>
+        
+    </div>
+</div>
+{% endblock %}

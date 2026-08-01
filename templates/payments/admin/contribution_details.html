@@ -1,0 +1,110 @@
+{% extends 'admin/base_site.html' %}
+
+{% block title %}Contributions - {{ worker.username }} - Admin{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 2rem;">
+    <a href="{% url 'payments:admin_contribution_dashboard' %}" style="color: #667eea; text-decoration: none;">
+        ← Back to Dashboard
+    </a>
+</div>
+
+<h1>{{ worker.get_full_name|default:worker.username }}'s Contributions</h1>
+<p style="color: #6b7280; font-size: 0.875rem;">
+    {% if worker.phone_number %}Phone: {{ worker.phone_number }}{% endif %}
+</p>
+
+<!-- Summary Cards -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin: 2rem 0;">
+    <div style="background: white; border-radius: 0.5rem; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border-left: 4px solid #059669;">
+        <div style="color: #6b7280; font-size: 0.875rem;">Total Paid</div>
+        <div style="font-size: 2rem; font-weight: bold; color: #1f2937;">KES {{ total_paid|floatformat:0 }}</div>
+    </div>
+    
+    <div style="background: white; border-radius: 0.5rem; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border-left: 4px solid #dc2626;">
+        <div style="color: #6b7280; font-size: 0.875rem;">Total Due</div>
+        <div style="font-size: 2rem; font-weight: bold; color: #1f2937;">KES {{ total_due|floatformat:0 }}</div>
+    </div>
+    
+    <div style="background: white; border-radius: 0.5rem; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border-left: 4px solid #f59e0b;">
+        <div style="color: #6b7280; font-size: 0.875rem;">Payment Rate</div>
+        <div style="font-size: 2rem; font-weight: bold; color: #1f2937;">
+            {% if contributions %}
+                {{ paid_count|add:0|mul:100|div:contributions|length|floatformat:0 }}%
+            {% else %}
+                0%
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Contributions Table -->
+<table style="width: 100%; border-collapse: collapse; background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border-radius: 0.5rem; overflow: hidden;">
+    <thead style="background: #f3f4f6; border-bottom: 2px solid #e5e7eb;">
+        <tr>
+            <th style="text-align: left; padding: 1rem; border: 1px solid #e5e7eb;">Period</th>
+            <th style="text-align: right; padding: 1rem; border: 1px solid #e5e7eb;">Salary Earned</th>
+            <th style="text-align: right; padding: 1rem; border: 1px solid #e5e7eb;">Contribution (3%)</th>
+            <th style="text-align: center; padding: 1rem; border: 1px solid #e5e7eb;">Status</th>
+            <th style="text-align: center; padding: 1rem; border: 1px solid #e5e7eb;">Payment Date</th>
+            <th style="text-align: center; padding: 1rem; border: 1px solid #e5e7eb;">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for contribution in contributions %}
+        <tr style="border-bottom: 1px solid #e5e7eb; transition: background 0.2s;">
+            <td style="padding: 1rem; border: 1px solid #e5e7eb;">
+                {{ contribution.get_month_display }} {{ contribution.year }}
+            </td>
+            <td style="padding: 1rem; border: 1px solid #e5e7eb; text-align: right;">
+                KES {{ contribution.calculated_salary|floatformat:0 }}
+            </td>
+            <td style="padding: 1rem; border: 1px solid #e5e7eb; text-align: right; font-weight: bold;">
+                <span style="color: {% if contribution.payment_status == 'paid' %}#059669{% else %}#dc2626{% endif %};">
+                    KES {{ contribution.amount_due|floatformat:0 }}
+                </span>
+            </td>
+            <td style="padding: 1rem; border: 1px solid #e5e7eb; text-align: center;">
+                {% if contribution.payment_status == 'paid' %}
+                    <span style="background: #d1fae5; color: #065f46; padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.875rem;">
+                        ✓ Paid
+                    </span>
+                {% elif contribution.payment_status == 'pending' %}
+                    <span style="background: #fef3c7; color: #b45309; padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.875rem;">
+                        ⏳ Pending
+                    </span>
+                {% else %}
+                    <span style="background: #f3f4f6; color: #6b7280; padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.875rem;">
+                        — {{ contribution.get_payment_status_display }}
+                    </span>
+                {% endif %}
+            </td>
+            <td style="padding: 1rem; border: 1px solid #e5e7eb; text-align: center;">
+                {% if contribution.payment_date %}
+                    {{ contribution.payment_date|date:"M d, Y" }}
+                {% else %}
+                    —
+                {% endif %}
+            </td>
+            <td style="padding: 1rem; border: 1px solid #e5e7eb; text-align: center;">
+                {% if contribution.payment_status == 'pending' %}
+                    <a href="{% url 'payments:admin_mark_contribution_paid' contribution.id %}" 
+                       style="color: #667eea; text-decoration: none; font-weight: 500;">
+                        Mark Paid
+                    </a>
+                {% else %}
+                    <span style="color: #6b7280; font-size: 0.875rem;">Complete</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="6" style="padding: 2rem; text-align: center; color: #6b7280;">
+                No contributions found for this worker
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

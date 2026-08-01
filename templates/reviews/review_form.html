@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if edit_mode %}Edit{% else %}Write{% endif %} Review - HousekeeperConnect{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8 max-w-2xl">
+    <div class="bg-white rounded-lg shadow-lg p-8">
+        <h1 class="text-3xl font-bold text-dark mb-2">
+            {% if edit_mode %}Edit Your Review{% else %}Write a Review{% endif %}
+        </h1>
+        <p class="text-gray-600 mb-6">for <strong>{{ reviewed_user.get_full_name }}</strong></p>
+
+        {% if form.non_field_errors %}
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+            {{ form.non_field_errors }}
+        </div>
+        {% endif %}
+
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+
+            <!-- Rating Field -->
+            <div>
+                <label for="{{ form.rating.id_for_label }}" class="block text-lg font-semibold text-dark mb-3">
+                    {{ form.rating.label }}
+                </label>
+                {{ form.rating }}
+                {% if form.rating.errors %}
+                <p class="text-red-600 text-sm mt-2">{{ form.rating.errors }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Comment Field -->
+            <div>
+                <label for="{{ form.comment.id_for_label }}" class="block text-lg font-semibold text-dark mb-3">
+                    {{ form.comment.label }}
+                </label>
+                {{ form.comment }}
+                {% if form.comment.errors %}
+                <p class="text-red-600 text-sm mt-2">{{ form.comment.errors }}</p>
+                {% endif %}
+                <p class="text-gray-500 text-sm mt-2">Share details about your experience with this user.</p>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex gap-4 pt-6">
+                <button type="submit" class="bg-primary hover:bg-pink-700 text-white font-bold py-3 px-8 rounded-lg transition">
+                    {% if edit_mode %}Update Review{% else %}Submit Review{% endif %}
+                </button>
+                <a href="{% url 'reviews:user_reviews' user_id=reviewed_user.id %}" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-3 px-8 rounded-lg transition">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

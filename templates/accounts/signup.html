@@ -1,0 +1,240 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}Sign Up - CHARLADY{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8 max-w-lg">
+    <h1 class="text-4xl font-bold mb-8 text-center text-pink-600">Join CHARLADY</h1>
+
+    {% if messages %}
+    <div class="mb-6 space-y-3">
+        {% for message in messages %}
+        <div class="p-4 rounded-lg text-center font-medium
+                    {% if message.tags == 'success' %}bg-pink-100 text-pink-800
+                    {% else %}bg-red-100 text-red-800{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <form method="post" enctype="multipart/form-data"
+    class="space-y-6 bg-white p-8 rounded-2xl shadow-xl border border-pink-100">
+    
+    {% csrf_token %}  <!-- ← ADD THIS LINE RIGHT HERE -->
+
+    {% if form.non_field_errors %}
+    <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-6">
+        <div class="text-red-700">
+            {{ form.non_field_errors }}
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Personal info fields -->
+        <div>{{ form.first_name|as_crispy_field }}</div>
+        <div>{{ form.last_name|as_crispy_field }}</div>
+        <div>{{ form.email|as_crispy_field }}</div>
+        <div>{{ form.phone_number|as_crispy_field }}</div>
+
+        <div class="col-span-1 md:col-span-2">
+            {{ form.user_type|as_crispy_field }}
+        </div>
+
+        <div class="col-span-1 md:col-span-2">
+            {{ form.bio|as_crispy_field }}
+        </div>
+
+        <div class="col-span-1 md:col-span-2">
+            {{ form.profile_picture|as_crispy_field }}
+            <div class="mt-4 justify-center" style="display: none;" id="preview-container">
+                <img id="profile-preview" src="#" alt="Profile Preview"
+                    class="h-32 w-32 object-cover rounded-full border-4 border-pink-200 shadow-md">
+            </div>
+        </div>
+
+        <div>{{ form.password1|as_crispy_field }}</div>
+        <div>
+            {{ form.password2|as_crispy_field }}
+            <p id="password-match-msg" class="text-sm mt-1 hidden"></p>
+        </div>
+    </div>
+
+        <!-- Location Section -->
+        <div class="pt-6 border-t border-pink-200">
+            <h3 class="text-2xl font-semibold text-pink-700 mb-6 text-center">
+                Your Location (helps with job matching)
+            </h3>
+            <div class="space-y-5">
+                <div>
+                    <label class="block text-lg font-medium text-pink-700 mb-2">County <span
+                            class="text-red-500">*</span></label>
+                    <select name="county" id="id_county" required
+                        class="w-full px-4 py-3 rounded-lg border border-pink-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-200 bg-white">
+                        <option value="">Select County</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-lg font-medium text-pink-700 mb-2">Constituency <span
+                            class="text-red-500">*</span></label>
+                    <select name="constituency" id="id_constituency" required disabled
+                        class="w-full px-4 py-3 rounded-lg border border-pink-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-200 bg-white">
+                        <option value="">Select Constituency</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-lg font-medium text-pink-700 mb-2">Ward <span
+                            class="text-red-500">*</span></label>
+                    <select name="ward" id="id_ward" required disabled
+                        class="w-full px-4 py-3 rounded-lg border border-pink-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-200 bg-white">
+                        <option value="">Select Ward</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-lg font-medium text-pink-700 mb-2">Current Town / Area / Nearest
+                        Place <span class="text-red-500">*</span></label>
+                    <input type="text" name="major_town" id="id_major_town" required
+                        placeholder="e.g. Rongai, Syokimau, Kitengela, Utawala, Ongata Rongai, Mlolongo..."
+                        class="w-full px-4 py-3 rounded-lg border border-pink-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-200 bg-white">
+                </div>
+            </div>
+        </div>
+
+        <button type="submit"
+            class="w-full bg-pink-600 hover:bg-pink-700 text-white py-4 rounded-xl font-bold text-lg transition mt-8 focus:outline-none focus:ring-4 focus:ring-pink-300">
+            Create Account
+        </button>
+    </form>
+
+    <p class="mt-8 text-center text-pink-700 text-lg">
+        Already have an account?
+        <a href="{% url 'login' %}" class="font-semibold hover:underline">Log in here</a>
+    </p>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        fetch("{% url 'kenya_locations_json' %}")
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to load kenya_locations.json - Status: ' + response.status);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log("JSON loaded successfully:", Object.keys(data)); // debug: see county names
+
+                const countySelect = document.getElementById('id_county');
+                const consSelect = document.getElementById('id_constituency');
+                const wardSelect = document.getElementById('id_ward');
+
+                // Clear any old options
+                countySelect.innerHTML = '<option value="">Select County</option>';
+
+                // Populate counties
+                const counties = Object.keys(data).sort();
+                counties.forEach(county => {
+                    const option = document.createElement('option');
+                    option.value = county;
+                    option.textContent = county; // already capitalized in your JSON
+                    countySelect.appendChild(option);
+                });
+
+                // County → Constituency
+                countySelect.addEventListener('change', () => {
+                    const county = countySelect.value;
+                    consSelect.innerHTML = '<option value="">Select Constituency</option>';
+                    wardSelect.innerHTML = '<option value="">Select Ward</option>';
+
+                    consSelect.disabled = !county;
+                    wardSelect.disabled = true;
+
+                    if (county && data[county] && data[county].Constituencies) {
+                        const constituencies = Object.keys(data[county].Constituencies).sort();
+                        constituencies.forEach(cons => {
+                            const option = document.createElement('option');
+                            option.value = cons;
+                            option.textContent = cons.charAt(0).toUpperCase() + cons.slice(1);
+                            consSelect.appendChild(option);
+                        });
+                    }
+                });
+
+                // Constituency → Ward
+                consSelect.addEventListener('change', () => {
+                    const county = countySelect.value;
+                    const cons = consSelect.value;
+                    wardSelect.innerHTML = '<option value="">Select Ward</option>';
+                    wardSelect.disabled = !cons;
+
+                    if (county && cons && data[county]?.Constituencies?.[cons]?.Ward) {
+                        const wards = data[county].Constituencies[cons].Ward.sort();
+                        wards.forEach(ward => {
+                            const option = document.createElement('option');
+                            option.value = ward;
+                            option.textContent = ward.charAt(0).toUpperCase() + ward.slice(1);
+                            wardSelect.appendChild(option);
+                        });
+                    }
+                });
+            })
+            .catch(error => {
+                console.error('Error loading or parsing kenya_locations.json:', error);
+                alert('Unable to load locations. Please try again later or contact support.');
+            });
+
+        // Image Preview Logic
+        const profileInput = document.getElementById('id_profile_picture');
+        const previewContainer = document.getElementById('preview-container');
+        const profilePreview = document.getElementById('profile-preview');
+
+        if (profileInput) {
+            profileInput.addEventListener('change', function (event) {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        profilePreview.src = e.target.result;
+                        previewContainer.style.display = 'flex';
+                    }
+                    reader.readAsDataURL(file);
+                } else {
+                    profilePreview.src = '#';
+                    previewContainer.style.display = 'none';
+                }
+            });
+        }
+
+        // Password matching check
+        const pass1 = document.getElementById('id_password1');
+        const pass2 = document.getElementById('id_password2');
+        const matchMsg = document.getElementById('password-match-msg');
+
+        function checkPasswords() {
+            if (pass1 && pass2 && pass1.value && pass2.value) {
+                matchMsg.classList.remove('hidden');
+                if (pass1.value === pass2.value) {
+                    matchMsg.textContent = 'Passwords match';
+                    matchMsg.className = 'text-sm mt-1 text-green-600';
+                } else {
+                    matchMsg.textContent = 'Passwords do not match';
+                    matchMsg.className = 'text-sm mt-1 text-red-600';
+                }
+            } else if (matchMsg) {
+                matchMsg.classList.add('hidden');
+            }
+        }
+
+        if (pass1 && pass2) {
+            pass1.addEventListener('input', checkPasswords);
+            pass2.addEventListener('input', checkPasswords);
+        }
+    });
+</script>
+{% endblock %}

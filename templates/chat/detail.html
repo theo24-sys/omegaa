@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+
+{% block title %}Chat with {{ other_user.username }} | Charlady{% endblock %}
+
+{% block content %}
+<div class="bg-slate-50 min-h-screen flex flex-col">
+    <div class="max-w-3xl mx-auto w-full flex-grow flex flex-col h-screen md:h-[85vh] md:mt-10 overflow-hidden shadow-2xl md:rounded-[2rem] border border-slate-200">
+        
+        <!-- Header -->
+        <div class="bg-white/95 backdrop-blur-md border-b border-slate-100 p-3 md:p-4 flex items-center gap-3 md:gap-4 shadow-sm z-30">
+            <a href="{% url 'chat:inbox' %}" class="w-10 h-10 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-500 transition">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+            </a>
+            
+            {% if other_user.profile_picture %}
+                <img src="{{ other_user.profile_picture.url }}" class="w-12 h-12 rounded-full object-cover shadow-sm bg-slate-200">
+            {% else %}
+                <div class="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center text-white font-bold shadow-sm">
+                    {{ other_user.username|make_list|first|upper }}
+                </div>
+            {% endif %}
+            
+            <div>
+                <h2 class="text-lg font-black text-slate-900 leading-tight">{{ other_user.username }}</h2>
+                <div class="text-xs font-bold text-green-500 uppercase tracking-widest">{{ other_user.user_type }}</div>
+            </div>
+            
+            {% if is_gold or is_standard %}
+                <div class="ml-auto flex items-center gap-3">
+                    {% if is_gold %}
+                        <div class="hidden md:block bg-gradient-to-r from-yellow-300 to-amber-500 text-yellow-950 text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest shadow-sm">
+                            Priority Comms Active
+                        </div>
+                    {% endif %}
+                    <a href="{% url 'chat:video_interview' session.id %}" class="flex items-center gap-2 bg-pink-600 hover:bg-pink-700 text-white px-4 py-2 rounded-xl text-sm font-bold shadow-md transition transform active:scale-95">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                        <span class="hidden sm:inline">Start Interview</span>
+                    </a>
+                </div>
+            {% else %}
+                <div class="ml-auto">
+                    <a href="{% url 'payments:payment_plans' %}" class="flex items-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-600 px-4 py-2 rounded-xl text-sm font-bold border border-slate-200 transition">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                        <span class="hidden sm:inline">Unlock Video</span>
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+        
+        {% if messages %}
+        <div class="p-4 space-y-2 bg-white">
+            {% for message in messages %}
+                <div class="p-3 rounded-xl text-sm font-bold shadow-sm bg-red-50 text-red-600 border border-red-200 text-center">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Messages Area -->
+        <div class="flex-grow bg-[#E5DDD5] overflow-y-auto p-4 md:p-6 space-y-4" id="chat-box" style="background-image: url('data:image/svg+xml,%3Csvg width=\'40\' height=\'40\' viewBox=\'0 0 40 40\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M0 0h40v40H0V0zm20 20h20v20H20V20zM0 20h20v20H0V20z\' fill=\'%23dcd2c6\' fill-opacity=\'0.4\' fill-rule=\'evenodd\'/%3E%3C/svg%3E');">
+            
+            <div class="text-center mb-6">
+                <span class="bg-[#d2ede2] text-xs font-medium text-slate-600 px-4 py-1.5 rounded-lg shadow-sm">Chat started securely</span>
+            </div>
+
+            <!-- Messages polling container -->
+            <div id="chat-messages-container" 
+                 hx-get="{% url 'chat:messages_fragment' session.id %}" 
+                 hx-trigger="every 5s" 
+                 hx-swap="innerHTML">
+                {% include 'chat/messages_fragment.html' %}
+            </div>
+        </div>
+
+        <!-- Compose Box -->
+        <div class="bg-white p-3 md:p-4 border-t border-slate-100 shadow-[0_-4px_10px_rgba(0,0,0,0.03)]">
+            <form method="post" class="flex gap-2 items-center">
+                {% csrf_token %}
+                <textarea name="text" rows="1" required placeholder="Type a message..." id="messageInput"
+                    class="flex-grow resize-none rounded-2xl border border-slate-200 focus:border-primary focus:ring-1 focus:ring-primary/20 py-3 px-5 text-[15px] max-h-32 transition-all"></textarea>
+                <button type="submit" class="w-12 h-12 flex-shrink-0 bg-primary hover:bg-pink-600 rounded-full flex items-center justify-center text-white shadow-lg transition transform active:scale-90">
+                    <svg class="w-5 h-5 translate-x-0.5" fill="currentColor" viewBox="0 0 20 20"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"></path></svg>
+                </button>
+            </form>
+        </div>
+        
+    </div>
+</div>
+
+<script>
+    // Auto-scroll to bottom of chat
+    const chatBox = document.getElementById('chat-box');
+    chatBox.scrollTop = chatBox.scrollHeight;
+    
+    // Auto-resize textarea
+    const tx = document.getElementById('messageInput');
+    tx.setAttribute('style', 'height:' + (tx.scrollHeight) + 'px;overflow-y:hidden;');
+    tx.addEventListener("input", OnInput, false);
+    function OnInput() {
+      this.style.height = 'auto';
+      this.style.height = (this.scrollHeight) + 'px';
+    }
+</script>
+{% endblock %}

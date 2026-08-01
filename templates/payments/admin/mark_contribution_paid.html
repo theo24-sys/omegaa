@@ -1,0 +1,80 @@
+{% extends 'admin/base_site.html' %}
+
+{% block title %}Mark Contribution as Paid - Admin{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 2rem;">
+    <a href="{% url 'payments:admin_contribution_details' contribution.worker.id %}" style="color: #667eea; text-decoration: none;">
+        ← Back to {{ contribution.worker.username }}'s Contributions
+    </a>
+</div>
+
+<h1>Mark Contribution as Paid</h1>
+
+<div style="background: white; border-radius: 0.5rem; padding: 2rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); max-width: 600px;">
+    <!-- Contribution Details -->
+    <div style="background: #f3f4f6; border-radius: 0.5rem; padding: 1.5rem; margin-bottom: 2rem;">
+        <h3 style="margin-top: 0;">Contribution Details</h3>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div>
+                <div style="color: #6b7280; font-size: 0.875rem;">Worker</div>
+                <div style="font-weight: 500;">{{ contribution.worker.username }}</div>
+            </div>
+            
+            <div>
+                <div style="color: #6b7280; font-size: 0.875rem;">Period</div>
+                <div style="font-weight: 500;">{{ contribution.get_month_display }} {{ contribution.year }}</div>
+            </div>
+            
+            <div>
+                <div style="color: #6b7280; font-size: 0.875rem;">Salary Earned</div>
+                <div style="font-weight: 500;">KES {{ contribution.calculated_salary|floatformat:0 }}</div>
+            </div>
+            
+            <div>
+                <div style="color: #6b7280; font-size: 0.875rem;">Amount Due (3%)</div>
+                <div style="font-weight: 500; color: #dc2626;">KES {{ contribution.amount_due|floatformat:0 }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Form -->
+    <form method="post" style="display: grid; gap: 1.5rem;">
+        {% csrf_token %}
+        
+        <!-- Admin Notes -->
+        <div>
+            <label for="admin_notes" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">
+                Admin Notes (Optional)
+            </label>
+            <textarea id="admin_notes" name="admin_notes" rows="4" 
+                      style="width: 100%; padding: 0.75rem; border: 1px solid #e5e7eb; border-radius: 0.5rem; font-family: inherit;"
+                      placeholder="e.g., Paid via bank transfer, Transaction ID: XYZ123..."></textarea>
+            <p style="color: #6b7280; font-size: 0.875rem; margin-top: 0.25rem;">
+                Add any notes about how this contribution was paid or any relevant details
+            </p>
+        </div>
+
+        <!-- Payment Method Info -->
+        <div style="background: #eff6ff; border-left: 4px solid #3b82f6; padding: 1rem; border-radius: 0.5rem;">
+            <p style="margin: 0; color: #1e40af; font-size: 0.875rem;">
+                <strong>Note:</strong> By clicking "Mark as Paid", you're confirming that this worker has paid the contribution.
+                This will update their account and send them a notification.
+            </p>
+        </div>
+
+        <!-- Buttons -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <button type="submit" style="background: #059669; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 0.5rem; font-weight: 500; cursor: pointer;">
+                ✓ Mark as Paid
+            </button>
+            <a href="{% url 'payments:admin_contribution_details' contribution.worker.id %}" 
+               style="background: #e5e7eb; color: #1f2937; padding: 0.75rem 1.5rem; border: none; border-radius: 0.5rem; font-weight: 500; text-align: center; text-decoration: none;">
+                Cancel
+            </a>
+        </div>
+    </form>
+</div>
+
+{% endblock %}

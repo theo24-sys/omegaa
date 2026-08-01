@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Get Verified Membership - Charlady{% endblock %}
+
+{% block content %}
+<div class="bg-slate-50 min-h-screen py-16">
+    <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <!-- Header -->
+        <div class="text-center max-w-xl mx-auto mb-12">
+            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-50 border border-green-200 text-green-600 text-xs font-bold uppercase tracking-widest mb-4">
+                <img src="{% static 'img/mpesa_logo.svg' %}" alt="M-Pesa" class="h-3">
+                <span class="w-2 h-2 rounded-full bg-green-600 animate-pulse"></span>
+                M-Pesa Secure Payment
+            </div>
+            <h1 class="text-5xl font-black text-slate-900 mb-4">
+                Get <span class="text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-emerald-600">Verified Today</span>
+            </h1>
+            <p class="text-lg text-slate-600 font-medium">
+                Join our verified member community and get access to 3x more jobs!
+            </p>
+        </div>
+
+        <!-- Benefits Card -->
+        <div class="bg-white rounded-3xl p-10 border border-slate-200 shadow-lg mb-8">
+            <h2 class="text-2xl font-black text-slate-900 mb-6">What You Get:</h2>
+            <div class="space-y-4">
+                <div class="flex items-start gap-4">
+                    <div class="w-8 h-8 rounded-full bg-green-100 flex-shrink-0 flex items-center justify-center text-green-600 font-bold">✓</div>
+                    <div>
+                        <h3 class="font-bold text-slate-900">Verified Badge</h3>
+                        <p class="text-slate-600 text-sm">Blue checkmark next to your profile name</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-4">
+                    <div class="w-8 h-8 rounded-full bg-green-100 flex-shrink-0 flex items-center justify-center text-green-600 font-bold">✓</div>
+                    <div>
+                        <h3 class="font-bold text-slate-900">3x More Job Visibility</h3>
+                        <p class="text-slate-600 text-sm">Appear higher in employer searches</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-4">
+                    <div class="w-8 h-8 rounded-full bg-green-100 flex-shrink-0 flex items-center justify-center text-green-600 font-bold">✓</div>
+                    <div>
+                        <h3 class="font-bold text-slate-900">Premium Support</h3>
+                        <p class="text-slate-600 text-sm">Priority customer service</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-4">
+                    <div class="w-8 h-8 rounded-full bg-green-100 flex-shrink-0 flex items-center justify-center text-green-600 font-bold">✓</div>
+                    <div>
+                        <h3 class="font-bold text-slate-900">Valid for 1 Year</h3>
+                        <p class="text-slate-600 text-sm">Automatic renewal reminders before expiry</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pricing Card -->
+        <div class="bg-gradient-to-b from-green-600 to-emerald-700 rounded-3xl p-10 border-2 border-green-500 shadow-2xl mb-8">
+            <div class="text-center mb-8">
+                <div class="text-white/80 text-sm uppercase tracking-widest font-bold mb-2 flex items-center justify-center gap-2">
+                    <img src="{% static 'img/mpesa_logo.svg' %}" alt="M-Pesa" class="h-4">
+                    Annual Membership
+                </div>
+                <div class="text-6xl font-black text-white mb-2">KES 250</div>
+                <div class="text-white/90 text-sm">One-time payment for 1 year access via M-Pesa</div>
+            </div>
+
+            <!-- M-Pesa Terms -->
+            <div class="mb-6 bg-white/10 rounded-xl p-4 border border-white/20">
+                <p class="text-white text-xs font-semibold">✓ Instant STK Push • ✓ Safaricom Secure • ✓ No Hidden Fees</p>
+            </div>
+
+            <!-- Checkout Form -->
+            <form method="post" class="space-y-4">
+                {% csrf_token %}
+                
+                <button type="submit" class="w-full bg-white hover:bg-slate-50 text-green-600 font-black py-4 px-6 rounded-2xl transition text-lg shadow-lg">
+                    Pay KES 250 with M-Pesa
+                </button>
+                
+                <p class="text-white/80 text-center text-xs">
+                    🔒 Secure M-Pesa STK Push Payment • Instant Verification
+                </p>
+            </form>
+        </div>
+
+        <!-- M-Pesa Full Terms Section -->
+        {% include "payments/mpesa_terms_section.html" %}
+
+        <!-- FAQs -->
+        <div class="bg-white rounded-3xl p-8 border border-slate-200">
+            <h3 class="text-2xl font-black text-slate-900 mb-6">Frequently Asked Questions</h3>
+            
+            <div class="space-y-4">
+                <details class="group border border-slate-200 rounded-lg p-4 hover:border-primary/30 transition cursor-pointer">
+                    <summary class="flex items-center justify-between font-bold text-slate-900 group-open:text-primary">
+                        <span>How does the payment work?</span>
+                        <span class="transition group-open:rotate-180">▼</span>
+                    </summary>
+                    <p class="text-slate-600 mt-3 text-sm">
+                        We use M-Pesa STK push technology. You'll receive a prompt on your phone asking you to enter your M-Pesa PIN. The payment is processed instantly and securely.
+                    </p>
+                </details>
+
+                <details class="group border border-slate-200 rounded-lg p-4 hover:border-primary/30 transition cursor-pointer">
+                    <summary class="flex items-center justify-between font-bold text-slate-900 group-open:text-primary">
+                        <span>What if payment fails?</span>
+                        <span class="transition group-open:rotate-180">▼</span>
+                    </summary>
+                    <p class="text-slate-600 mt-3 text-sm">
+                        No worries! If the payment fails, you can retry immediately. There's no charge unless the payment is successful.
+                    </p>
+                </details>
+
+                <details class="group border border-slate-200 rounded-lg p-4 hover:border-primary/30 transition cursor-pointer">
+                    <summary class="flex items-center justify-between font-bold text-slate-900 group-open:text-primary">
+                        <span>Can I get a refund?</span>
+                        <span class="transition group-open:rotate-180">▼</span>
+                    </summary>
+                    <p class="text-slate-600 mt-3 text-sm">
+                        Verification is non-refundable. However, your membership is valid for a full year from the payment date.
+                    </p>
+                </details>
+
+                <details class="group border border-slate-200 rounded-lg p-4 hover:border-primary/30 transition cursor-pointer">
+                    <summary class="flex items-center justify-between font-bold text-slate-900 group-open:text-primary">
+                        <span>Do I need verified documents to get verified?</span>
+                        <span class="transition group-open:rotate-180">▼</span>
+                    </summary>
+                    <p class="text-slate-600 mt-3 text-sm">
+                        No, this membership is separate from KYC (Know-Your-Customer) document verification. You can have a verified badge with or without document verification.
+                    </p>
+                </details>
+            </div>
+        </div>
+
+        <!-- Back Button -->
+        <div class="text-center mt-8">
+            <a href="{% url 'dashboard:user_dashboard' %}" class="text-primary hover:text-primary/80 font-bold transition">
+                ← Back to Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

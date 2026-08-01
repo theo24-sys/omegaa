@@ -1,0 +1,116 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}Statistics - Admin Dashboard{% endblock %}
+{% block header_title %}Platform Statistics{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <!-- Jobs by City -->
+    <div class="bg-white rounded-2xl shadow-xl border border-pink-100 overflow-hidden">
+        <div class="px-6 py-5 bg-pink-50 border-b border-pink-100">
+            <h3 class="text-xl font-bold text-pink-700">Jobs by City</h3>
+        </div>
+        <div class="p-6">
+            {% if jobs_by_city %}
+            <div class="space-y-5">
+                {% for item in jobs_by_city %}
+                <div>
+                    <div class="flex justify-between mb-2 text-sm font-medium text-gray-700">
+                        <span>{{ item.city|title|default:"Unknown" }}</span>
+                        <span>{{ item.count }}</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-3">
+                        {% widthratio item.count jobs_by_city.0.count 100 as width %}
+                        <div class="bg-pink-500 h-3 rounded-full transition-all" style="width: {{ width }}%"></div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="text-center text-gray-500 py-10">No job location data available yet.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Jobs by Type -->
+    <div class="bg-white rounded-2xl shadow-xl border border-pink-100 overflow-hidden">
+        <div class="px-6 py-5 bg-purple-50 border-b border-purple-100">
+            <h3 class="text-xl font-bold text-purple-700">Jobs by Type</h3>
+        </div>
+        <div class="p-6">
+            {% if jobs_by_type %}
+            <div class="space-y-5">
+                {% for item in jobs_by_type %}
+                <div>
+                    <div class="flex justify-between mb-2 text-sm font-medium text-gray-700">
+                        <span>{{ item.job_type|title }}</span>
+                        <span>{{ item.count }}</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-3">
+                        {% widthratio item.count jobs_by_type.0.count 100 as width %}
+                        <div class="bg-purple-500 h-3 rounded-full transition-all" style="width: {{ width }}%"></div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="text-center text-gray-500 py-10">No job type data available yet.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Applications by Status -->
+    <div class="bg-white rounded-2xl shadow-xl border border-pink-100 overflow-hidden">
+        <div class="px-6 py-5 bg-pink-50 border-b border-pink-100">
+            <h3 class="text-xl font-bold text-pink-700">Applications by Status</h3>
+        </div>
+        <div class="p-6">
+            {% if applications_by_status %}
+            <div class="space-y-5">
+                {% for item in applications_by_status %}
+                <div>
+                    <div class="flex justify-between mb-2 text-sm font-medium text-gray-700">
+                        <span>{{ item.status|title }}</span>
+                        <span>{{ item.count }}</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-3">
+                        {% widthratio item.count applications_by_status.0.count 100 as width %}
+                        <div class="bg-pink-500 h-3 rounded-full transition-all" style="width: {{ width }}%"></div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="text-center text-gray-500 py-10">No application data yet.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Users by Type -->
+    <div class="bg-white rounded-2xl shadow-xl border border-pink-100 overflow-hidden">
+        <div class="px-6 py-5 bg-purple-50 border-b border-purple-100">
+            <h3 class="text-xl font-bold text-purple-700">Users by Type</h3>
+        </div>
+        <div class="p-6">
+            {% if users_by_type %}
+            <div class="space-y-5">
+                {% for item in users_by_type %}
+                <div>
+                    <div class="flex justify-between mb-2 text-sm font-medium text-gray-700">
+                        <span>{{ item.type }}</span>
+                        <span>{{ item.count }}</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-3">
+                        {% widthratio item.count users_by_type.0.count 100 as width %}
+                        <div class="bg-purple-500 h-3 rounded-full transition-all" style="width: {{ width }}%"></div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="text-center text-gray-500 py-10">No user data available yet.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

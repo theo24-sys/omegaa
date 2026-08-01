@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+
+{% block title %}Notification Preferences - Charlady{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8 max-w-4xl">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+        <div>
+            <p class="text-xs font-black uppercase tracking-[0.3em] text-primary mb-2">Settings</p>
+            <h1 class="text-3xl font-black text-slate-900">Notification Preferences</h1>
+            <p class="text-slate-500 mt-2 max-w-2xl">Choose how you want Charlady to reach you. In-app notifications stay on, and browser alerts follow your permission settings.</p>
+        </div>
+        <a href="{% url 'notifications:notification_list' %}" class="inline-flex items-center justify-center rounded-2xl border border-pink-200 bg-white px-5 py-3 font-bold text-primary hover:bg-pink-50 transition shadow-sm">
+            Back to Notifications
+        </a>
+    </div>
+
+    <div class="grid gap-6 lg:grid-cols-[1.4fr_0.9fr]">
+        <form method="post" class="bg-white rounded-[2rem] shadow-xl border border-pink-100 p-6 md:p-8 space-y-6">
+            {% csrf_token %}
+
+            <div class="grid gap-4 sm:grid-cols-2">
+                <label class="flex items-start gap-4 p-4 rounded-2xl border border-slate-200 hover:border-pink-200 hover:bg-pink-50/50 transition cursor-pointer">
+                    <input type="checkbox" name="browser_notifications_enabled" {% if preferences.browser_notifications_enabled %}checked{% endif %} class="mt-1 h-5 w-5 rounded border-slate-300 text-primary focus:ring-primary">
+                    <span>
+                        <span class="block font-bold text-slate-900">Browser notifications</span>
+                        <span class="block text-sm text-slate-500">Allow web alerts in supported browsers.</span>
+                    </span>
+                </label>
+
+                <label class="flex items-start gap-4 p-4 rounded-2xl border border-slate-200 hover:border-pink-200 hover:bg-pink-50/50 transition cursor-pointer">
+                    <input type="checkbox" name="job_alerts" {% if preferences.job_alerts %}checked{% endif %} class="mt-1 h-5 w-5 rounded border-slate-300 text-primary focus:ring-primary">
+                    <span>
+                        <span class="block font-bold text-slate-900">Job alerts</span>
+                        <span class="block text-sm text-slate-500">Notify me about new jobs and applications.</span>
+                    </span>
+                </label>
+
+                <label class="flex items-start gap-4 p-4 rounded-2xl border border-slate-200 hover:border-pink-200 hover:bg-pink-50/50 transition cursor-pointer">
+                    <input type="checkbox" name="application_updates" {% if preferences.application_updates %}checked{% endif %} class="mt-1 h-5 w-5 rounded border-slate-300 text-primary focus:ring-primary">
+                    <span>
+                        <span class="block font-bold text-slate-900">Application updates</span>
+                        <span class="block text-sm text-slate-500">See updates when your applications move.</span>
+                    </span>
+                </label>
+
+                <label class="flex items-start gap-4 p-4 rounded-2xl border border-slate-200 hover:border-pink-200 hover:bg-pink-50/50 transition cursor-pointer">
+                    <input type="checkbox" name="payment_updates" {% if preferences.payment_updates %}checked{% endif %} class="mt-1 h-5 w-5 rounded border-slate-300 text-primary focus:ring-primary">
+                    <span>
+                        <span class="block font-bold text-slate-900">Payment updates</span>
+                        <span class="block text-sm text-slate-500">Track payment status and verification changes.</span>
+                    </span>
+                </label>
+
+                <label class="flex items-start gap-4 p-4 rounded-2xl border border-slate-200 hover:border-pink-200 hover:bg-pink-50/50 transition cursor-pointer">
+                    <input type="checkbox" name="reminder_notifications" {% if preferences.reminder_notifications %}checked{% endif %} class="mt-1 h-5 w-5 rounded border-slate-300 text-primary focus:ring-primary">
+                    <span>
+                        <span class="block font-bold text-slate-900">Reminders</span>
+                        <span class="block text-sm text-slate-500">Get prompts for renewals, courses, and overdue items.</span>
+                    </span>
+                </label>
+
+                <label class="flex items-start gap-4 p-4 rounded-2xl border border-slate-200 hover:border-pink-200 hover:bg-pink-50/50 transition cursor-pointer">
+                    <input type="checkbox" name="marketing_updates" {% if preferences.marketing_updates %}checked{% endif %} class="mt-1 h-5 w-5 rounded border-slate-300 text-primary focus:ring-primary">
+                    <span>
+                        <span class="block font-bold text-slate-900">Marketing updates</span>
+                        <span class="block text-sm text-slate-500">Occasional product and platform announcements.</span>
+                    </span>
+                </label>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-3 pt-2">
+                <button type="submit" class="inline-flex items-center justify-center rounded-2xl bg-primary px-6 py-3 font-black text-white shadow-lg shadow-primary/20 hover:bg-pink-700 transition">
+                    Save Preferences
+                </button>
+                <a href="{% url 'notifications:notification_list' %}" class="inline-flex items-center justify-center rounded-2xl bg-slate-100 px-6 py-3 font-bold text-slate-700 hover:bg-slate-200 transition">
+                    Cancel
+                </a>
+            </div>
+        </form>
+
+        <aside class="space-y-6">
+            <div class="bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-[2rem] p-6 shadow-2xl overflow-hidden relative">
+                <div class="absolute -right-10 -top-10 h-28 w-28 rounded-full bg-primary/20 blur-2xl"></div>
+                <p class="text-[10px] font-black uppercase tracking-[0.3em] text-pink-200 mb-3">Overview</p>
+                <h2 class="text-2xl font-black mb-4">Your alerts at a glance</h2>
+                <div class="space-y-3 text-sm">
+                    <div class="flex items-center justify-between border-b border-white/10 pb-3">
+                        <span class="text-slate-300">Total notifications</span>
+                        <span class="font-black text-white">{{ notification_count }}</span>
+                    </div>
+                    <div class="flex items-center justify-between border-b border-white/10 pb-3">
+                        <span class="text-slate-300">Unread</span>
+                        <span class="font-black text-white">{{ unread_count }}</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-slate-300">Browser alerts</span>
+                        <span class="font-black {% if preferences.browser_notifications_enabled %}text-emerald-300{% else %}text-amber-300{% endif %}">
+                            {% if preferences.browser_notifications_enabled %}On{% else %}Off{% endif %}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-[2rem] border border-pink-100 shadow-xl p-6">
+                <h3 class="font-black text-slate-900 mb-3">What this controls</h3>
+                <ul class="space-y-3 text-sm text-slate-600">
+                    <li>Browser alerts only work if your browser allows them.</li>
+                    <li>In-app notifications still appear in the notification center.</li>
+                    <li>You can change these settings anytime without affecting your account.</li>
+                </ul>
+            </div>
+        </aside>
+    </div>
+</div>
+{% endblock %}

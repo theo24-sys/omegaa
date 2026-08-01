@@ -1,0 +1,243 @@
+/* Charlady Admin – full theme (pink/magenta to match main site) */
+
+:root {
+    --charlady-primary: #db2777;
+    --charlady-secondary: #d946ef;
+    --charlady-accent: #f472b6;
+    --charlady-dark: #831843;
+    --charlady-light: #fce7f3;
+}
+
+/* ─── Top navbar (same gradient as main site header) ─── */
+.main-header .navbar,
+.navbar-dark,
+.navbar-primary,
+.main-header .navbar.navbar-expand,
+[class*="navbar-"] .navbar {
+    background: linear-gradient(135deg, #db2777 0%, #d946ef 100%) !important;
+    border: none !important;
+    box-shadow: 0 2px 8px rgba(219, 39, 119, 0.25) !important;
+}
+.main-header .navbar a,
+.main-header .navbar .nav-link,
+.navbar-dark .nav-link,
+.brand-link {
+    color: rgba(255, 255, 255, 0.95) !important;
+}
+.main-header .navbar a:hover,
+.main-header .navbar .nav-link:hover,
+.navbar-dark .nav-link:hover,
+.brand-link:hover {
+    color: #fff !important;
+    background: rgba(255, 255, 255, 0.15) !important;
+}
+.brand-text {
+    font-weight: 700 !important;
+    font-size: 1.15rem !important;
+}
+
+/* ─── Sidebar ─── */
+.main-sidebar {
+    background: linear-gradient(180deg, #1f2937 0%, #111827 100%) !important;
+    border-right: 1px solid rgba(255,255,255,0.06) !important;
+}
+.sidebar {
+    background: transparent !important;
+}
+.nav-sidebar .nav-link {
+    color: rgba(255, 255, 255, 0.85) !important;
+    border-left: 3px solid transparent !important;
+}
+.nav-sidebar .nav-link:hover {
+    background: rgba(219, 39, 119, 0.2) !important;
+    color: #f472b6 !important;
+    border-left-color: var(--charlady-primary) !important;
+}
+.nav-sidebar .nav-link.active {
+    background: rgba(219, 39, 119, 0.25) !important;
+    color: #fff !important;
+    border-left-color: var(--charlady-primary) !important;
+}
+.nav-sidebar .nav-link p,
+.nav-sidebar .nav-link i {
+    color: inherit !important;
+}
+.nav-sidebar > .nav-item > .nav-link {
+    font-weight: 500 !important;
+}
+.sidebar .nav-header {
+    color: rgba(255, 255, 255, 0.5) !important;
+    font-size: 0.75rem !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
+}
+
+/* ─── Content area ─── */
+.content-wrapper {
+    background: #f3f4f6 !important;
+}
+.content-header {
+    background: #fff !important;
+    border-bottom: 1px solid #fce7f3 !important;
+    padding: 0.75rem 1rem !important;
+}
+.content-header h1 {
+    color: #831843 !important;
+    font-weight: 700 !important;
+}
+
+/* ─── Cards / modules ─── */
+.card,
+.card-primary,
+.card-outline,
+.card-outline-tabs {
+    border-radius: 12px !important;
+    border: 1px solid #fce7f3 !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06) !important;
+}
+.card-header {
+    background: linear-gradient(135deg, #fce7f3 0%, #fdf2f8 100%) !important;
+    border-bottom: 1px solid #fce7f3 !important;
+    color: #831843 !important;
+    font-weight: 600 !important;
+    border-radius: 12px 12px 0 0 !important;
+}
+.card-primary .card-header {
+    background: linear-gradient(135deg, #db2777 0%, #d946ef 100%) !important;
+    color: #fff !important;
+}
+
+/* ─── Buttons ─── */
+.btn-primary {
+    background: linear-gradient(135deg, #db2777 0%, #be185d 100%) !important;
+    border: none !important;
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+}
+.btn-primary:hover {
+    background: linear-gradient(135deg, #be185d 0%, #9d174d 100%) !important;
+    box-shadow: 0 4px 12px rgba(219, 39, 119, 0.35) !important;
+}
+.btn-success {
+    background: #059669 !important;
+    border: none !important;
+    border-radius: 8px !important;
+}
+.btn-danger {
+    border-radius: 8px !important;
+}
+.btn-default,
+.btn-secondary {
+    border-radius: 8px !important;
+    border-color: #fce7f3 !important;
+    color: #831843 !important;
+}
+.btn-default:hover,
+.btn-secondary:hover {
+    background: #fce7f3 !important;
+    border-color: #f472b6 !important;
+    color: #831843 !important;
+}
+
+/* ─── Form controls ─── */
+.form-control,
+input[type="text"],
+input[type="password"],
+input[type="email"],
+input[type="number"],
+select,
+textarea {
+    border: 1px solid #fce7f3 !important;
+    border-radius: 8px !important;
+    padding: 0.5rem 0.75rem !important;
+}
+.form-control:focus,
+input:focus,
+select:focus,
+textarea:focus {
+    border-color: #db2777 !important;
+    box-shadow: 0 0 0 3px rgba(219, 39, 119, 0.2) !important;
+}
+
+/* ─── Tables ─── */
+.table thead th {
+    background: linear-gradient(135deg, #fce7f3 0%, #fdf2f8 100%) !important;
+    color: #831843 !important;
+    font-weight: 600 !important;
+    border-bottom: 2px solid #fce7f3 !important;
+}
+.table tbody tr:hover {
+    background: #fdf2f8 !important;
+}
+.table-striped tbody tr:nth-of-type(odd) {
+    background: #fffbff !important;
+}
+
+/* ─── Links (content area) ─── */
+a:not(.btn):not(.nav-link):not(.brand-link):not(.dropdown-item) {
+    color: #be185d !important;
+}
+a:not(.btn):not(.nav-link):not(.brand-link):not(.dropdown-item):hover {
+    color: #831843 !important;
+    text-decoration: underline !important;
+}
+
+/* ─── Breadcrumbs ─── */
+.breadcrumb {
+    background: transparent !important;
+    padding: 0 !important;
+}
+.breadcrumb-item a {
+    color: #be185d !important;
+}
+.breadcrumb-item.active {
+    color: #6b7280 !important;
+}
+
+/* ─── Small boxes / stats cards on dashboard ─── */
+.small-box {
+    border-radius: 12px !important;
+    border: 1px solid #fce7f3 !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06) !important;
+}
+.small-box.bg-info { background: linear-gradient(135deg, #fce7f3 0%, #fdf2f8 100%) !important; color: #831843 !important; }
+.small-box.bg-success { background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%) !important; color: #065f46 !important; }
+.small-box.bg-warning { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%) !important; color: #92400e !important; }
+.small-box .inner h3 { color: inherit !important; }
+
+/* ─── Info boxes ─── */
+.info-box {
+    border-radius: 12px !important;
+    border: 1px solid #fce7f3 !important;
+}
+.info-box .info-box-icon {
+    background: linear-gradient(135deg, #db2777 0%, #d946ef 100%) !important;
+}
+
+/* ─── Dropdowns ─── */
+.dropdown-menu {
+    border-radius: 8px !important;
+    border: 1px solid #fce7f3 !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+}
+.dropdown-item:hover {
+    background: #fce7f3 !important;
+    color: #831843 !important;
+}
+
+/* ─── Search bar in sidebar ─── */
+.form-control-sidebar {
+    border: 1px solid rgba(255,255,255,0.2) !important;
+    background: rgba(255,255,255,0.1) !important;
+    color: #fff !important;
+    border-radius: 8px !important;
+}
+.form-control-sidebar::placeholder {
+    color: rgba(255,255,255,0.6) !important;
+}
+
+/* ─── User menu in navbar ─── */
+.navbar .navbar-nav .nav-link .far,
+.navbar .navbar-nav .nav-link .fas {
+    color: rgba(255,255,255,0.9) !important;
+}

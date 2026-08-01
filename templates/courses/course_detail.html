@@ -1,0 +1,301 @@
+{% extends 'base.html' %}
+{% load course_extras %}
+
+{% block title %}{{ course.title }} - Charlady{% endblock %}
+
+{% block extra_head %}
+<style>
+    .course-iframe-container {
+        position: relative;
+        overflow: hidden;
+        padding-top: 56.25%;
+        /* 16:9 Aspect Ratio */
+    }
+
+    .course-iframe-container iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+        width: 100%;
+        height: 100%;
+        border: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto py-8 px-4">
+    <div class="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+            <a href="{% url 'courses:course_list' %}"
+                class="text-primary hover:text-pink-600 font-bold flex items-center gap-2 mb-2 transition">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+                Back to Courses
+            </a>
+            <h1 class="text-3xl font-bold text-gray-900">{{ course.title }}</h1>
+            {% if course.is_native %}
+                <div class="flex justify-between text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">
+                    <span>Course Progress</span>
+                    <span>{{ course.id|get_course_progress:user }}%</span>
+                </div>
+                <div class="w-full bg-gray-100 h-1.5 rounded-full overflow-hidden">
+                    <div class="bg-primary h-full transition-all duration-700"
+                        style="width: {{ course.id|get_course_progress:user }}%"></div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        {% if course.id in completed_courses %}
+        <div class="flex flex-col sm:flex-row gap-4">
+            <div
+                class="bg-green-100 text-green-700 px-6 py-4 rounded-[2rem] font-black text-xs tracking-widest uppercase flex items-center gap-2 border border-green-200">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                        clip-rule="evenodd"></path>
+                </svg>
+                CERTIFIED GRADUATE
+            </div>
+            <button onclick="generateCertificate()"
+                class="bg-primary hover:bg-primary/90 text-white font-black px-8 py-4 rounded-[2rem] shadow-2xl transition transform hover:-translate-y-1 flex items-center gap-2 text-xs tracking-widest uppercase">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4-4v12"></path>
+                </svg>
+                GET DIPLOMA
+            </button>
+        </div>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+        <script>
+            async function generateCertificate() {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF({ orientation: 'landscape' });
+                const userName = "{{ user.get_full_name|default:user.username }}".toUpperCase();
+                const courseTitle = "{{ course.title }}".toUpperCase();
+                const date = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+
+                // Premium Masterclass Border
+                doc.setDrawColor(219, 39, 119); // Primary Pink
+                doc.setLineWidth(1.5);
+                doc.rect(10, 10, 277, 190);
+                
+                doc.setDrawColor(15, 23, 42); // Navy/Dark
+                doc.setLineWidth(0.5);
+                doc.rect(13, 13, 271, 184);
+
+                // Corner Accents
+                doc.setDrawColor(219, 39, 119);
+                doc.setLineWidth(4);
+                doc.line(10, 10, 30, 10); doc.line(10, 10, 10, 30); // Top Left
+                doc.line(287, 10, 267, 10); doc.line(287, 10, 287, 30); // Top Right
+                doc.line(10, 200, 30, 200); doc.line(10, 200, 10, 180); // Bottom Left
+                doc.line(287, 200, 267, 200); doc.line(287, 200, 287, 180); // Bottom Right
+
+                // Header Logic
+                doc.setFont("helvetica", "bold");
+                doc.setFontSize(10);
+                doc.setTextColor(219, 39, 119);
+                doc.text("OFFICIAL CERTIFICATION OF EXCELLENCE", 148, 35, { align: "center", charSpace: 2 });
+
+                doc.setFont("times", "bold");
+                doc.setFontSize(48);
+                doc.setTextColor(15, 23, 42);
+                doc.text("CHARLADY ACADEMY", 148, 60, { align: "center" });
+
+                doc.setFont("helvetica", "normal");
+                doc.setFontSize(14);
+                doc.setTextColor(100, 116, 139);
+                doc.text("THIS DOCUMENT SERVES TO CERTIFY THAT", 148, 85, { align: "center", charSpace: 1 });
+
+                // User Name (Magnificent)
+                doc.setFont("times", "bolditalic");
+                doc.setFontSize(42);
+                doc.setTextColor(219, 39, 119);
+                doc.text(userName, 148, 110, { align: "center" });
+
+                doc.setFont("helvetica", "normal");
+                doc.setFontSize(14);
+                doc.setTextColor(100, 116, 139);
+                doc.text("HAS SUCCESSFULLY COMPLETED ALL REQUIREMENTS FOR", 148, 130, { align: "center", charSpace: 0.5 });
+
+                doc.setFont("helvetica", "bold");
+                doc.setFontSize(22);
+                doc.setTextColor(15, 23, 42);
+                doc.text(courseTitle, 148, 145, { align: "center" });
+
+                // Footer Section
+                doc.setDrawColor(226, 232, 240);
+                doc.setLineWidth(0.5);
+                doc.line(80, 170, 216, 170);
+
+                doc.setFont("helvetica", "normal");
+                doc.setFontSize(10);
+                doc.setTextColor(148, 163, 184);
+                doc.text("AUTHORIZED SIGNATORY", 148, 178, { align: "center" });
+                doc.text("VERIFIED ON: " + date, 148, 185, { align: "center" });
+
+                // Seal Emoji/Graphics (Simulated)
+                doc.setFontSize(30);
+                doc.text("GRADUATE", 35, 175, { angle: 15 });
+
+                doc.save(`CERTIFICATE_${courseTitle.replace(/\s+/g, '_')}.pdf`);
+            }
+        </script>
+        {% elif course.questions.exists %}
+        <a href="{% url 'courses:course_quiz' course.id %}"
+            class="bg-primary hover:bg-pink-600 text-white font-black px-12 py-5 rounded-[2.5rem] shadow-2xl transition transform hover:-translate-y-1 flex items-center gap-3 text-sm tracking-widest uppercase">
+            TAKE FINAL EXAMINATION
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+        </a>
+        {% else %}
+        <form action="{% url 'courses:complete_course' course.id %}" method="post">
+            {% csrf_token %}
+            <button type="submit"
+                class="bg-primary hover:bg-pink-600 text-white font-black px-12 py-5 rounded-[2.5rem] shadow-2xl transition transform hover:-translate-y-1 flex items-center gap-2 text-sm tracking-widest uppercase">
+                COMPLETE ACADEMY MODULE
+            </button>
+        </form>
+        {% endif %}
+    </div>
+
+    <!-- Course Info Bar -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+        <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm flex items-center gap-4">
+            <div class="w-12 h-12 rounded-2xl bg-pink-50 text-primary flex items-center justify-center text-xl">⏳</div>
+            <div>
+                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Duration</p>
+                <p class="font-bold text-gray-900">{{ course.duration|default:"Self-paced" }}</p>
+            </div>
+        </div>
+        <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm flex items-center gap-4">
+            <div class="w-12 h-12 rounded-2xl bg-purple-50 text-accent flex items-center justify-center text-xl">🎓</div>
+            <div>
+                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Certification</p>
+                <p class="font-bold text-gray-900">Included</p>
+            </div>
+        </div>
+        <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm flex items-center gap-4">
+            <div class="w-12 h-12 rounded-2xl bg-green-50 text-green-600 flex items-center justify-center text-xl">💰</div>
+            <div>
+                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Price</p>
+                <p class="font-bold text-gray-900">{% if course.price == 0 %}Free{% else %}KSh {{ course.price|floatformat:0 }}{% endif %}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Course Content Area -->
+    <div class="bg-white rounded-3xl shadow-2xl border border-pink-50 overflow-hidden min-h-[600px] flex flex-col mb-12">
+        <div class="bg-pink-50/50 p-6 border-b border-pink-100 flex items-center justify-between">
+            <div class="flex gap-2.5">
+                <div class="w-3.5 h-3.5 rounded-full bg-pink-200 animate-pulse"></div>
+                <div class="w-3.5 h-3.5 rounded-full bg-pink-100"></div>
+                <div class="w-3.5 h-3.5 rounded-full bg-pink-50"></div>
+            </div>
+            <span class="text-slate-400 text-[10px] font-black tracking-[0.3em] uppercase">Academy Virtual Classroom</span>
+        </div>
+
+        <div class="flex-grow course-iframe-container" {% if not has_access %}style="padding-top: 0; min-height: 400px;"{% endif %}>
+            {% if has_access %}
+                {% if course.is_native %}
+                <div class="p-8 md:p-12 bg-white h-full overflow-y-auto">
+                    <h3 class="text-2xl font-black text-gray-900 mb-8 tracking-tight">Curriculum Overview</h3>
+                    <div class="grid gap-4">
+                        {% for lesson in lessons %}
+                        <a href="{% url 'courses:lesson_detail' course.id lesson.id %}"
+                            class="flex items-center p-6 rounded-[2rem] border border-gray-100 hover:border-primary hover:bg-pink-50 transition-all group">
+                            <div
+                                class="w-12 h-12 rounded-2xl bg-pink-50 text-primary flex items-center justify-center font-black mr-6 group-hover:bg-primary group-hover:text-white transition-colors">
+                                {{ forloop.counter }}
+                            </div>
+                            <div class="flex-grow">
+                                <h4 class="font-bold text-lg text-gray-900 group-hover:text-primary transition-colors">{{ lesson.title }}</h4>
+                                <div class="flex items-center gap-4 mt-1">
+                                    {% if lesson.video_url %}
+                                    <span class="text-[10px] font-black text-gray-400 flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path d="M2 6a2 2 0 012-2h12a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"/></svg>
+                                        VIDEO MODULE
+                                    </span>
+                                    {% endif %}
+                                    {% if lesson.id in completed_lessons %}
+                                    <span class="text-[10px] font-black text-green-500 flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                                        COMPLETED
+                                    </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <svg class="w-6 h-6 text-gray-200 group-hover:text-primary transition-all group-hover:translate-x-1" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7">
+                                </path>
+                            </svg>
+                        </a>
+                        {% empty %}
+                        <div class="text-center py-20">
+                            <div class="text-6xl mb-4">📚</div>
+                            <p class="text-gray-400 font-bold">No modules have been assigned to this path or payment is required.</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% else %}
+                <iframe src="{{ course.iframe_url }}" allowfullscreen></iframe>
+                {% endif %}
+            {% else %}
+                <!-- Locked State -->
+                <div class="h-full w-full bg-pink-50/80 flex flex-col items-center justify-center p-10 text-center absolute inset-0 z-10">
+                    <div class="w-24 h-24 bg-white rounded-full flex items-center justify-center shadow-2xl mb-6 text-4xl border border-pink-100">
+                        🔒
+                    </div>
+                    <h3 class="text-3xl font-black text-slate-900 mb-4 tracking-tight">Course Locked</h3>
+                    <p class="text-base text-slate-600 max-w-lg mx-auto mb-10 leading-relaxed font-medium">
+                        Unlock full access to all video modules, study materials, and the official certification test.
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-4 w-full justify-center">
+                        <form action="{% url 'payments:course_checkout' course.id %}" method="post" class="w-full sm:w-auto">
+                            {% csrf_token %}
+                            <button type="submit" class="w-full sm:w-auto bg-primary hover:bg-pink-600 text-white font-black px-10 py-5 rounded-[2rem] shadow-xl hover:shadow-2xl transition transform hover:-translate-y-1 text-sm tracking-widest uppercase flex items-center justify-center gap-3">
+                                <span>UNLOCK FOR KSH {{ course.price|floatformat:0 }}</span>
+                                <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                            </button>
+                        </form>
+                        <a href="{% url 'payments:payment_plans' %}" class="w-full sm:w-auto bg-white text-primary border border-pink-200 hover:border-primary font-black px-10 py-5 rounded-[2rem] shadow-xl transition transform hover:-translate-y-1 text-sm tracking-widest uppercase flex items-center justify-center">
+                            VIEW BUNDLES
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Features & Syllabus -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+        <div class="bg-white rounded-[3rem] p-12 text-slate-800 border border-pink-100 shadow-xl relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -mr-32 -mt-32"></div>
+            <h3 class="text-2xl font-black mb-8 relative z-10 text-primary tracking-tight">What You'll Gain</h3>
+            <ul class="space-y-6 relative z-10">
+                {% for feature in course.features|split:"," %}
+                <li class="flex items-start gap-4">
+                    <div class="w-6 h-6 rounded-lg bg-pink-50 flex items-center justify-center shrink-0 mt-1">
+                        <svg class="w-4 h-4 text-pink-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                    </div>
+                    <span class="text-slate-600 font-medium leading-relaxed">{{ feature|strip }}</span>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        
+        <div class="bg-pink-50 rounded-[3rem] p-12 border border-pink-100">
+            <h3 class="text-2xl font-black text-gray-900 mb-6">Expert Description</h3>
+            <p class="text-gray-700 leading-relaxed text-lg">{{ course.description }}</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

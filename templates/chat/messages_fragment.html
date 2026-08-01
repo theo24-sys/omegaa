@@ -1,0 +1,18 @@
+{% for message in chat_messages %}
+<div class="flex {% if message.sender == user %}justify-end{% else %}justify-start{% endif %} mb-4 animate-fade-in-up">
+    <div class="max-w-[85%] md:max-w-[70%] rounded-2xl p-4 shadow-sm {% if message.sender == user %}bg-primary text-white rounded-tr-none{% else %}bg-white border border-gray-100 text-gray-800 rounded-tl-none{% endif %}">
+        <p class="text-sm leading-relaxed">{{ message.text }}</p>
+        <p class="text-[10px] mt-1.5 opacity-60 text-right font-medium">
+            {{ message.created_at|date:"H:i" }}
+        </p>
+    </div>
+</div>
+{% endfor %}
+
+<!-- Scroll to bottom logic for HTMX updates -->
+<script>
+    var chatBox = document.getElementById('chat-messages-container');
+    if (chatBox) {
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+</script>

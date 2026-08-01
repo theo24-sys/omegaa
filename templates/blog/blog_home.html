@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+{% block title %}How to Build a Standout Profile on CHARLADY{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8 max-w-4xl">
+    <!-- Heading -->
+    <h1 class="text-4xl font-bold mb-6 text-primary">How to Build a Standout Profile on CHARLADY</h1>
+
+    <!-- Introduction -->
+    <section class="mb-8">
+        <p class="text-lg text-gray-700">Whether you’re a househelp aiming to land your dream gig or an employer hunting
+            for top-tier talent, your CHARLADY profile is your golden ticket. With thousands of users connecting across
+            Kenya, a killer profile can set you apart. Let’s walk you through pro tips to craft a profile that
+            shines—complete with verification badges, M-Pesa payments, and more. Ready to get noticed?</p>
+    </section>
+
+    <!-- Section 1: Profile Photo -->
+    <section class="mb-8">
+        <h2 class="text-2xl font-semibold mb-4">1. Upload a Professional Profile Photo</h2>
+        <p class="text-gray-600">First impressions matter, fam! Your profile pic is the first thing people see. Here’s
+            how to nail it:</p>
+        <ul class="list-disc ml-6 mt-2 text-gray-600">
+            <li>Use a high-quality, well-lit photo—think natural light or a clean setup.</li>
+            <li>Dress sharp (e.g., neat uniform for househelps, professional vibe for employers) and flash a friendly
+                smile.</li>
+            <li>Skip group shots or busy backgrounds—keep it all about you!</li>
+        </ul>
+        <p class="text-sm italic mt-2">Pro Tip: Employers love seeing a face they can trust, and househelps with clear
+            pics get more hits.</p>
+    </section>
+
+    <!-- Section 2: Craft a Bio -->
+    <section class="mb-8">
+        <h2 class="text-2xl font-semibold mb-4">2. Craft a Fire Bio</h2>
+        <p class="text-gray-600">Your bio is your elevator pitch—make it short, sweet, and packed with value.</p>
+        <ul class="list-disc ml-6 mt-2 text-gray-600">
+            <li><strong>Househelps:</strong> Flex your skills. Example: <em>“Certified nanny with 5+ years in childcare.
+                    Expert in cooking Kenyan dishes, cleaning, and tutoring kids. Punctual, verified, and ready to bring
+                    peace to your home!”</em></li>
+            <li><strong>Employers:</strong> Tell househelps what you need. Example: <em>“Seeking a live-in housekeeper
+                    in Nairobi. Must be reliable, great with laundry, and verified. Offering KSH 15,000/month +
+                    accommodation.”</em></li>
+        </ul>
+        <p class="text-sm italic mt-2">Pro Tip: Mention if you’re verified (househelps) or looking for verified workers
+            (employers)—it’s a trust booster!</p>
+    </section>
+
+    <!-- Section 3: Showcase Skills -->
+    <section class="mb-8">
+        <h2 class="text-2xl font-semibold mb-4">3. Showcase Your Skills and Experience</h2>
+        <p class="text-gray-600">Flex what you bring to the table—don’t hold back!</p>
+        <ul class="list-disc ml-6 mt-2 text-gray-600">
+            <li><strong>Househelps:</strong> List specifics:</li>
+            <ul class="list-circle ml-6">
+                <li><em>Childcare:</em> Nanny for newborns or teens? Say it!</li>
+                <li><em>Housekeeping:</em> Deep cleaning, organizing, laundry—spell it out.</li>
+                <li><em>Cooking:</em> Ugali pro? Special diets? Let ‘em know!</li>
+            </ul>
+            <li><strong>Employers:</strong> Define your gig:</li>
+            <ul class="list-circle ml-6">
+                <li><em>Tasks:</em> Cooking, cleaning, or kid-wrangling—be clear.</li>
+                <li><em>Perks:</em> Competitive pay (e.g., KSH 200/day), weekends off, or a cozy room.</li>
+            </ul>
+        </ul>
+        <p class="text-sm italic mt-2">Pro Tip: Verified househelps with detailed skills get hired 2x faster on
+            CHARLADY!</p>
+    </section>
+
+    <!-- Section 4: Verification Badge -->
+    <section class="mb-8">
+        <h2 class="text-2xl font-semibold mb-4">4. Get That Verification Badge</h2>
+        <p class="text-gray-600">Stand out with CHARLADY’s green “Verified” badge—it’s like a VIP pass! Here’s how
+            househelps earn it:</p>
+        <ul class="list-disc ml-6 mt-2 text-gray-600">
+            <li>Pay the 300 KSH registration fee via M-Pesa Till Number <strong>4567052</strong>.</li>
+            <li>Upload your ID, agreement form, and police clearance certificate in your profile.</li>
+            <li>Paste your M-Pesa confirmation code (e.g., “XXXYYYZZZ10”) when prompted.</li>
+            <li>Once admin verifies your payment and docs, bam—badge unlocked!</li>
+        </ul>
+        <p class="text-sm italic mt-2">Why It Matters: Employers trust verified workers—90% of our hires go to badge
+            holders!</p>
+    </section>
+
+    <!-- Section 5: Certifications -->
+    <section class="mb-8">
+        <h2 class="text-2xl font-semibold mb-4">5. Add Certifications and Training</h2>
+        <p class="text-gray-600">Got extra cred? Show it off:</p>
+        <ul class="list-disc ml-6 mt-2 text-gray-600">
+            <li>First Aid or CPR training? Huge win for nannies!</li>
+            <li>Housekeeping courses or hotel experience? Employers dig that.</li>
+            <li>Speak English, Swahili, or more? Flex those language skills—it’s a big plus!</li>
+        </ul>
+        <p class="text-sm italic mt-2">Pro Tip: Certifications make you stand out. Employers love seeing trained
+            professionals!</p>
+    </section>
+
+    <!-- Call-to-Action -->
+    <div class="bg-gradient-to-r from-primary to-accent text-white p-6 rounded-lg text-center mt-8">
+        <h2 class="text-2xl font-bold mb-4">Ready to Build Your Profile?</h2>
+        <p class="text-lg mb-4">Join CHARLADY today and connect with trusted househelps or employers in Kenya.</p>
+        <a href="{% url 'signup' %}"
+            class="bg-secondary hover:bg-pink-600 text-white px-6 py-3 rounded-md font-bold">Sign Up Now</a>
+    </div>
+</div>
+{% endblock %}

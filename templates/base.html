@@ -1,0 +1,387 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Charlady – Connecting trusted househelps with caring families across Kenya." />
+
+    <title>{% block title %}Charlady – Trusted Househelp & Jobs in Kenya{% endblock %}</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png"
+        href="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/logo-OZc2HOWFOzyiQsm3QQBzgTdp8UyUO1.png">
+
+    <!-- PushAlert Unified Code -->
+    {% if user.is_authenticated %}
+    <script type="text/javascript">
+        (function(d, t) {
+            var g = d.createElement(t),
+            s = d.getElementsByTagName(t)[0];
+            g.src = "https://cdn.pushalert.co/unified_2cac31f7d02e301fc3e753aab8f12038.js";
+            s.parentNode.insertBefore(g, s);
+        }(document, "script"));
+    </script>
+    <!-- Charlady Chrome Notifications Manager -->
+    <script src="{% static 'js/notifications.js' %}" defer></script>
+    {% endif %}
+    <!-- End PushAlert Unified Code -->
+
+    <!-- Tailwind + Custom Colors -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Animations -->
+    <link rel="stylesheet" href="{% static 'css/animations.css' %}">
+    <!-- HTMX for Real-Time Polling -->
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#d946ef',    // vivid magenta pink
+                        secondary: '#f472b6',  // softer pink
+                        accent: '#c084fc',     // light purple
+                        light: '#fce7f3',      // very pale pink
+                        dark: '#831843',       // deep berry
+                    },
+                    fontFamily: {
+                        serif: ['Georgia', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    {% block extra_head %}{% endblock %}
+    
+    <style>
+        /* Responsive Text Wrapping globally to prevent text out-of-bounds on mobile */
+        p, h1, h2, h3, h4, h5, h6, span, a, div, li, ul, ol, td, th {
+            overflow-wrap: break-word;
+            word-wrap: break-word;
+            word-break: break-word;
+        }
+
+        .text-star {
+            background: linear-gradient(135deg, #d946ef 0%, #f472b6 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        #loading-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.5s ease-out, visibility 0.5s;
+        }
+
+        .loader {
+            width: 50px;
+            aspect-ratio: 1;
+            display: grid;
+            border: 4px solid #0000;
+            border-radius: 50%;
+            border-right-color: #d946ef;
+            animation: l15 1s infinite linear;
+        }
+
+        .loader::before,
+        .loader::after {
+            content: "";
+            grid-area: 1/1;
+            margin: 2px;
+            border: inherit;
+            border-radius: 50%;
+            animation: l15 2s infinite;
+        }
+
+        .loader::after {
+            margin: 8px;
+            animation-duration: 3s;
+        }
+
+        @keyframes l15 {
+            100% {
+                transform: rotate(1turn)
+            }
+        }
+
+        body.loaded #loading-overlay {
+            opacity: 0;
+            visibility: hidden;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 min-h-screen flex flex-col font-sans antialiased">
+    <!-- Loading Overlay -->
+    <div id="loading-overlay">
+        <div class="loader"></div>
+    </div>
+
+    <!-- Global Interview Invite Modal Poller (only for househelps) -->
+    {% if user.is_authenticated and user.user_type == 'househelp' %}
+        <div id="interview-invite-container" hx-get="{% url 'chat:check_invite' %}" hx-trigger="every 10s" hx-swap="innerHTML"></div>
+    {% endif %}
+
+    <!-- Header / Navigation -->
+    <header class="bg-white/80 backdrop-blur-md text-slate-800 shadow-sm sticky top-0 z-50 border-b border-pink-100">
+        <nav class="container mx-auto px-4 py-5 flex justify-between items-center">
+            <!-- Logo -->
+            <a href="{% url 'home' %}" class="flex items-center space-x-3 group">
+                <div
+                    class="w-12 h-12 rounded-full bg-white p-1.5 shadow-md overflow-hidden transition-transform group-hover:scale-110">
+                    <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/logo-OZc2HOWFOzyiQsm3QQBzgTdp8UyUO1.png"
+                        alt="Charlady" class="w-full h-full object-contain">
+                </div>
+                <div class="flex flex-col">
+                    <span class="text-2xl md:text-3xl font-serif font-bold tracking-tight text-primary">CHARLADY</span>
+                    <span class="text-xs md:text-sm text-slate-400">Trusted • Verified • Connected</span>
+                </div>
+            </a>
+
+            <!-- Desktop Nav -->
+            <div class="hidden md:flex items-center space-x-8">
+                <a href="{% url 'jobs:job_list' %}" class="hover:text-pink-100 transition font-medium">Browse Jobs</a>
+                {% if user.is_authenticated and user.user_type == 'househelp' %}
+                <a href="{% url 'courses:course_list' %}" class="hover:text-pink-100 transition font-medium">Training</a>
+                {% endif %}
+                <a href="{% url 'blog_home' %}" class="hover:text-pink-100 transition font-medium">Blog</a>
+
+                {% if user.is_authenticated %}
+                <div class="flex items-center space-x-6">
+                    <!-- Messages & Interviews (WhatsApp/Instagram Style) -->
+                    <div class="flex items-center gap-4 border-r border-white/20 pr-6 mr-2">
+                        <a href="{% url 'chat:inbox' %}" class="relative hover:text-pink-100 transition group" title="Messages">
+                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+                            <span class="absolute -top-1 -right-1 bg-white text-primary text-[9px] font-black rounded-full w-4 h-4 flex items-center justify-center shadow-sm opacity-0 group-hover:opacity-100 transition">💬</span>
+                        </a>
+                        <a href="{% url 'chat:inbox' %}" class="relative hover:text-pink-100 transition group" title="Video Interviews">
+                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                            <span class="absolute -top-1 -right-1 bg-white text-primary text-[9px] font-black rounded-full w-4 h-4 flex items-center justify-center shadow-sm opacity-0 group-hover:opacity-100 transition">🎥</span>
+                        </a>
+                                  <div id="unread-count-container" hx-get="{% url 'notifications:unread_count_badge' %}" hx-trigger="every 10s" hx-swap="outerHTML">
+                        <!-- Notifications -->
+                        <a href="{% url 'notifications:notification_list' %}" class="relative hover:text-primary transition text-slate-600">
+                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                            </svg>
+                            {% if unread_count > 0 %}
+                            <span
+                                class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+                                {{ unread_count }}
+                            </span>
+                            {% endif %}
+                        </a>
+                    </div>
+      </div>
+
+                    <!-- User Menu -->
+                    <div class="relative group">
+                        <button class="flex items-center space-x-2 hover:text-pink-100 transition">
+                            <div class="w-10 h-10">
+                                {{ user.get_avatar_html|safe }}
+                            </div>
+                            <span class="font-medium flex items-center">
+                               <span class="text-star">{{ user.get_full_name|default:user.username }}</span>
+                               {{ user.get_verified_badge|safe }}
+                            </span>
+                        </button>
+
+                        <!-- Dropdown -->
+                        <div
+                            class="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-2xl py-2 z-50
+                                   invisible opacity-0 transform transition ease-out duration-150
+                                   group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100">
+                            {% if user.user_type == 'employer' %}
+                            <a href="{% url 'jobs:job_create' %}" class="block px-5 py-3 hover:bg-pink-50 text-gray-800">Post
+                                a Job</a>
+                            <a href="{% url 'jobs:my_jobs' %}" class="block px-5 py-3 hover:bg-pink-50 text-gray-800">My
+                                Jobs</a>
+                            {% endif %}
+                            <a href="{% url 'jobs:my_applications' %}"
+                                class="block px-5 py-3 hover:bg-pink-50 text-gray-800">
+                                {% if user.user_type == 'employer' %}Applications{% else %}My Applications{% endif %}
+                            </a>
+                            <a href="{% url 'dashboard:user_dashboard' %}"
+                                class="block px-5 py-3 hover:bg-pink-50 text-gray-800">My Dashboard</a>
+                            <a href="{% url 'notifications:notification_preferences' %}"
+                                class="block px-5 py-3 hover:bg-pink-50 text-gray-800">Notification Settings</a>
+                            <a href="{% url 'contact_admin' %}"
+                                class="block px-5 py-3 hover:bg-pink-50 text-gray-800">Contact Admin</a>
+                            <div class="border-t border-gray-100 my-2"></div>
+                            <a href="{% url 'logout' %}" class="block px-5 py-3 text-red-600 hover:bg-red-50">Logout</a>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="flex items-center space-x-4">
+                    <a href="{% url 'login' %}" class="text-slate-600 hover:text-primary transition font-medium">Login</a>
+                    <a href="{% url 'signup' %}"
+                        class="bg-primary text-white hover:bg-primary/90 font-bold px-6 py-2.5 rounded-full shadow-lg transition">
+                        Sign Up
+                    </a>
+                    <a href="{% url 'contact_admin' %}" class="text-slate-600 hover:text-primary transition font-medium">Contact</a>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Mobile Menu Button -->
+            <button id="mobile-menu-button" class="md:hidden text-primary focus:outline-none p-2 rounded-lg hover:bg-pink-50 transition">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+            </button>
+        </nav>
+
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-pink-100 animate-fade-in-down shadow-xl">
+            <div class="px-4 pt-2 pb-6 space-y-2 text-slate-800">
+                <a href="{% url 'jobs:job_list' %}" class="block px-4 py-3 rounded-xl hover:bg-pink-50 transition font-medium">Browse Jobs</a>
+                {% if user.is_authenticated and user.user_type == 'househelp' %}
+                <a href="{% url 'courses:course_list' %}" class="block px-4 py-3 rounded-xl hover:bg-pink-50 transition font-medium">Training</a>
+                {% endif %}
+                <a href="{% url 'blog_home' %}" class="block px-4 py-3 rounded-xl hover:bg-pink-50 transition font-medium">Blog</a>
+                
+                {% if user.is_authenticated %}
+                <div class="border-t border-pink-100 my-4 pt-4">
+                    <p class="px-4 text-xs font-bold uppercase tracking-widest text-primary mb-2">My Account</p>
+                    <a href="{% url 'dashboard:user_dashboard' %}" class="block px-4 py-3 rounded-xl hover:bg-pink-50 transition font-medium">Dashboard</a>
+                    <a href="{% url 'notifications:notification_preferences' %}" class="block px-4 py-3 rounded-xl hover:bg-pink-50 transition font-medium">Notification Settings</a>
+                    <a href="{% url 'notifications:notification_list' %}" class="block px-4 py-3 rounded-xl hover:bg-pink-50 transition font-medium flex items-center justify-between">
+                        <span>Notifications</span>
+                        {% if unread_count > 0 %}<span class="bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full">{{ unread_count }}</span>{% endif %}
+                    </a>
+                    <div class="grid grid-cols-2 gap-2 px-4 py-2">
+                        <a href="{% url 'chat:inbox' %}" class="flex items-center justify-center gap-2 py-4 rounded-2xl bg-pink-50 hover:bg-pink-100 transition group text-primary">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+                            <span class="text-xs font-bold uppercase tracking-widest">Messages</span>
+                        </a>
+                        <a href="{% url 'chat:inbox' %}" class="flex items-center justify-center gap-2 py-4 rounded-2xl bg-pink-50 hover:bg-pink-100 transition text-primary">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                            <span class="text-xs font-bold uppercase tracking-widest">Interviews</span>
+                        </a>
+                    </div>
+                    <a href="{% url 'logout' %}" class="block px-4 py-3 rounded-xl text-red-600 hover:bg-red-50 transition font-medium">Logout</a>
+                </div>
+                {% else %}
+                <div class="grid grid-cols-2 gap-4 px-4 pt-4">
+                    <a href="{% url 'login' %}" class="flex items-center justify-center py-3 rounded-xl border border-pink-200 hover:bg-pink-50 transition font-bold text-sm text-slate-600">Login</a>
+                    <a href="{% url 'signup' %}" class="flex items-center justify-center py-3 rounded-xl bg-primary text-white hover:bg-primary/90 transition font-bold text-sm">Sign Up</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow container mx-auto px-4 py-8 md:py-12">
+        {% if messages %}
+        <div class="mb-8 space-y-3">
+            {% for message in messages %}
+            <div
+                class="p-4 rounded-xl shadow-sm {% if message.tags == 'success' %}bg-green-50 border border-green-200 text-green-800{% elif message.tags == 'error' %}bg-red-50 border border-red-200 text-red-800{% else %}bg-blue-50 border border-blue-200 text-blue-800{% endif %}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% block content %}{% endblock %}    <!-- Footer -->
+    <footer class="bg-gradient-to-br from-white via-pink-50/30 to-white text-slate-600 py-20 border-t border-pink-100">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-16">
+                <!-- Brand -->
+                <div class="space-y-6">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-16 h-16 rounded-full bg-white p-2 shadow-xl border border-pink-100">
+                            <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/logo-OZc2HOWFOzyiQsm3QQBzgTdp8UyUO1.png"
+                                alt="Charlady" class="w-full h-full object-contain">
+                        </div>
+                        <div>
+                            <h3 class="text-2xl font-serif font-bold text-primary">Charlady</h3>
+                            <p class="text-xs font-black uppercase tracking-widest text-slate-400">Connecting Homes</p>
+                        </div>
+                    </div>
+                    <p class="text-sm leading-relaxed text-slate-500">
+                        The ultimate destination for verified talent and caring families in Kenya. 
+                        We believe every home deserves professional excellence and every worker deserves respect.
+                    </p>
+                    <p class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-300">
+                        © {% now "Y" %} Charlady Academy. Crafted in Nairobi.
+                    </p>
+                </div>
+
+                <!-- Quick Links -->
+                <div>
+                    <h4 class="text-xs font-black uppercase tracking-[0.3em] text-primary mb-8">Navigation</h4>
+                    <ul class="space-y-4 text-sm font-semibold">
+                        <li><a href="{% url 'home' %}" class="hover:text-primary transition flex items-center gap-2">
+                            <span class="w-1.5 h-1.5 rounded-full bg-pink-100"></span> Home</a></li>
+                        <li><a href="{% url 'jobs:job_list' %}" class="hover:text-primary transition flex items-center gap-2">
+                            <span class="w-1.5 h-1.5 rounded-full bg-pink-100"></span> Browse Jobs</a></li>
+                        {% if user.is_authenticated and user.user_type == 'employer' %}
+                        <li><a href="{% url 'jobs:job_create' %}" class="hover:text-primary transition flex items-center gap-2">
+                            <span class="w-1.5 h-1.5 rounded-full bg-pink-100"></span> Post a Job</a></li>
+                        {% endif %}
+                        <li><a href="{% url 'contact_admin' %}" class="hover:text-primary transition flex items-center gap-2">
+                            <span class="w-1.5 h-1.5 rounded-full bg-pink-100"></span> Help Center</a></li>
+                        <li><a href="{% url 'terms' %}" class="hover:text-primary transition flex items-center gap-2">
+                            <span class="w-1.5 h-1.5 rounded-full bg-pink-100"></span> Legal Terms</a></li>
+                    </ul>
+                </div>
+
+                <!-- Contact -->
+                <div class="space-y-8">
+                    <div>
+                        <h4 class="text-xs font-black uppercase tracking-[0.3em] text-primary mb-6">Inquiries</h4>
+                        <p class="text-sm font-bold mb-2">Support: <a href="mailto:info@charlady.co.ke"
+                                class="text-primary hover:underline">info@charlady.co.ke</a></p>
+                        <p class="text-sm font-bold">WhatsApp: <a href="https://wa.me/254714042946"
+                                class="text-primary">+254 714 042946</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+      </footer>
+
+    <!-- Floating WhatsApp Button -->
+    <a href="https://wa.me/254714042946" target="_blank" rel="noopener noreferrer"
+        class="fixed bottom-6 right-6 z-50 w-16 h-16 bg-green-500 hover:bg-green-600 rounded-full flex items-center justify-center shadow-2xl transition transform hover:scale-110">
+        <svg class="w-9 h-9 text-white" fill="currentColor" viewBox="0 0 24 24">
+            <path
+                d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+        </svg>
+    </a>
+
+    {% block extra_js %}{% endblock %}
+
+    <script>
+        window.addEventListener('load', function () {
+            document.body.classList.add('loaded');
+        });
+
+        // Mobile Menu Toggle
+        const btn = document.getElementById('mobile-menu-button');
+        const menu = document.getElementById('mobile-menu');
+        
+        if (btn && menu) {
+            btn.addEventListener('click', () => {
+                menu.classList.toggle('hidden');
+                // Optional: Change icon on toggle
+                const svgContent = menu.classList.contains('hidden') 
+                    ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />'
+                    : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />';
+                btn.querySelector('svg').innerHTML = svgContent;
+            });
+        }
+    </script>
+</body>
+
+</html>

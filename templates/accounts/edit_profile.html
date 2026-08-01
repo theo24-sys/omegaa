@@ -1,0 +1,172 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags crispy_forms_filters tailwind_filters crispy_forms_field static %}
+
+{% block title %}Advanced Profile Suite - Charlady{% endblock %}
+
+{% block extra_head %}
+<style>
+    .edit-glass {
+        background: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(217, 70, 239, 0.1);
+    }
+    
+    .section-card {
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .section-card:focus-within {
+        transform: scale(1.01);
+        border-color: #d946ef;
+        box-shadow: 0 20px 40px rgba(217, 70, 239, 0.05);
+    }
+
+    input, select, textarea {
+        background: #fdf2f8 !important;
+        border: 1px solid #f9a8d4 !important;
+        transition: all 0.3s ease !important;
+        border-radius: 1rem !important;
+        padding: 0.8rem 1.2rem !important;
+    }
+
+    input:focus, select:focus, textarea:focus {
+        background: white !important;
+        border-color: #db2777 !important;
+        box-shadow: 0 0 0 4px rgba(219, 39, 119, 0.1) !important;
+    }
+
+    .form-label {
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        font-size: 0.65rem;
+        color: #9d174d;
+        margin-bottom: 0.8rem;
+        display: block;
+    }
+
+    .progress-glow {
+        box-shadow: 0 0 15px rgba(217, 70, 239, 0.4);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="bg-slate-50 min-h-screen py-12">
+    <div class="max-w-5xl mx-auto px-4">
+        <!-- Dashboard Navigation -->
+        <div class="flex items-center justify-between mb-12">
+            <a href="{% url 'dashboard:user_dashboard' %}" class="flex items-center gap-2 text-slate-500 hover:text-primary transition font-black uppercase tracking-widest text-xs">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+                Back to Dashboard
+            </a>
+            <div class="text-right">
+                <p class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1">Identity Trust Score</p>
+                <div class="flex items-center gap-3">
+                    <div class="w-32 md:w-48 h-2 bg-slate-200 rounded-full overflow-hidden">
+                        <div class="h-full bg-gradient-to-r from-primary to-accent progress-glow transition-all duration-1000" style="width: {{ user.completion_percentage }}%"></div>
+                    </div>
+                    <span class="text-primary font-black text-sm">{{ user.completion_percentage }}%</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Header -->
+        <div class="mb-12 space-y-2">
+            <h1 class="text-4xl md:text-5xl font-black text-slate-900 tracking-tight">
+                Profile <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">Engine v2.0</span>
+            </h1>
+            <p class="text-slate-500 font-medium max-w-2xl">Refine your professional appearance to stand out to elite employers across Kenya.</p>
+        </div>
+
+        <form method="post" enctype="multipart/form-data" class="grid lg:grid-cols-3 gap-8">
+            {% csrf_token %}
+            
+            <!-- Sidebar: Avatar & Preview -->
+            <div class="lg:col-span-1 space-y-6">
+                <div class="edit-glass rounded-[2.5rem] p-8 shadow-xl border border-white relative overflow-hidden">
+                    <div class="absolute -right-8 -top-8 w-32 h-32 bg-primary/5 rounded-full blur-3xl"></div>
+                    
+                    <p class="text-[10px] font-black uppercase tracking-[0.2em] text-primary mb-6">Visual Identity</p>
+                    
+                    <div class="relative w-full aspect-square rounded-3xl overflow-hidden mb-6 group bg-pink-50 border-2 border-dashed border-pink-200 flex items-center justify-center">
+                        <img id="avatar-preview" src="{{ user.get_avatar_url }}" alt="Preview" class="w-full h-full object-cover">
+                        <div class="absolute inset-0 bg-primary/20 opacity-0 group-hover:opacity-100 transition flex items-center justify-center backdrop-blur-sm pointer-events-none">
+                            <span class="text-white font-black text-xs uppercase tracking-widest bg-primary px-4 py-2 rounded-full shadow-lg">New Photo Preview</span>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <h4 class="font-bold text-slate-900 text-sm">Professional Tip</h4>
+                        <p class="text-xs text-slate-500 leading-relaxed">
+                            Profiles with clear, smiling photos receive <span class="text-primary font-bold">3x more interview invites</span>. Use a bright background!
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Verified Status Card -->
+                {% if user.is_verified %}
+                <div class="bg-gradient-to-br from-slate-900 to-slate-800 rounded-[2rem] p-8 text-white shadow-2xl relative overflow-hidden">
+                    <div class="absolute right-0 top-0 opacity-10">{{ user.get_verified_badge|safe }}</div>
+                    <p class="text-[10px] font-black uppercase tracking-[0.2em] text-primary mb-4">Account Status</p>
+                    <div class="flex items-center gap-3 mb-4">
+                         <img src="{% static 'img/didit_logo.svg' %}" alt="Didit Verified" class="h-8 w-auto">
+                         <h3 class="font-bold text-lg">Identity Verified</h3>
+                    </div>
+                    <p class="text-xs text-slate-400">Your profile carries the "Gold Trust" mark with Didit verification, visible to all premium employers.</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Main Form Section -->
+            <div class="lg:col-span-2 space-y-8 pb-32">
+                <div class="edit-glass rounded-[2.5rem] p-8 md:p-12 shadow-xl border border-white">
+                    {{ form|crispy }}
+                </div>
+            </div>
+
+            <!-- Sticky Save Footer (Floating Style) -->
+            <div class="fixed bottom-8 left-0 right-0 z-50 px-4">
+                <div class="max-w-2xl mx-auto rounded-[2rem] bg-slate-900/95 backdrop-blur-2xl p-4 flex gap-4 shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-white/10">
+                    <button type="submit" class="flex-grow bg-primary hover:bg-pink-600 text-white font-black py-5 px-8 rounded-2xl transition-all shadow-[0_0_25px_rgba(217,70,239,0.3)] active:scale-95 flex items-center justify-center gap-3">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+                        Upgrade Professional Profile
+                    </button>
+                    <a href="{% url 'dashboard:user_dashboard' %}" class="bg-white/10 hover:bg-white/20 text-white font-bold py-5 px-8 rounded-2xl transition flex items-center justify-center border border-white/5">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const photoInput = document.querySelector('input[type="file"][name="profile_picture"]');
+        const previewImg = document.getElementById('avatar-preview');
+        
+        if (photoInput && previewImg) {
+            photoInput.addEventListener('change', function() {
+                const file = this.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        previewImg.src = e.target.result;
+                        previewImg.classList.add('animate-pulse');
+                        setTimeout(() => previewImg.classList.remove('animate-pulse'), 1000);
+                    }
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+
+        // Add visual help text improvements
+        document.querySelectorAll('.help-block').forEach(el => {
+            el.classList.add('text-[10px]', 'font-bold', 'text-slate-400', 'mt-1', 'italic');
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,197 @@
+{% extends 'base.html' %}
+{% load course_extras %}
+
+{% block title %}{{ lesson.title }} - {{ course.title }}{% endblock %}
+
+{% block extra_head %}
+<!-- In-depth Academy Sidebar Styles -->
+<style>
+    .academy-sidebar {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+    }
+    .theater-header {
+        background: rgba(255, 255, 255, 0.9);
+        border-bottom: 1px solid rgba(217, 70, 239, 0.1);
+    }
+    .lesson-item.active {
+        background: linear-gradient(135deg, #d946ef 0%, #c084fc 100%);
+        box-shadow: 0 10px 20px rgba(217, 70, 239, 0.3);
+    }
+    .video-theater-wrapper {
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="flex h-screen bg-gray-50 overflow-hidden relative">
+    
+    <!-- Immersive Sidebar -->
+    <aside class="academy-sidebar w-80 flex-shrink-0 border-r border-pink-100 flex flex-col z-20 transition-all duration-300 transform md:translate-x-0 -translate-x-full fixed md:relative h-full" id="study-sidebar">
+        <!-- Sidebar Header -->
+        <div class="p-6 border-b border-pink-100">
+            <a href="{% url 'courses:course_detail' course.id %}" class="flex items-center gap-2 text-slate-400 hover:text-primary transition mb-6 text-[10px] font-black tracking-widest uppercase">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                EXIT CLASSROOM
+            </a>
+            
+            <div class="mt-4">
+                <h2 class="text-slate-900 font-black text-xl leading-tight mb-2">{{ course.title }}</h2>
+                <div class="w-full bg-pink-50 h-1.5 rounded-full overflow-hidden mt-4">
+                    <div class="bg-primary h-full transition-all duration-1000" style="width: calc({{ course.id|get_course_progress:user|default:0 }} * 1%);"></div>
+                </div>
+                <div class="flex justify-between items-center mt-3">
+                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Your Progress</span>
+                    <span class="text-[10px] font-black text-primary">{{ course.id|get_course_progress:user }}%</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lesson List (Scrollable) -->
+        <div class="flex-grow overflow-y-auto custom-scrollbar p-4 space-y-3">
+            {% for l in lessons %}
+            <a href="{% url 'courses:lesson_detail' course.id l.id %}" 
+               class="lesson-item flex items-center p-4 rounded-2xl transition group relative overflow-hidden
+               {% if l.id == lesson.id %}active text-white{% else %}hover:bg-pink-50 text-slate-600{% endif %}">
+                <div class="flex items-center gap-4 relative z-10">
+                    <div class="w-8 h-8 rounded-xl flex-shrink-0 flex items-center justify-center font-black text-xs
+                        {% if l.id == lesson.id %}bg-white/20 text-white{% else %}bg-pink-100 text-slate-400 group-hover:bg-primary/10 group-hover:text-primary{% endif %}">
+                        {{ forloop.counter }}
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-sm font-bold truncate pr-6">{{ l.title }}</span>
+                        {% if l.video_url %}
+                        <span class="text-[9px] font-black opacity-50 flex items-center gap-1 mt-0.5">
+                            <svg class="w-2 h-2" fill="currentColor" viewBox="0 0 20 20"><path d="M2 6a2 2 0 012-2h12a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"/></svg>
+                            VIDEO MODULE
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Status Icon -->
+                <div class="absolute right-4 top-1/2 -translate-y-1/2 z-10">
+                    {% if l.id in completed_lessons %}
+                    <svg class="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                    {% elif l.id == lesson.id %}
+                    <div class="w-2 h-2 rounded-full bg-white animate-pulse"></div>
+                    {% else %}
+                    <svg class="w-5 h-5 opacity-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    {% endif %}
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        
+        <!-- Sidebar Footer (Quizzes) -->
+        <div class="p-4 bg-pink-50/50 border-t border-pink-100 space-y-3">
+            {% if lesson.quiz_questions.exists %}
+            <a href="{% url 'courses:lesson_quiz' course.id lesson.id %}" class="w-full py-4 rounded-2xl bg-white border border-pink-200 hover:bg-pink-100 text-primary text-center text-xs font-black tracking-widest transition flex items-center justify-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+                MODULE QUIZ
+            </a>
+            {% endif %}
+            <a href="{% url 'courses:course_quiz' course.id %}" class="w-full py-4 rounded-[2rem] bg-accent hover:bg-purple-600 text-white text-center text-xs font-black tracking-widest transition flex items-center justify-center gap-2 shadow-2xl shadow-purple-200">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                FINAL EXAM
+            </a>
+        </div>
+    </aside>
+     <!-- Main Content Area (Theater) -->
+    <main class="flex-grow flex flex-col h-full overflow-hidden relative">
+        <!-- Modern Theater Header -->
+        <header class="theater-header px-8 py-4 flex items-center justify-between z-30">
+            <div class="flex items-center gap-4">
+                <button class="md:hidden text-white p-2 hover:bg-white/10 rounded-xl" id="sidebar-toggle">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                </button>
+                <div class="flex flex-col">
+                    <h1 class="text-slate-900 font-extrabold text-sm tracking-tight leading-none">{{ lesson.title }}</h1>
+                    <span class="text-[10px] text-primary font-black tracking-widest uppercase mt-1">Charlady Academy Mastery</span>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <button onclick="toggleFullScreen()" class="text-slate-400 hover:text-primary transition p-2 rounded-xl">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- Theater Viewport -->
+        <div class="flex-grow overflow-y-auto bg-gray-50 p-4 md:p-8 custom-scrollbar">
+            <div class="max-w-5xl mx-auto space-y-12 pb-24">
+                
+                <!-- Theater Video Player -->
+                {% if lesson.video_url %}
+                <div class="video-theater-wrapper aspect-video bg-slate-900 rounded-[3.5rem] overflow-hidden border-8 border-white shadow-2xl relative group">
+                    {% if "youtube.com" in lesson.video_url or "youtu.be" in lesson.video_url %}
+                        {% if "watch?v=" in lesson.video_url %}
+                        <iframe class="w-full h-full" src="https://www.youtube.com/embed/{{ lesson.video_url|split_v_id }}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                        {% else %}
+                        <iframe class="w-full h-full" src="https://www.youtube.com/embed/{{ lesson.video_url|slice:'17:' }}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                        {% endif %}
+                    {% else %}
+                        <video class="w-full h-full" controls poster="{% static 'img/video-cover.jpg' %}">
+                            <source src="{{ lesson.video_url }}" type="video/mp4">
+                        </video>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                <!-- Content Area -->
+                <div class="space-y-8 animate-fade-in">
+                    <div class="prose prose-pink max-w-none">
+                        <div class="p-8 md:p-16 bg-white border border-pink-100 rounded-[3rem] shadow-2xl shadow-pink-100/50">
+                            {{ lesson.content|safe }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer Navigation -->
+                <div class="flex justify-between items-center pt-12 border-t border-pink-100 mt-12">
+                   <span></span> <!-- Space for back logic if needed -->
+                   
+                   {% if lesson.quiz_questions.exists %}
+                   <a href="{% url 'courses:lesson_quiz' course.id lesson.id %}" class="bg-primary hover:bg-pink-600 text-white font-black px-12 py-5 rounded-[2rem] shadow-2xl shadow-pink-200 transition transform hover:-translate-y-1 flex items-center gap-3 group">
+                       TAKE LESSON QUIZ
+                       <svg class="w-5 h-5 group-hover:translate-x-1 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                   </a>
+                   {% else %}
+                   <form action="{% url 'courses:complete_course' course.id %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-black px-12 py-5 rounded-[2rem] shadow-2xl shadow-green-100 transition transform hover:-translate-y-1 flex items-center gap-3 group">
+                            FINISH MODULE
+                            <svg class="w-5 h-5 group-hover:translate-x-1 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                        </button>
+                    </form>
+                   {% endif %}
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    // Sidebar toggle for mobile
+    const toggle = document.getElementById('sidebar-toggle');
+    const sidebar = document.getElementById('study-sidebar');
+    if (toggle) {
+        toggle.onclick = () => {
+            sidebar.classList.toggle('-translate-x-full');
+        };
+    }
+
+    function toggleFullScreen() {
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen();
+        } else {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            }
+        }
+    }
+</script>
+{% endblock %}

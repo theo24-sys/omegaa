@@ -1,0 +1,225 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Applications - Charlady{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8 max-w-5xl">
+    <h1 class="text-3xl font-bold text-pink-700 mb-8">
+        {% if request.user.user_type == 'employer' %}
+        Job Applications Received
+        {% else %}
+        My Job Applications
+        {% endif %}
+    </h1>
+
+    {% if applications %}
+    <div class="bg-white rounded-2xl shadow-xl border border-pink-100 overflow-hidden">
+        <!-- Desktop Table View (Hidden on Mobile) -->
+        <div class="hidden md:block overflow-x-auto">
+            <table class="min-w-full divide-y divide-pink-100">
+                <thead class="bg-pink-50">
+                    <tr>
+                        <th class="px-6 py-4 text-left text-sm font-semibold text-pink-700">Job Title</th>
+                        <th class="px-6 py-4 text-left text-sm font-semibold text-pink-700">
+                            {% if request.user.user_type == 'employer' %}Applicant{% else %}Employer{% endif %}
+                        </th>
+                        <th class="px-6 py-4 text-left text-sm font-semibold text-pink-700">Status</th>
+                        {% if request.user.user_type == 'employer' %}
+                        <th class="px-6 py-4 text-left text-sm font-semibold text-pink-700">Documents</th>
+                        {% endif %}
+                        <th class="px-6 py-4 text-left text-sm font-semibold text-pink-700">Applied On</th>
+                        {% if request.user.user_type == 'employer' %}
+                        <th class="px-6 py-4 text-left text-sm font-semibold text-pink-700">Actions</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-pink-100 bg-white">
+                    {% for app in applications %}
+                    <tr class="hover:bg-pink-50 transition cursor-pointer" onclick="window.location='{% url 'jobs:job_application_detail' app.pk %}'">
+                        <td class="px-6 py-4">
+                            <a href="{% url 'jobs:job_application_detail' app.pk %}"
+                                class="text-pink-600 hover:text-pink-800 font-bold">
+                                {{ app.job.title }}
+                            </a>
+                            <p class="text-[10px] text-gray-400">View Full Details →</p>
+                        </td>
+                        <td class="px-6 py-4">
+                            {% if request.user.user_type == 'employer' %}
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 flex-shrink-0">
+                                    {{ app.applicant.get_avatar_html|safe }}
+                                </div>
+                                <div class="flex flex-col">
+                                    <span class="text-pink-600 font-bold mb-0.5 flex items-center gap-1">
+                                        {{ app.applicant.get_full_name|default:app.applicant.username }}
+                                        <span class="inline-flex items-center justify-center align-middle rounded-full bg-white/80 border border-pink-100 px-1.5 py-0.5 shadow-sm">
+                                            {{ app.applicant.get_verified_badge|safe }}
+                                        </span>
+                                    </span>
+                                    <div class="flex flex-wrap gap-1">
+                                        {% for badge_key, badge_data in app.applicant.get_badges_list %}
+                                            {% if badge_data.earned %}
+                                            <div class="flex items-center gap-1 px-1.5 py-0.5 rounded bg-pink-50 border border-pink-100" title="{{ badge_data.label }}">
+                                                <img src="{% static 'img/badges/'|add:badge_data.icon|add:'.svg' %}" alt="{{ badge_data.label }}" class="w-4 h-4 object-contain drop-shadow-sm">
+                                                <span class="text-[8px] font-black uppercase tracking-tighter text-primary">{{ badge_data.label }}</span>
+                                            </div>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% else %}
+                            <span class="font-bold text-gray-700">{{ app.job.employer.get_full_name|default:app.job.employer.username }}</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="px-3 py-1 rounded-full text-sm font-medium {{ app.get_status_class }}">
+                                {{ app.get_status_display }}
+                            </span>
+                        </td>
+                        {% if request.user.user_type == 'employer' %}
+                        <td class="px-6 py-4">
+                            {% if app.applicant.is_verified %}
+                            <div class="flex flex-col gap-2">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                    ✓ Verified
+                                </span>
+                            </div>
+                            {% else %}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
+                                Pending
+                            </span>
+                            {% endif %}
+                        </td>
+                        {% endif %}
+                        <td class="px-6 py-4 text-gray-600">
+                            {{ app.created_at|date:"M d, Y" }}
+                        </td>
+                        {% if request.user.user_type == 'employer' %}
+                        <td class="px-6 py-4" onclick="event.stopPropagation();">
+                            <form method="post" action="{% url 'jobs:update_application_status' app.pk %}"
+                                class="flex items-center gap-2">
+                                {% csrf_token %}
+                                <select name="status"
+                                    class="border border-pink-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-pink-200 bg-white">
+                                    {% for value, label in app.STATUS_CHOICES %}
+                                    <option value="{{ value }}" {% if app.status == value %}selected{% endif %}>
+                                        {{ label }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                                <button type="submit"
+                                    class="bg-pink-600 hover:bg-pink-700 text-white px-3 py-1 rounded text-sm transition font-bold">
+                                    Update
+                                </button>
+                            </form>
+                        </td>
+                        {% endif %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Mobile Card View (Hidden on Desktop) -->
+        <div class="md:hidden divide-y divide-pink-100">
+            {% for app in applications %}
+            <a href="{% url 'jobs:job_application_detail' app.pk %}" class="block p-5 space-y-4 hover:bg-pink-50 transition-colors">
+                <div class="flex justify-between items-start">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 flex-shrink-0">
+                            {{ app.applicant.get_avatar_html|safe }}
+                        </div>
+                        <div>
+                            <p class="text-[10px] font-black uppercase tracking-widest text-pink-300 mb-0.5">Job Application</p>
+                            <h3 class="text-base font-bold text-gray-900 leading-tight">
+                                {{ app.job.title }}
+                            </h3>
+                        </div>
+                    </div>
+                    <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest {{ app.get_status_class }}">
+                        {{ app.get_status_display }}
+                    </span>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 pt-2">
+                    <div>
+                        <p class="text-[9px] font-black uppercase tracking-widest text-gray-400">
+                            {% if request.user.user_type == 'employer' %}Applicant{% else %}Employer{% endif %}
+                        </p>
+                        <div class="mt-1 flex flex-col gap-1.5">
+                            <div class="flex items-center gap-1">
+                                <span class="text-sm font-bold text-pink-600">
+                                    {{ app.applicant.get_full_name|default:app.applicant.username }}
+                                </span>
+                                {% if request.user.user_type == 'employer' %}
+                                    {{ app.applicant.get_verified_badge|safe }}
+                                {% endif %}
+                            </div>
+                            <!-- Earned Badges Row (Mobile) -->
+                            {% if request.user.user_type == 'employer' %}
+                            <div class="flex flex-wrap gap-1">
+                                {% for badge_key, badge_data in app.applicant.get_badges_list %}
+                                    {% if badge_data.earned %}
+                                    <div class="flex items-center gap-1 px-1.5 py-0.5 bg-pink-50 rounded border border-pink-100" title="{{ badge_data.label }}">
+                                        <img src="{% static 'img/badges/'|add:badge_data.icon|add:'.svg' %}" alt="{{ badge_data.label }}" class="w-3.5 h-3.5 object-contain drop-shadow-sm">
+                                        <span class="text-[7px] font-black uppercase tracking-tighter text-primary">{{ badge_data.label }}</span>
+                                    </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div>
+                        <p class="text-[9px] font-black uppercase tracking-widest text-gray-400">Applied On</p>
+                        <p class="text-sm font-medium text-gray-600 mt-1">{{ app.created_at|date:"M d, Y" }}</p>
+                    </div>
+                </div>
+
+                {% if request.user.user_type == 'employer' %}
+                <div class="pt-4 border-t border-pink-50" onclick="event.stopPropagation();">
+                    <div class="flex items-center justify-between mb-4">
+                        <p class="text-[9px] font-black uppercase tracking-widest text-gray-400">Documents</p>
+                        {% if app.applicant.is_verified %}
+                        <span class="text-[10px] font-bold text-green-600 flex items-center gap-1">
+                            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                            Verified
+                        </span>
+                        {% else %}
+                        <span class="text-[10px] font-bold text-amber-600">Pending</span>
+                        {% endif %}
+                    </div>
+
+                    <form method="post" action="{% url 'jobs:update_application_status' app.pk %}" class="grid grid-cols-2 gap-2">
+                        {% csrf_token %}
+                        <select name="status" class="w-full border border-pink-100 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-pink-200 bg-gray-50">
+                            {% for value, label in app.STATUS_CHOICES %}
+                            <option value="{{ value }}" {% if app.status == value %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                        <button type="submit" class="w-full bg-pink-600 text-white font-bold py-2 rounded-xl text-xs shadow-md">Update</button>
+                    </form>
+                </div>
+                {% endif %}
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    {% else %}
+    <div class="bg-white rounded-2xl shadow-xl p-12 text-center border border-pink-100">
+        <p class="text-xl text-gray-600 mb-4">
+            {% if request.user.user_type == 'employer' %}
+            No applications received yet.
+            {% else %}
+            You haven't applied to any jobs yet.
+            {% endif %}
+        </p>
+        <a href="{% url 'jobs:job_list' %}" class="text-pink-600 hover:text-pink-800 font-medium">
+            Browse available jobs →
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

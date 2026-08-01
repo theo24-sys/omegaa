@@ -1,0 +1,35 @@
+# Django
+*.log
+*.pot
+*.pyc
+__pycache__/
+local_settings.py
+db.sqlite3
+media/
+
+# Environment files
+.env
+.env.*
+.venv
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Virtual environment
+venv/
+venv*/
+ENV/
+
+# Node
+node_modules/
+
+# Database
+*.db
+*.sql
+*.sqlite
+
+# Static files at build time
+/staticfiles/

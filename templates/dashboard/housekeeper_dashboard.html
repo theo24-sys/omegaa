@@ -1,0 +1,543 @@
+{% extends 'base.html' %}
+{% load static crispy_forms_tags %}
+
+{% block title %}Worker Command Center - Charlady{% endblock %}
+
+{% block extra_head %}
+<style>
+    @keyframes sapphire-fade-in {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .theme-card {
+        background: #ffffff;
+        border: 1px solid rgba(217, 70, 239, 0.1);
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .theme-card:hover {
+        border-color: rgba(217, 70, 239, 0.4);
+        transform: translateY(-5px);
+        box-shadow: 0 20px 40px rgba(217, 70, 239, 0.1), 0 0 20px rgba(217, 70, 239, 0.05);
+    }
+
+    .text-star {
+        background: linear-gradient(135deg, #d946ef 0%, #f472b6 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .animate-sapphire {
+        animation: sapphire-fade-in 0.8s ease-out forwards;
+    }
+
+    .badge-star {
+        transition: all 0.3s ease;
+    }
+    .badge-star:hover {
+        filter: drop-shadow(0 0 8px rgba(217, 70, 239, 0.6));
+        transform: scale(1.1);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    {% if not user.has_completed_first_verification and user.user_type == 'househelp' %}
+    <!-- Verification Required Banner -->
+    <div class="mb-8 p-6 bg-red-50 border border-red-200 rounded-[2.5rem] flex flex-col md:flex-row items-center justify-between gap-4 shadow-sm animate-sapphire">
+        <div class="flex items-center gap-4">
+            <div class="w-12 h-12 bg-red-100 text-red-600 rounded-full flex items-center justify-center shrink-0">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+            </div>
+            <div>
+                <h3 class="text-lg font-bold text-red-900">Action Required: Verify Identity</h3>
+                <p class="text-sm text-red-700">You must complete Didit ID verification before you can fully interact with the platform.</p>
+            </div>
+        </div>
+        <div class="flex flex-wrap gap-3 shrink-0">
+            <button onclick="showVerifyModal()" class="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-8 rounded-xl transition shadow-lg whitespace-nowrap">
+                Verify Now
+            </button>
+            <a href="{% url 'dashboard:force_didit_sync' %}" class="bg-white border border-red-200 hover:bg-red-50 text-red-700 font-bold py-3 px-6 rounded-xl transition shadow-sm whitespace-nowrap flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                </svg>
+                Sync Status
+            </a>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Premium Worker Header -->
+    <div class="relative overflow-hidden rounded-[4rem] bg-white p-8 md:p-16 mb-12 border border-pink-100 shadow-2xl shadow-pink-50 animate-sapphire">
+        <!-- Abstract Glows -->
+        <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[120px] -mr-64 -mt-64"></div>
+        <div class="absolute bottom-0 left-0 w-80 h-80 bg-accent/5 rounded-full blur-[100px] -ml-40 -mb-40"></div>
+
+        <!-- Top Corner Greeting -->
+        <div class="absolute top-8 left-8 md:top-12 md:left-12">
+            <div class="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-pink-50 border border-pink-100 text-primary text-[10px] font-black uppercase tracking-[0.2em]">
+                <span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+                <span id="greeting-time">Welcome</span>, {{ user.first_name|default:user.username }}
+            </div>
+        </div>
+
+        <div class="relative z-10 flex flex-col items-center text-center gap-10 mt-8 md:mt-0">
+            <!-- 1. Centered Enlarged Profile (Smiling at badges) -->
+            <div class="flex flex-col items-center gap-6">
+                <div class="relative group">
+                    <div class="absolute -inset-2 bg-gradient-to-r from-primary to-accent rounded-full blur opacity-20 group-hover:opacity-40 transition duration-1000"></div>
+                    <div class="w-40 h-40 md:w-56 md:h-56 rounded-full border-[10px] border-white shadow-2xl relative z-10 bg-white">
+                        {{ user.get_avatar_html|safe }}
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <h1 class="text-4xl md:text-6xl font-black text-slate-900 tracking-tight leading-none flex items-center justify-center gap-3">
+                        {{ user.get_full_name|default:user.username }}
+                        <span class="inline-flex items-center justify-center align-middle rounded-full bg-white/80 border border-pink-100 px-2 py-1 shadow-sm">
+                            {{ user.get_verified_badge|safe }}
+                        </span>
+                    </h1>
+                    
+                    <!-- Badges Row (Smiling at badges) -->
+                    <div class="flex flex-wrap justify-center gap-3 mt-4">
+                        {% for badge_key, badge_data in user.get_badges_list %}
+                            {% if badge_data.earned %}
+                            <div class="flex items-center gap-2 px-5 py-2.5 bg-white rounded-2xl border border-pink-100 shadow-sm transition hover:scale-110 hover:shadow-md" title="{{ badge_data.label }}">
+                                <img src="{% static 'img/badges/'|add:badge_data.icon|add:'.svg' %}" alt="{{ badge_data.label }}" class="w-7 h-7 object-contain drop-shadow-sm">
+                                <span class="text-xs font-black uppercase tracking-widest text-primary">{{ badge_data.label }}</span>
+                            </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Communication Hub (WhatsApp/Instagram Style) -->
+            <div class="flex items-center gap-6 bg-white p-3 rounded-[3rem] border border-pink-100 shadow-2xl">
+                <!-- Messages -->
+                <a href="{% url 'chat:inbox' %}" class="flex flex-col items-center gap-2 group restricted-action">
+                    <div class="w-16 h-16 md:w-20 md:h-20 rounded-[2rem] bg-pink-50 flex items-center justify-center text-primary shadow-inner transition transform group-hover:scale-105 group-active:scale-95">
+                        <svg class="w-8 h-8 md:w-10 md:h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+                    </div>
+                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Messages</span>
+                </a>
+                
+                <!-- Interviews -->
+                <a href="{% url 'chat:inbox' %}" class="flex flex-col items-center gap-2 group restricted-action">
+                    <div class="w-16 h-16 md:w-20 md:h-20 rounded-[2rem] bg-primary flex items-center justify-center text-white shadow-2xl shadow-primary/30 transition transform group-hover:scale-105 group-active:scale-95">
+                        <svg class="w-8 h-8 md:w-10 md:h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                    </div>
+                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Interviews</span>
+                </a>
+            </div>
+
+            <!-- Dashboard Stats Row -->
+            <div class="flex items-center gap-4 sm:gap-8 p-6 rounded-[2.5rem] bg-pink-50 border border-pink-100 w-full md:w-auto shadow-inner overflow-x-auto hidescrollbar">
+                <div class="flex items-center gap-4 sm:gap-8 md:gap-12 w-full md:w-auto justify-around min-w-max">
+                    <div class="flex flex-col text-center px-2">
+                        <span class="text-3xl md:text-4xl font-black text-slate-900 leading-none whitespace-nowrap">{{ applications.count }}</span>
+                        <span class="text-[10px] text-slate-400 uppercase font-bold tracking-widest mt-2 whitespace-nowrap">Placed</span>
+                    </div>
+                    <div class="w-px h-10 bg-pink-200"></div>
+                    <div class="flex flex-col text-center px-2">
+                        <span class="text-3xl md:text-4xl font-black text-slate-900 leading-none whitespace-nowrap">{{ review_count }}</span>
+                        <span class="text-[10px] text-slate-400 uppercase font-bold tracking-widest mt-2 whitespace-nowrap">Reviews</span>
+                    </div>
+                    <div class="w-px h-10 bg-pink-200"></div>
+                    <div class="flex flex-col text-center px-2">
+                        <span class="text-3xl md:text-4xl font-black text-slate-900 leading-none whitespace-nowrap">{{ avg_rating|floatformat:1 }}</span>
+                        <span class="text-[10px] text-slate-400 uppercase font-bold tracking-widest mt-2 whitespace-nowrap">Rating</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Layout Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 md:gap-12 animate-sapphire" style="animation-delay: 0.1s;">
+        <!-- Left Sidebar: Profile & Achievements -->
+        <div class="lg:col-span-1 space-y-6 md:space-y-8">
+            <!-- Professional Badges Section -->
+            <div class="theme-card rounded-[2.5rem] p-6 md:p-8 text-gray-900 relative overflow-hidden group shadow-lg">
+                <div class="absolute -top-10 -right-10 w-32 h-32 bg-primary/5 rounded-full blur-2xl group-hover:bg-primary/10 transition-all"></div>
+                
+                <h2 class="text-xl font-bold mb-6 md:mb-8 flex items-center gap-3">
+                    <span class="w-1.5 h-6 bg-primary rounded-full shadow-[0_0_10px_rgba(217,70,239,0.5)]"></span>
+                    Professional Badges
+                </h2>
+
+                <div class="grid grid-cols-3 gap-y-8 gap-x-4">
+                    {% for badge_key, badge_data in user.get_badges_list %}
+                        <div class="flex flex-col items-center gap-3 group/badge relative">
+                            <!-- Badge Icon Container -->
+                            <div class="w-16 h-16 rounded-2xl flex items-center justify-center relative transition-all duration-500 
+                                {% if badge_data.earned %}
+                                    bg-gradient-to-br from-white/10 to-white/5 border border-primary/40 shadow-[0_0_20px_rgba(217,70,239,0.2)] scale-110
+                                {% else %}
+                                    bg-white/5 border border-white/5 opacity-40 grayscale
+                                {% endif %}">
+                                
+                                <!-- Premium Custom SVG Badges -->
+                                <div class="w-10 h-10 flex items-center justify-center p-1">
+                                    <img src="{% static 'img/badges/'|add:badge_data.icon|add:'.svg' %}" alt="{{ badge_data.label }}" class="w-7 h-7 object-contain drop-shadow-sm">
+                                </div>
+
+                                <!-- Locked Overlay -->
+                                {% if not badge_data.earned %}
+                                <div class="absolute inset-0 flex items-center justify-center bg-black/20 rounded-2xl backdrop-blur-[2px]">
+                                    <svg class="w-4 h-4 text-white/40" fill="currentColor" viewBox="0 0 24 24"><path d="M12 17a2 2 0 100-4 2 2 0 000 4zm6-9h-1V7a5 5 0 00-10 0v1H6a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V10a2 2 0 00-2-2zM9 7a3 3 0 016 0v1H9V7z"/></svg>
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Badge Label -->
+                            <div class="text-center space-y-1">
+                                <span class="block text-[9px] font-black uppercase tracking-widest leading-none 
+                                    {% if badge_data.earned %}text-primary{% else %}text-gray-500{% endif %}">
+                                    {{ badge_data.label }}
+                                </span>
+                                <span class="block text-[7px] font-bold uppercase tracking-tighter
+                                    {% if badge_data.earned %}text-pink-400{% else %}text-gray-700{% endif %}">
+                                    {% if badge_data.earned %}Unlocked{% else %}Locked{% endif %}
+                                </span>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- About & Contact Section -->
+            <div class="theme-card rounded-[2.5rem] p-6 md:p-8 text-gray-900 relative overflow-hidden shadow-lg">
+                <h2 class="text-xl font-bold mb-6 flex items-center gap-3">
+                    <span class="w-1.5 h-6 bg-accent rounded-full"></span>
+                    My Profile
+                </h2>
+                <div class="space-y-6">
+                    <div>
+                        <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">Bio</p>
+                        <p class="text-gray-400 text-sm leading-relaxed">
+                            {{ user.bio|default:"Describe your experience to attract better jobs." }}
+                        </p>
+                    </div>
+                    
+                    {% if skills_list %}
+                    <div>
+                        <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-3">Skills</p>
+                        <div class="flex flex-wrap gap-2">
+                            {% for skill in skills_list %}
+                            <span class="bg-primary/10 text-primary border border-primary/20 px-3 py-1 rounded-lg text-[10px] font-bold">{{ skill }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <div class="pt-6 border-t border-gray-100 space-y-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-lg bg-pink-50 flex items-center justify-center text-primary">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+                            </div>
+                            <div class="text-xs">
+                                <p class="text-gray-500 uppercase font-black tracking-widest">Phone</p>
+                                <p class="text-gray-900">{{ user.phone_number }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <a href="{% url 'edit_profile' %}" class="mt-8 w-full inline-flex items-center justify-center bg-primary/5 hover:bg-primary/10 text-primary font-bold py-3 rounded-xl transition border border-primary/20">
+                    Edit Identity
+                </a>
+            </div>
+        </div>
+
+        <!-- Center/Right: Activity & Search -->
+        <div class="lg:col-span-2 space-y-12">
+            <!-- Verification & Documents Status -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {% if not user.documents_verified %}
+                <div class="p-8 rounded-[2rem] bg-amber-500 text-white shadow-xl relative overflow-hidden group">
+                    <div class="relative z-10">
+                        <h3 class="text-xl font-bold mb-2">Documents Pending</h3>
+                        <p class="text-sm opacity-90 mb-6">Upload your ID and contract to unlock job applications.</p>
+                        <a href="{% url 'edit_profile' %}" class="bg-white text-amber-600 px-6 py-2.5 rounded-xl font-bold text-sm inline-block shadow-lg">Upload Now</a>
+                    </div>
+                    <div class="absolute top-0 right-0 p-4 opacity-10">
+                        <svg class="w-20 h-20" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                    </div>
+                </div>
+                {% else %}
+                <div class="p-8 rounded-[2rem] bg-green-600 text-white shadow-xl relative overflow-hidden group">
+                    <div class="relative z-10">
+                        <h3 class="text-xl font-bold mb-2">Fully Verified</h3>
+                        <p class="text-sm opacity-90 mb-6">Your identity is confirmed. Employers can see your profile.</p>
+                        <div class="flex items-center gap-2 text-sm font-bold bg-white/20 px-4 py-2 rounded-lg inline-block">
+                           <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                           System Unlocked
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if not user.is_verified %}
+                <div class="p-8 rounded-[2rem] bg-primary text-white shadow-xl relative overflow-hidden group">
+                    <div class="absolute -bottom-10 -right-10 w-40 h-40 bg-white/5 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
+                    <h3 class="text-xl font-bold mb-2 flex items-center gap-2">
+                        Account Boost
+                        <svg class="w-5 h-5 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                    </h3>
+                    <p class="text-sm opacity-90 mb-6 relative z-10">Get the 'Verified' badge for KSh 300 to stand out.</p>
+                    <a href="{% url 'payments:payment_plans' %}" class="relative z-10 bg-white text-primary px-8 py-3 rounded-xl font-bold text-sm inline-block shadow-lg hover:bg-pink-50 transition active:scale-95">Verify Now</a>
+                </div>
+                {% else %}
+                 <div class="p-6 md:p-8 rounded-[2rem] bg-gradient-to-br from-dark to-primary text-white shadow-xl relative overflow-hidden border border-pink-100 group">
+                    <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform">
+                        <svg class="w-16 h-16 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2 text-white">Star Member</h3>
+                    <p class="text-sm text-pink-100 mb-6">You have unlocked premium profile placement.</p>
+                     <div class="bg-white/20 px-4 py-2 rounded-lg border border-white/30 text-xs font-bold w-fit shadow-sm text-white">PREMIUM STATUS ACTIVE</div>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Dashboard Sections: Applications & Training -->
+            <div class="space-y-12">
+                {% if pending_contribution %}
+                <!-- 3% Monthly Contribution Card -->
+                <div class="p-8 rounded-[2rem] bg-indigo-600 text-white shadow-xl relative overflow-hidden group">
+                    <div class="absolute -bottom-10 -right-10 w-40 h-40 bg-white/5 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
+                    <div class="relative z-10">
+                        <h3 class="text-xl font-bold mb-2 flex items-center gap-2">
+                             Monthly Contribution (3%)
+                            <svg class="w-5 h-5 text-indigo-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        </h3>
+                        <p class="text-sm opacity-90 mb-4">Your contribution for {{ pending_contribution.month }}/{{ pending_contribution.year }} is due.</p>
+                        <div class="flex items-end justify-between">
+                            <div>
+                                <span class="text-xs font-bold uppercase tracking-widest text-indigo-200">Amount Due</span>
+                                <p class="text-3xl font-black">KES {{ pending_contribution.amount_due|floatformat:0 }}</p>
+                            </div>
+                            <a href="{% url 'payments:pay_contribution' pending_contribution.id %}" class="bg-white text-indigo-600 px-8 py-3 rounded-xl font-bold text-sm inline-block shadow-lg hover:bg-indigo-50 transition active:scale-95">Pay Now</a>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- My Applications -->
+                <div class="space-y-8">
+                    <div class="flex justify-between items-end border-b border-gray-100 pb-4">
+                        <div>
+                            <h2 class="text-2xl font-extrabold text-gray-900">Application Status</h2>
+                            <p class="text-[10px] text-gray-400 font-black uppercase tracking-[0.2em] mt-1">Real-time Tracking</p>
+                        </div>
+                        <a href="{% url 'jobs:my_applications' %}" class="text-primary font-bold text-sm flex items-center gap-1 group restricted-action">
+                            Manage All
+                            <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>
+                        </a>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {% if applications %}
+                        {% for app in applications|slice:":4" %}
+                        <div class="p-6 rounded-3xl bg-white border border-gray-100 shadow-sm hover:shadow-xl transition-all">
+                            <div class="flex justify-between items-start">
+                                <div class="space-y-2">
+                                    <h3 class="font-bold text-gray-900 line-clamp-1"><a href="{% url 'jobs:job_detail' app.job.pk %}">{{ app.job.title }}</a></h3>
+                                    <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">{{ app.job.employer.username }}</p>
+                                </div>
+                                <span class="px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest
+                                    {% if app.status == 'pending' %}bg-amber-100 text-amber-700
+                                    {% elif app.status == 'accepted' %}bg-green-100 text-green-700
+                                    {% elif app.status == 'rejected' %}bg-red-100 text-red-700
+                                    {% else %}bg-gray-100 text-gray-700{% endif %}">
+                                    {{ app.get_status_display }}
+                                </span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        {% else %}
+                        <div class="md:col-span-2 py-10 text-center bg-gray-50 rounded-3xl border-2 border-dashed border-gray-100">
+                             <p class="text-gray-400 font-medium italic">No active applications found.</p>
+                             <a href="{% url 'jobs:job_list' %}" class="text-primary text-sm font-bold mt-2 inline-block">Browse available positions</a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Academy / Training Callout -->
+                <div class="bg-gradient-to-br from-primary to-accent rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-10 text-white relative overflow-hidden shadow-2xl group">
+                    <div class="absolute top-0 right-0 w-64 h-64 bg-white/20 rounded-full blur-3xl -mr-32 -mt-32"></div>
+                    <div class="relative z-10 flex flex-col md:flex-row items-center gap-6 md:gap-10 text-center md:text-left">
+                        <div class="flex-grow space-y-4">
+                            <div class="inline-flex px-3 py-1 bg-white/20 rounded-full text-[10px] font-black uppercase tracking-widest text-white border border-white/40">Charlady Academy</div>
+                            <h2 class="text-2xl md:text-3xl font-black">Boost your skills. <br>Earn better <span class="text-white">Salaries.</span></h2>
+                            <p class="text-pink-100 text-xs md:text-sm max-w-md mx-auto md:mx-0">Certified professionals get priority listings and earn up to 40% more average income. Start a specialized course today.</p>
+                        </div>
+                        <a href="{% url 'courses:course_list' %}" class="bg-white text-primary font-black px-8 py-4 rounded-xl hover:scale-105 transition shadow-xl whitespace-nowrap w-full md:w-auto restricted-action">Open Classroom</a>
+                    </div>
+                </div>
+
+                <!-- Active Jobs Feed -->
+                <div class="space-y-8">
+                     <div class="flex justify-between items-end border-b border-gray-100 pb-4">
+                        <div>
+                            <h2 class="text-2xl font-extrabold text-gray-900">Recommended Jobs</h2>
+                            <p class="text-[10px] text-gray-400 font-black uppercase tracking-[0.2em] mt-1">Based on location</p>
+                        </div>
+                        <a href="{% url 'jobs:job_list' %}" class="text-primary font-bold text-sm flex items-center gap-1 group restricted-action">
+                            Full Feed
+                            <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                        </a>
+                    </div>
+
+                    <div class="space-y-4">
+                        {% for job in active_jobs|slice:":3" %}
+                        <div class="p-6 rounded-3xl bg-white border border-gray-100 shadow-sm hover:shadow-xl transition-all flex flex-col md:flex-row justify-between items-center gap-6">
+                            <div class="flex items-center gap-6 w-full">
+                                <div class="w-14 h-14 rounded-2xl bg-gray-50 flex items-center justify-center text-2xl">
+                                     {% if "Childcare" in job.title %}👶{% elif "Cook" in job.title %}🍳{% else %}✨{% endif %}
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-gray-900"><a href="{% url 'jobs:job_detail' job.pk %}">{{ job.title }}</a></h3>
+                                    <div class="flex gap-4 text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">
+                                        <span>{{ job.get_city_display }}</span>
+                                        <span class="text-green-600">KES {{ job.salary|floatformat:0 }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <a href="{% url 'jobs:job_apply' job.pk %}" class="bg-dark text-white font-bold px-8 py-3 rounded-xl hover:bg-black transition-all whitespace-nowrap w-full md:w-auto text-center restricted-action">View Offer</a>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <!-- Learning Center (Tracker & Certificates) -->
+            <div class="space-y-8 mt-8 md:mt-12">
+                {% if study_tracker_courses %}
+                <div class="theme-card shadow-lg rounded-[2rem] p-6 md:p-8 text-gray-900">
+                    <h3 class="text-xl font-bold mb-6 flex items-center gap-3">
+                        <span class="w-1.5 h-6 bg-primary rounded-full animate-pulse"></span>
+                        Active Study Tracker
+                    </h3>
+                    <div class="space-y-4">
+                        {% for course in study_tracker_courses %}
+                        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 rounded-2xl bg-white border border-pink-100 hover:border-primary transition group shadow-sm">
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 rounded-xl bg-pink-50 text-primary flex items-center justify-center font-black shrink-0">
+                                    🎓
+                                </div>
+                                <div class="break-words max-w-full overflow-hidden">
+                                    <p class="font-bold text-sm text-gray-900 line-clamp-2">{{ course.title }}</p>
+                                    <p class="text-[10px] text-gray-400 uppercase tracking-widest font-black mt-1">{% if course.is_mandatory %}Mandatory{% else %}Enrolled{% endif %}</p>
+                                </div>
+                            </div>
+                            <a href="{% url 'courses:course_detail' course.id %}" class="bg-primary/10 text-primary hover:bg-primary hover:text-white px-5 py-2.5 rounded-xl text-xs font-bold transition w-full sm:w-auto text-center shrink-0 restricted-action">
+                                Resume
+                            </a>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if user.course_completions.all %}
+                <div class="theme-card shadow-lg rounded-[2rem] p-6 md:p-8 text-gray-900">
+                    <h3 class="text-xl font-bold mb-6 flex items-center gap-3">
+                        <span class="w-1.5 h-6 bg-green-500 rounded-full"></span>
+                        Academy Certificates
+                    </h3>
+                    <div class="space-y-4">
+                        {% for completion in user.course_completions.all %}
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 p-4 rounded-2xl bg-green-50 border border-green-100 hover:bg-green-100 transition shadow-sm">
+                            <div class="break-words max-w-full overflow-hidden">
+                                <p class="font-bold text-sm text-gray-900 line-clamp-2">{{ completion.course.title }}</p>
+                                <p class="text-[10px] text-green-600 font-bold uppercase mt-1">{{ completion.completed_at|date:"M d, Y" }}</p>
+                            </div>
+                            {% if completion.certificate %}
+                            <a href="{{ completion.certificate.url }}" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 flex items-center justify-center gap-2 rounded-xl text-xs font-bold transition w-full sm:w-auto shrink-0" download>
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1M7 11l5 5m0 0l5-5m-5 5V4"/></svg>
+                                Save PDF
+                            </a>
+                            {% else %}
+                            <span class="text-[10px] text-gray-600 italic">Processing...</span>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function updateGreeting() {
+        const hour = new Date().getHours();
+        const g = document.getElementById('greeting-time');
+        if (hour < 12) g.innerText = "Good Morning";
+        else if (hour < 18) g.innerText = "Good Afternoon";
+        else g.innerText = "Good Evening";
+    }
+    updateGreeting();
+
+    // Didit Verification Intercept
+    function showVerifyModal() {
+        const modal = document.getElementById('verify-modal');
+        if (modal) {
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+    }
+    
+    function hideVerifyModal() {
+        const modal = document.getElementById('verify-modal');
+        if (modal) {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const isVerified = {{ user.has_completed_first_verification|yesno:"true,false" }};
+        if (!isVerified && '{{ user.user_type }}' === 'househelp') {
+            const restrictedLinks = document.querySelectorAll('.restricted-action');
+            restrictedLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    showVerifyModal();
+                });
+            });
+        }
+    });
+</script>
+
+<!-- Didit Unverified Lock Modal -->
+<div id="verify-modal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4 bg-black/60 backdrop-blur-sm transition-opacity">
+    <div class="bg-white rounded-[2rem] w-full max-w-md p-8 shadow-2xl relative animate-sapphire flex flex-col items-center text-center">
+        <!-- Close button -->
+        <button onclick="hideVerifyModal()" class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center bg-gray-50 hover:bg-gray-100 rounded-full text-gray-500 transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+
+        <div class="w-20 h-20 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center mb-6">
+            <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+        </div>
+
+        <h2 class="text-2xl font-black text-slate-900 mb-2">Verification Required</h2>
+        <p class="text-sm text-slate-500 mb-8 px-4">
+            To ensure the safety of all platform participants, househelps must complete our automated Didit Identity Verification process before taking actions.
+        </p>
+
+        <a href="{% url 'initiate_didit_verification' %}" class="w-full bg-primary hover:bg-pink-600 text-white font-bold py-4 rounded-xl transition shadow-lg flex justify-center items-center gap-2">
+            Proceed to Verification
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+        </a>
+    </div>
+</div>
+
+{% endblock %}
