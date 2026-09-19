@@ -118,20 +118,20 @@ class CustomUserChangeForm(UserChangeForm):
         # Common Tailwind classes
         common_classes = 'w-full px-4 py-3 rounded-lg border border-pink-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-200 bg-white transition'
 
-        # Placeholders (same as signup + admin fields)
+        # Placeholders (plain text, matching the friendly labels below)
         placeholders = {
-            'first_name': '👤 First Name',
-            'last_name': '👤 Last Name',
-            'email': '📧 Email address',
-            'phone_number': '📞 Phone number (+254...)',
-            'bio': '📝 Your bio / about section',
-            'county': '📍 County',
-            'constituency': '📍 Constituency',
-            'major_town': '🏘️ Current town / area / nearest place',
-            'ward': '📍 Ward',
-            'mpesa_code': '💳 M-Pesa confirmation code (if paid)',
-            'skills': '🛠️ e.g. Cooking, Laundry, Childcare',
-            'experience': '💼 Describe your relevant experience...',
+            'first_name': 'First Name',
+            'last_name': 'Last Name',
+            'email': 'you@example.com',
+            'phone_number': 'e.g. 0712 345 678',
+            'bio': 'Tell employers a bit about yourself...',
+            'county': 'County',
+            'constituency': 'Constituency',
+            'major_town': 'Town / area (e.g. Rongai, Syokimau)',
+            'ward': 'Ward',
+            'mpesa_code': 'e.g. SLK7XYZ99',
+            'skills': 'e.g. Cooking, Laundry, Childcare',
+            'experience': 'Describe your work experience...',
         }
 
         for field_name, field in self.fields.items():
@@ -142,6 +142,41 @@ class CustomUserChangeForm(UserChangeForm):
             # Make most fields optional
             if field_name not in ['first_name', 'last_name', 'email', 'county', 'constituency', 'major_town', 'ward']:
                 field.required = False
+
+        # Friendly, plain-English labels and help texts
+        friendly = {
+            'first_name': ('First Name', None),
+            'last_name': ('Last Name', None),
+            'email': ('Email Address', None),
+            'phone_number': ('Phone Number', 'Use the mobile number employers can reach you on.'),
+            'bio': ('About You', 'Tell employers a little about yourself and your experience.'),
+            'profile_picture': ('Profile Photo', 'A clear, smiling photo of your face helps you get hired faster.'),
+            'county': ('County', None),
+            'constituency': ('Constituency', None),
+            'major_town': ('Town / Area', None),
+            'ward': ('Ward', None),
+            'skills': ('Skills', 'List your skills separated by commas, e.g. Cooking, Laundry, Childcare.'),
+            'experience': ('Work Experience', 'Describe any relevant jobs or experience you have.'),
+            'agreement_form': ('Signed Worker Agreement', 'Upload the agreement you signed during registration (PDF or image).'),
+            'id_document': ('National ID / Passport', 'Upload a clear photo or scan of your ID.'),
+            'police_clearance': ('Police Clearance (Good Conduct)', 'Upload your valid Good Conduct certificate.'),
+        }
+        for fname, (label, help_text) in friendly.items():
+            if fname in self.fields:
+                self.fields[fname].label = label
+                if help_text:
+                    self.fields[fname].help_text = help_text
+
+        # Plain FileInput: never shows raw storage paths like "Currently: profile_pics/xxx.jpg".
+        if 'profile_picture' in self.fields:
+            self.fields['profile_picture'].widget = forms.FileInput(attrs={
+                'accept': 'image/*',
+            })
+        for doc_field in ('agreement_form', 'id_document', 'police_clearance'):
+            if doc_field in self.fields:
+                self.fields[doc_field].widget = forms.FileInput(attrs={
+                    'accept': '.pdf,image/*',
+                })
 
         # Hide document/skills/experience for non-househelps; hide admin fields for non-staff
         instance = kwargs.get('instance')
@@ -170,7 +205,7 @@ class CustomUserChangeForm(UserChangeForm):
         self.helper.form_tag = False
         layout_list = [
             Fieldset(
-                'Personal Identity',
+                'About You',
                 Div(
                     Div('first_name', css_class='md:col-span-1'),
                     Div('last_name', css_class='md:col-span-1'),
@@ -183,7 +218,7 @@ class CustomUserChangeForm(UserChangeForm):
                 css_class='space-y-6'
             ),
             Fieldset(
-                'Work Location',
+                'Where You Work',
                 Div(
                     Div('county', css_class='md:col-span-1'),
                     Div('constituency', css_class='md:col-span-1'),
@@ -197,37 +232,44 @@ class CustomUserChangeForm(UserChangeForm):
         
         if 'skills' in self.fields:
             layout_list.append(Fieldset(
-                'Skills & Professional History',
+                'Skills & Experience',
                 'skills',
                 'experience',
                 css_class='space-y-6 border-t border-pink-100 pt-8 mt-8'
             ))
             
-        if 'id_document' in self.fields or 'agreement_form' in self.fields:
+        if 'agreement_form' in self.fields:
+            # Build the document status banner in Python (crispy HTML() blocks do
+            # NOT process {% if %} template tags, which used to leak raw tags).
+            instance = kwargs.get('instance')
+            if instance is not None and getattr(instance, 'documents_verified', False):
+                status_html = (
+                    '<div class="mb-4 p-4 bg-green-50 border border-green-200 text-green-800 '
+                    'rounded-2xl text-xs"><strong>✔ Verified:</strong> your documents have been '
+                    'checked and approved. You can now apply for jobs.</div>'
+                )
+            elif instance is not None and getattr(instance, 'agreement_form', None):
+                status_html = (
+                    '<div class="mb-4 p-4 bg-amber-50 border border-amber-200 text-amber-800 '
+                    'rounded-2xl text-xs"><strong>⏳ Under review:</strong> our team is checking '
+                    'your documents. This usually takes a short while.</div>'
+                )
+            else:
+                status_html = (
+                    '<div class="mb-4 p-4 bg-blue-50 border border-blue-200 text-blue-800 '
+                    'rounded-2xl text-xs"><strong>📄 Action needed:</strong> upload your signed '
+                    'worker agreement below to unlock job applications.</div>'
+                )
             layout_list.append(Fieldset(
-                'Validation Documents',
-                Div(
-                    HTML("""
-                        {% if user.documents_verified %}
-                            <div class="mb-4 p-4 bg-green-50 border border-green-200 text-green-800 rounded-2xl text-xs flex items-center gap-3">
-                                <span class="bg-green-500 text-white rounded-full p-1"><svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg></span>
-                                <div><strong>Documents Verified:</strong> Your profile is fully unlocked and trustworthy.</div>
-                            </div>
-                        {% elif user.agreement_form %}
-                            <div class="mb-4 p-4 bg-amber-50 border border-amber-200 text-amber-800 rounded-2xl text-xs flex items-center gap-3">
-                                <span class="bg-amber-500 text-white rounded-full p-1 animate-pulse"><svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2" fill="none"></path></svg></span>
-                                <div><strong>Under Review:</strong> Our team is validating your documents.</div>
-                            </div>
-                        {% endif %}
-                    """),
-                ),
+                'Verification Documents',
+                Div(HTML(status_html)),
                 'agreement_form',
                 css_class='space-y-6 border-t border-pink-100 pt-8 mt-8'
             ))
             
         if 'is_verified' in self.fields:
             layout_list.append(Fieldset(
-                'System Administration',
+                'Admin Controls',
                 Div(
                     Div('is_verified', css_class='md:col-span-1'),
                     Div('mpesa_code', css_class='md:col-span-1'),

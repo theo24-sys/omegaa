@@ -188,9 +188,11 @@ class CustomUser(AbstractUser):
             """
         
         html = f"""
-        <div class="relative avatar-with-badges shadow-xl rounded-full border-4 border-white">
-            <img src="{avatar_url}" alt="{self.username}" class="w-full h-full object-cover rounded-full">
-            <div class="absolute inset-0 rounded-full ring-1 ring-black/5"></div>
+        <div class="relative avatar-with-badges shadow-xl rounded-full border-4 border-white w-full h-full">
+            <div class="w-full h-full rounded-full overflow-hidden bg-white">
+                <img src="{avatar_url}" alt="{self.username}" class="w-full h-full object-cover">
+            </div>
+            <div class="absolute inset-0 rounded-full ring-1 ring-black/5 pointer-events-none"></div>
             {badge_icons}
         </div>
         """

@@ -111,10 +111,49 @@
             <h1 class="text-2xl font-bold">Menu</h1>
         </div>
         <div class="p-4">
-            <!-- Same nav links as desktop -->
             <ul class="space-y-2">
-                <!-- paste the same <li> items from desktop nav here -->
-                <!-- ... -->
+                <li>
+                    <a href="{% url 'dashboard_home' %}"
+                        class="flex items-center px-4 py-3 rounded-xl {% if request.resolver_match.url_name == 'dashboard_home' %}bg-light text-primary font-semibold shadow-sm{% else %}text-gray-700 hover:bg-light hover:text-primary transition{% endif %}">
+                        <span class="mr-3 text-lg">🏠</span> Overview
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'dashboard_users' %}"
+                        class="flex items-center px-4 py-3 rounded-xl {% if 'users' in request.path %}bg-light text-primary font-semibold shadow-sm{% else %}text-gray-700 hover:bg-light hover:text-primary transition{% endif %}">
+                        <span class="mr-3 text-lg">👥</span> Users
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'dashboard_jobs' %}"
+                        class="flex items-center px-4 py-3 rounded-xl {% if 'jobs' in request.path %}bg-light text-primary font-semibold shadow-sm{% else %}text-gray-700 hover:bg-light hover:text-primary transition{% endif %}">
+                        <span class="mr-3 text-lg">💼</span> Jobs
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'dashboard_applications' %}"
+                        class="flex items-center px-4 py-3 rounded-xl {% if 'applications' in request.path %}bg-light text-primary font-semibold shadow-sm{% else %}text-gray-700 hover:bg-light hover:text-primary transition{% endif %}">
+                        <span class="mr-3 text-lg">📋</span> Applications
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'dashboard_stats' %}"
+                        class="flex items-center px-4 py-3 rounded-xl {% if 'stats' in request.path %}bg-light text-primary font-semibold shadow-sm{% else %}text-gray-700 hover:bg-light hover:text-primary transition{% endif %}">
+                        <span class="mr-3 text-lg">📊</span> Statistics
+                    </a>
+                </li>
+                <li class="mt-6 pt-4 border-t border-gray-200">
+                    <a href="{% url 'home' %}"
+                        class="flex items-center px-4 py-3 rounded-xl text-gray-700 hover:bg-light hover:text-primary transition">
+                        <span class="mr-3 text-lg">🌐</span> Back to Main Site
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'logout' %}"
+                        class="flex items-center px-4 py-3 rounded-xl text-red-600 hover:bg-red-50 transition">
+                        <span class="mr-3 text-lg">🚪</span> Logout
+                    </a>
+                </li>
             </ul>
         </div>
     </nav>

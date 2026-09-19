@@ -84,12 +84,20 @@ class JobForm(forms.ModelForm):
                 continue
 
             field.widget.attrs.update({'class': common_class})
-            if field_name == 'description':
+            if field_name == 'title':
+                field.widget.attrs['placeholder'] = 'e.g. Experienced housekeeper needed in Kilimani'
+                field.label = 'Job Title'
+            elif field_name == 'description':
                 field.widget.attrs['placeholder'] = 'Briefly describe your household and what you need help with...'
+                field.label = 'Describe the Job'
             elif field_name == 'responsibilities':
                 field.widget.attrs['placeholder'] = 'Optional: add any extra responsibilities not covered above.'
+                field.label = 'Extra Responsibilities'
             elif field_name == 'requirements':
                 field.widget.attrs['placeholder'] = 'Optional: add any extra requirements or clarifications.'
+                field.label = 'Extra Requirements'
+            elif field_name == 'location':
+                field.label = 'Estate / Area (optional)'
 
             # location can stay optional; the rest of the core job fields should be filled
             if field_name == 'location':
@@ -183,7 +191,10 @@ class ApplicationForm(forms.ModelForm):
     def __init__(self, *args, job=None, **kwargs):
         super().__init__(*args, **kwargs)
         common_class = 'w-full px-4 py-3 rounded-lg border border-pink-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-200 bg-white transition'
-        
+
+        # Template flag: only show the qualifications card when the job has requirements
+        self.show_requirements = bool(job and job.requirements)
+
         if job and job.requirements:
             # Parse requirements: usually stored as "- Requirement" lines
             lines = [line.strip("- ").strip() for line in job.requirements.split('\n') if line.strip()]
@@ -193,8 +204,37 @@ class ApplicationForm(forms.ModelForm):
             self.fields['requirements_met'].widget = forms.HiddenInput()
             self.fields['requirements_met'].required = False
 
+        # Friendly, plain-English labels and guidance
+        friendly = {
+            'experience': ('Years of Experience', 'How many years have you done this kind of work?'),
+            'availability': ('Availability', None),
+            'preferred_hours': ('Preferred Working Hours', 'e.g. 8 AM - 5 PM, Mondays to Saturdays'),
+            'cover_letter': ('Message to the Employer', 'Briefly tell the employer why you are a great fit for this job.'),
+            'resume': ('Resume / CV (optional)', 'Upload your CV if you have one (PDF or image). You can still apply without it.'),
+            'additional_notes': ('Anything Else?', 'Add anything else the employer should know (optional).'),
+        }
+        for fname, (label, help_text) in friendly.items():
+            if fname in self.fields:
+                self.fields[fname].label = label
+                if help_text:
+                    self.fields[fname].help_text = help_text
+
+        # Placeholders for text inputs
+        if 'preferred_hours' in self.fields:
+            self.fields['preferred_hours'].widget.attrs['placeholder'] = 'e.g. 8 AM - 5 PM'
+        if 'experience' in self.fields:
+            self.fields['experience'].widget.attrs['placeholder'] = 'e.g. 3'
+            self.fields['experience'].widget.attrs['min'] = 0
+            self.fields['experience'].widget.attrs['max'] = 50
+
+        # Plain FileInput: never shows raw storage paths like "Currently: resumes/xxx.pdf".
+        if 'resume' in self.fields:
+            self.fields['resume'].widget = forms.FileInput(attrs={
+                'accept': '.pdf,image/*,.doc,.docx',
+            })
+
         for name, field in self.fields.items():
-            if name != 'requirements_met':
+            if name != 'requirements_met' and name != 'resume':
                 field.widget.attrs.update({'class': common_class})
 
 class JobSearchForm(forms.Form):

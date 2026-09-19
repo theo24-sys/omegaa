@@ -6,7 +6,8 @@
 
 {% block content %}
 <div class="container mx-auto px-4 py-8 max-w-lg">
-    <h1 class="text-4xl font-bold mb-8 text-center text-pink-600">Join CHARLADY</h1>
+    <h1 class="text-4xl font-bold mb-2 text-center text-pink-600">Join CHARLADY</h1>
+    <p class="text-center text-slate-500 mb-8">Create your free account — it takes about 2 minutes.</p>
 
     {% if messages %}
     <div class="mb-6 space-y-3">
@@ -23,7 +24,7 @@
     <form method="post" enctype="multipart/form-data"
     class="space-y-6 bg-white p-8 rounded-2xl shadow-xl border border-pink-100">
     
-    {% csrf_token %}  <!-- ← ADD THIS LINE RIGHT HERE -->
+    {% csrf_token %}
 
     {% if form.non_field_errors %}
     <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-6">
