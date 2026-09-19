@@ -235,23 +235,58 @@ SECURE_BROWSER_XSS_FILTER = True
 X_FRAME_OPTIONS = 'DENY'
 
 # ─── M-Pesa ─────────────────────────────────────────────────────────────────────
+def resolve_mpesa_settings(environment=None, env=None):
+    """Resolve M-Pesa credentials from either modern or legacy environment names."""
+    env = env or os.environ
+    requested_environment = (environment or env.get('MPESA_ENVIRONMENT') or ('sandbox' if DEBUG else 'production')).lower()
+
+    def pick_value(primary_name, alias_name):
+        if env.get(primary_name):
+            return env.get(primary_name)
+        return env.get(alias_name, '')
+
+    if requested_environment == 'sandbox':
+        settings_env = 'sandbox'
+        consumer_key = pick_value('MPESA_CONSUMER_KEY', 'MPESA_CONSUMER_KEY_SANDBOX')
+        consumer_secret = pick_value('MPESA_CONSUMER_SECRET', 'MPESA_CONSUMER_SECRET_SANDBOX')
+        passkey = pick_value('MPESA_PASSKEY', 'MPESA_PASSKEY_SANDBOX')
+        short_code = pick_value('MPESA_SHORT_CODE', 'MPESA_SHORT_CODE_SANDBOX')
+    else:
+        settings_env = 'production'
+        consumer_key = pick_value('MPESA_CONSUMER_KEY', 'MPESA_CONSUMER_KEY_PRODUCTION')
+        consumer_secret = pick_value('MPESA_CONSUMER_SECRET', 'MPESA_CONSUMER_SECRET_PRODUCTION')
+        passkey = pick_value('MPESA_PASSKEY', 'MPESA_PASSKEY_PRODUCTION')
+        short_code = pick_value('MPESA_SHORT_CODE', 'MPESA_SHORT_CODE_PRODUCTION')
+
+    return {
+        'environment': settings_env,
+        'consumer_key': consumer_key,
+        'consumer_secret': consumer_secret,
+        'passkey': passkey,
+        'short_code': short_code,
+    }
+
+
+MPESA_SETTINGS = resolve_mpesa_settings()
 MPESA_TILL_NUMBER = os.getenv('MPESA_TILL_NUMBER', '4567052')
 
 # API Credentials (Must be set in Render environment variables)
 # SECURITY: Do NOT use hardcoded defaults for production credentials
 if not DEBUG:
-    if not os.getenv('MPESA_CONSUMER_KEY'):
-        raise ValueError("MPESA_CONSUMER_KEY must be set in production environment")
-    if not os.getenv('MPESA_CONSUMER_SECRET'):
-        raise ValueError("MPESA_CONSUMER_SECRET must be set in production environment")
-    if not os.getenv('MPESA_PASSKEY'):
-        raise ValueError("MPESA_PASSKEY must be set in production environment")
+    if not MPESA_SETTINGS['consumer_key']:
+        raise ValueError("MPESA_CONSUMER_KEY or MPESA_CONSUMER_KEY_PRODUCTION must be set in production environment")
+    if not MPESA_SETTINGS['consumer_secret']:
+        raise ValueError("MPESA_CONSUMER_SECRET or MPESA_CONSUMER_SECRET_PRODUCTION must be set in production environment")
+    if not MPESA_SETTINGS['passkey']:
+        raise ValueError("MPESA_PASSKEY or MPESA_PASSKEY_PRODUCTION must be set in production environment")
+    if not MPESA_SETTINGS['short_code']:
+        raise ValueError("MPESA_SHORT_CODE or MPESA_SHORT_CODE_PRODUCTION must be set in production environment")
 
-MPESA_CONSUMER_KEY = os.getenv('MPESA_CONSUMER_KEY', '')
-MPESA_CONSUMER_SECRET = os.getenv('MPESA_CONSUMER_SECRET', '')
-MPESA_PASSKEY = os.getenv('MPESA_PASSKEY', '')
-MPESA_SHORT_CODE = os.getenv('MPESA_SHORT_CODE', '')
-MPESA_ENVIRONMENT = os.getenv('MPESA_ENVIRONMENT', 'sandbox' if DEBUG else 'production')
+MPESA_CONSUMER_KEY = MPESA_SETTINGS['consumer_key']
+MPESA_CONSUMER_SECRET = MPESA_SETTINGS['consumer_secret']
+MPESA_PASSKEY = MPESA_SETTINGS['passkey']
+MPESA_SHORT_CODE = MPESA_SETTINGS['short_code']
+MPESA_ENVIRONMENT = MPESA_SETTINGS['environment']
 JOB_POSTING_FEE = 250
 MPESA_TRANSACTION_TYPE = os.getenv('MPESA_TRANSACTION_TYPE', 'CustomerBuyGoodsOnline')
 

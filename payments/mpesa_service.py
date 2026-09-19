@@ -109,6 +109,14 @@ class MpesaClient:
                 'message': str
             }
         """
+        if not self.consumer_key or not self.consumer_secret or not self.passkey or not self.short_code:
+            return {
+                'success': False,
+                'checkout_request_id': None,
+                'response_code': 'CONFIG_ERROR',
+                'message': 'M-Pesa credentials are not configured correctly. Set MPESA_CONSUMER_KEY, MPESA_CONSUMER_SECRET, MPESA_PASSKEY and MPESA_SHORT_CODE.'
+            }
+
         token = self.authenticate()
         if not token:
             return {
