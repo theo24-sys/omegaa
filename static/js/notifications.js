@@ -163,6 +163,11 @@ class NotificationManager {
             return;
         }
 
+        // Respect a previous dismissal — don't nag on every page load
+        if (localStorage.getItem('notification-banner-dismissed') === 'true') {
+            return;
+        }
+
         const banner = document.getElementById('notification-permission-banner');
         if (!banner) {
             this.createNotificationBanner();
@@ -177,42 +182,59 @@ class NotificationManager {
     createNotificationBanner() {
         const banner = document.createElement('div');
         banner.id = 'notification-permission-banner';
-        banner.className = 'fixed top-0 left-0 right-0 bg-gradient-to-r from-emerald-600 to-green-600 text-white shadow-lg flex items-center justify-between px-6 py-4 z-50 animate-slideDown';
+        // z-[60] keeps it above the sticky site header (z-50)
+        banner.className = 'fixed top-0 left-0 right-0 bg-gradient-to-r from-emerald-600 to-green-600 text-white shadow-lg z-[60] animate-slideDown';
         banner.innerHTML = `
-            <div class="flex items-center gap-4">
-                <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                </svg>
-                <div>
-                    <p class="font-semibold">Enable Notifications</p>
-                    <p class="text-sm text-emerald-50">Stay updated with job offers and messages</p>
-                </div>
-            </div>
-            <div class="flex items-center gap-3">
-                <button id="notification-enable-btn" class="bg-white text-emerald-600 px-6 py-2 rounded-lg font-semibold hover:bg-emerald-50 transition">
-                    Enable
-                </button>
-                <button id="notification-dismiss-btn" class="text-white hover:text-emerald-100 transition">
-                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div class="flex items-center gap-3 min-w-0">
+                    <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                     </svg>
-                </button>
+                    <div class="min-w-0">
+                        <p class="font-semibold text-sm sm:text-base">Enable Notifications</p>
+                        <p class="text-xs sm:text-sm text-emerald-50">Stay updated with job offers and messages</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3 flex-shrink-0 flex-wrap">
+                    <button id="notification-enable-btn" class="bg-white text-emerald-600 px-5 py-2 rounded-lg font-semibold hover:bg-emerald-50 transition text-sm whitespace-nowrap">
+                        Enable
+                    </button>
+                    <button id="notification-dismiss-btn" aria-label="Dismiss" class="text-white hover:text-emerald-100 transition p-1">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                </div>
             </div>
         `;
 
         document.body.insertBefore(banner, document.body.firstChild);
 
+        // Push the sticky header below the banner so nothing is hidden
+        const siteHeader = document.querySelector('header.sticky');
+        const applyHeaderOffset = () => {
+            if (siteHeader) siteHeader.style.top = banner.offsetHeight + 'px';
+        };
+        applyHeaderOffset();
+        window.addEventListener('resize', applyHeaderOffset);
+
+        const removeBanner = () => {
+            banner.style.display = 'none';
+            if (siteHeader) siteHeader.style.top = '';
+            window.removeEventListener('resize', applyHeaderOffset);
+            banner.remove();
+        };
+
         // Event listeners
         document.getElementById('notification-enable-btn').addEventListener('click', async () => {
             const granted = await this.requestPermission();
             if (granted) {
-                banner.style.display = 'none';
-                banner.remove();
+                removeBanner();
             }
         });
 
         document.getElementById('notification-dismiss-btn').addEventListener('click', () => {
-            banner.style.display = 'none';
+            removeBanner();
             localStorage.setItem('notification-banner-dismissed', 'true');
         });
     }

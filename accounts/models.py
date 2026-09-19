@@ -174,16 +174,22 @@ class CustomUser(AbstractUser):
         avatar_url = self.get_avatar_url()
         badge_icons = ""
         
-        # The Paramount Purple Instagram-Style Check
+        # The Paramount Purple 12-point SEAL (paid membership, KSh 250/yr).
+        # Deliberately a starburst rosette — NOT a plain circle-check, so it can
+        # never be mistaken for an Instagram/ID-verification tick.
         if self.is_paid_verified:
             badge_icons += """
-            <div class="absolute -top-[3%] -right-[3%] bg-white rounded-full p-[3.5%] shadow-lg z-20">
-                <div class="bg-[#8a3ab9] rounded-full p-[3.5%] w-full h-full flex items-center justify-center border-2 border-white">
-                    <svg class="w-full h-full text-white" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 2L13.73 4.27L16.4 3.93L17.27 6.47L19.86 7.14L19.46 9.8L21.46 11.67L20.13 14.27L21.13 16.87L18.66 17.8L17.53 20.27L14.86 19.93L13.13 22.2L10.5 21.53L8.87 23.8L6.2 23.46L5.33 21L2.74 20.33L3.14 17.67L1.14 15.8L2.47 13.2L1.47 10.6L3.94 9.67L5.07 7.2L7.74 7.54L9.47 5.27L12 2Z" />
-                        <path d="M10 15.5L7 12.5L8.4 11.1L10 12.7L15.6 7.1L17 8.5L10 15.5Z" fill="white" />
-                    </svg>
-                </div>
+            <div class="absolute -top-[4%] -right-[4%] w-[34%] h-[34%] drop-shadow-md z-20" title="Pro Verified Member">
+                <svg class="w-full h-full" viewBox="0 0 24 24">
+                    <defs>
+                        <linearGradient id="pv-gold-seal" x1="0" y1="0" x2="1" y2="1">
+                            <stop offset="0%" stop-color="#c026d3"/>
+                            <stop offset="100%" stop-color="#7e22ce"/>
+                        </linearGradient>
+                    </defs>
+                    <path fill="url(#pv-gold-seal)" stroke="white" stroke-width="1" d="M12 2L13.73 4.27L16.4 3.93L17.27 6.47L19.86 7.14L19.46 9.8L21.46 11.67L20.13 14.27L21.13 16.87L18.66 17.8L17.53 20.27L14.86 19.93L13.13 22.2L10.5 21.53L8.87 23.8L6.2 23.46L5.33 21L2.74 20.33L3.14 17.67L1.14 15.8L2.47 13.2L1.47 10.6L3.94 9.67L5.07 7.2L7.74 7.54L9.47 5.27L12 2Z" />
+                    <path d="M10 15.5L7 12.5L8.4 11.1L10 12.7L15.6 7.1L17 8.5L10 15.5Z" fill="white" />
+                </svg>
             </div>
             """
         
@@ -221,21 +227,29 @@ class CustomUser(AbstractUser):
         """Returns distinct badges for Identity Verification vs Paid Verification."""
         badges = []
         
-        # Paid Verification (The Paramount Purple Instagram-Style Rosette)
+        # Paid Membership (KSh 250/yr) — 12-point purple SEAL, distinct from
+        # the pale Didit circle-check below. Shape = premium rosette.
         if self.is_paid_verified:
             badges.append("""
-            <span class="inline-flex items-center justify-center ml-1 shrink-0 align-middle" title="Paid Verified Member">
-                <svg class="w-3.5 h-3.5 md:w-4 md:h-4 text-[#8a3ab9]" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 2L13.73 4.27L16.4 3.93L17.27 6.47L19.86 7.14L19.46 9.8L21.46 11.67L20.13 14.27L21.13 16.87L18.66 17.8L17.53 20.27L14.86 19.93L13.13 22.2L10.5 21.53L8.87 23.8L6.2 23.46L5.33 21L2.74 20.33L3.14 17.67L1.14 15.8L2.47 13.2L1.47 10.6L3.94 9.67L5.07 7.2L7.74 7.54L9.47 5.27L12 2Z" />
+            <span class="inline-flex items-center justify-center ml-1 shrink-0 align-middle" title="Pro Verified Member (paid membership)">
+                <svg class="w-4 h-4 md:w-5 md:h-5" viewBox="0 0 24 24">
+                    <defs>
+                        <linearGradient id="pv-seal-inline" x1="0" y1="0" x2="1" y2="1">
+                            <stop offset="0%" stop-color="#c026d3"/>
+                            <stop offset="100%" stop-color="#7e22ce"/>
+                        </linearGradient>
+                    </defs>
+                    <path fill="url(#pv-seal-inline)" d="M12 2L13.73 4.27L16.4 3.93L17.27 6.47L19.86 7.14L19.46 9.8L21.46 11.67L20.13 14.27L21.13 16.87L18.66 17.8L17.53 20.27L14.86 19.93L13.13 22.2L10.5 21.53L8.87 23.8L6.2 23.46L5.33 21L2.74 20.33L3.14 17.67L1.14 15.8L2.47 13.2L1.47 10.6L3.94 9.67L5.07 7.2L7.74 7.54L9.47 5.27L12 2Z" />
                     <path d="M10 15.5L7 12.5L8.4 11.1L10 12.7L15.6 7.1L17 8.5L10 15.5Z" fill="white" />
                 </svg>
             </span>
             """)
             
-        # Identity Verification (ID Card Style with Purple Seal - Inspired by Image)
+        # Identity Verification (Didit) — pale outlined circle-check with ID-card
+        # connotation; visually distinct from the paid purple seal above.
         if self.is_verified:
             badges.append("""
-            <span class="inline-flex items-center justify-center ml-1 shrink-0 align-middle" title="Identity Verified">
+            <span class="inline-flex items-center justify-center ml-1 shrink-0 align-middle" title="Identity Verified via Didit">
                 <svg class="w-4 h-4 md:w-4.5 md:h-4.5 text-[#8a3ab9]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <circle cx="12" cy="12" r="9" fill="#F3E5F5" stroke="currentColor" stroke-width="1.25"/>
                     <path d="M9.5 12.2l1.7 1.7 3.9-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
