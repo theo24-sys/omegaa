@@ -6,6 +6,7 @@ urlpatterns = [
     path('api/kenya-locations.json', views.kenya_locations_json, name='kenya_locations_json'),
     path('signup/', views.signup, name='signup'),
     path('login/', views.login, name='login'),
+    path('resend-verification/', views.resend_verification, name='resend_verification'),
     path('logout/', views.logout, name='logout'),
     path('profile/', views.profile, name='profile'),
     path('profile/<int:user_id>/', views.profile_detail, name='profile_detail'),

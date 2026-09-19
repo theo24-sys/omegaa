@@ -15,11 +15,11 @@
         <p>Thank you for registering with Charlady! To complete your registration, please verify your email address by clicking the button below:</p>
         
         <div style="text-align: center; margin-top: 30px;">
-            <a href="http://{{ domain }}{% url 'verify_email' uidb64=uid token=token %}" style="background-color: #d946ef; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">Verify Email</a>
+            <a href="https://{{ domain }}{% url 'verify_email' uidb64=uid token=token %}" style="background-color: #d946ef; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">Verify Email</a>
         </div>
         
         <p style="margin-top: 30px;">If the button doesn't work, you can also copy and paste the following link into your browser:</p>
-        <p style="word-break: break-all;">http://{{ domain }}{% url 'verify_email' uidb64=uid token=token %}</p>
+        <p style="word-break: break-all;">https://{{ domain }}{% url 'verify_email' uidb64=uid token=token %}</p>
         
         <p>This link will expire in 24 hours.</p>
         

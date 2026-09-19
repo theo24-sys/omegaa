@@ -33,3 +33,5 @@ node_modules/
 
 # Static files at build time
 /staticfiles/
+# Freebuff local workspace
+.freebuff/
