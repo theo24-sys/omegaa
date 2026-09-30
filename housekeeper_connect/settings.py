@@ -271,6 +271,14 @@ def resolve_mpesa_settings(environment=None, env=None):
 MPESA_SETTINGS = resolve_mpesa_settings()
 MPESA_TILL_NUMBER = os.getenv('MPESA_TILL_NUMBER', '4567052')
 
+# Daraja-registered business short code used for STK authentication and the
+# password hash — NOT the same as the till number (money destination / PartyB).
+# Explicit MPESA_SHORT_CODE env var always wins; this default keeps STK working
+# if the env var is ever missing.
+MPESA_SHORT_CODE_DEFAULT = '4564139'
+if not MPESA_SETTINGS['short_code']:
+    MPESA_SETTINGS['short_code'] = MPESA_SHORT_CODE_DEFAULT
+
 # API Credentials (Must be set in Render environment variables)
 # SECURITY: Do NOT use hardcoded defaults for production credentials
 if not DEBUG:
