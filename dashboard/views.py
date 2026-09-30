@@ -189,17 +189,17 @@ def housekeeper_dashboard(request):
     review_count = reviews.count()
     skills_list = [s.strip() for s in (request.user.skills or '').split(',') if s.strip()]
 
-    # Study Tracker Logic
+    # Study Tracker Logic (hidden/inactive courses excluded)
     completed_course_ids = CourseCompletion.objects.filter(user=request.user).values_list('course_id', flat=True)
     has_bundle = Payment.objects.filter(user=request.user, plan__plan_type='academy_bundle', status='completed').exists()
     
     if has_bundle:
-        total_courses = Course.objects.all().count()
-        accessible_courses = Course.objects.exclude(id__in=completed_course_ids)
+        total_courses = Course.objects.filter(is_active=True).count()
+        accessible_courses = Course.objects.filter(is_active=True).exclude(id__in=completed_course_ids)
     else:
-        total_courses = Course.objects.filter(id__in=completed_course_ids).count()
+        total_courses = Course.objects.filter(id__in=completed_course_ids, is_active=True).count()
         paid_course_ids = Payment.objects.filter(user=request.user, course__isnull=False, status='completed').values_list('course_id', flat=True)
-        accessible_courses = Course.objects.filter(
+        accessible_courses = Course.objects.filter(is_active=True).filter(
             models.Q(is_free=True) | models.Q(is_mandatory=True) | models.Q(id__in=paid_course_ids)
         ).exclude(id__in=completed_course_ids)
 

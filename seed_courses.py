@@ -62,6 +62,19 @@ def seed_courses():
         Choice.objects.create(question=q1, text="Arriving late every day", is_correct=False)
         Choice.objects.create(question=q1, text="Using the employer's phone without asking", is_correct=False)
 
+    # Final exam question (the exam view only serves is_final_exam=True questions —
+    # without at least one, the final exam renders empty and can never be passed)
+    fq1, _ = Question.objects.get_or_create(
+        course=course_pro,
+        is_final_exam=True,
+        text="You notice your employer's wallet on the kitchen counter. What is the professional thing to do?",
+        defaults={'order': 100}
+    )
+    if not fq1.choices.exists():
+        Choice.objects.create(question=fq1, text="Leave it untouched and mention it to your employer", is_correct=True)
+        Choice.objects.create(question=fq1, text="Take it to your room for safekeeping", is_correct=False)
+        Choice.objects.create(question=fq1, text="Count the money to make sure it is correct", is_correct=False)
+
     # 2. Childcare & Safety
     course_child, created = Course.objects.get_or_create(
         title="Childcare & Early Development",

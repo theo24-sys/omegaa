@@ -47,7 +47,6 @@
                     <div class="bg-primary h-full transition-all duration-700"
                         style="width: {{ course.id|get_course_progress:user }}%"></div>
                 </div>
-            </div>
             {% endif %}
         </div>
 
@@ -247,6 +246,13 @@
                 </div>
                 {% else %}
                 <iframe src="{{ course.iframe_url }}" allowfullscreen></iframe>
+                <div class="bg-pink-50 border-t border-pink-100 px-6 py-4 text-center">
+                    <p class="text-xs text-slate-500 font-medium mb-2">Classroom not loading? Some course providers block embedding.</p>
+                    <a href="{{ course.iframe_url }}" target="_blank" rel="noopener" class="inline-flex items-center gap-2 bg-white border border-pink-200 hover:border-primary text-primary text-xs font-black tracking-widest uppercase px-6 py-3 rounded-2xl transition">
+                        Open Classroom in New Tab
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                    </a>
+                </div>
                 {% endif %}
             {% else %}
                 <!-- Locked State -->

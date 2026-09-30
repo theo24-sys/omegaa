@@ -8,7 +8,7 @@ from django.http import HttpResponse
 
 @login_required
 def course_list(request):
-    courses = Course.objects.all().order_by('-is_mandatory', 'price')
+    courses = Course.objects.filter(is_active=True).order_by('-is_mandatory', 'price')
     completed_courses = CourseCompletion.objects.filter(user=request.user).values_list('course_id', flat=True)
     
     # Check for bundle payment
@@ -114,6 +114,9 @@ def course_quiz(request, course_id, lesson_id=None):
     else:
         # Final Exam - Randomize 40 questions (or all if < 40)
         questions = list(course.questions.filter(is_final_exam=True))
+        if not questions:
+            messages.info(request, "The final exam for this course isn't available yet. Please complete the module quizzes or contact support.")
+            return redirect('courses:course_detail', course_id=course.id)
         import random
         random.shuffle(questions)
         questions = questions[:40]
@@ -158,7 +161,8 @@ def course_quiz(request, course_id, lesson_id=None):
             else:
                 return redirect('courses:complete_course', course_id=course.id)
         else:
-            messages.error(request, f"Score: {score}/{total} ({(score/total)*100:.0f}%). You need 80% to pass. Review & Retry!")
+            percent = (score / total * 100) if total else 0
+            messages.error(request, f"Score: {score}/{total} ({percent:.0f}%). You need 80% to pass. Review & Retry!")
             if lesson:
                 return redirect('courses:lesson_detail', course_id=course.id, lesson_id=lesson.id)
             return redirect('courses:course_detail', course_id=course.id)
@@ -173,6 +177,16 @@ def course_quiz(request, course_id, lesson_id=None):
 @login_required
 def complete_course(request, course_id):
     course = get_object_or_404(Course, id=course_id)
+    
+    # Access check: must be free/mandatory, or paid (individual or bundle)
+    has_access = course.is_free or course.is_mandatory
+    if not has_access:
+        has_access = Payment.objects.filter(user=request.user, course=course, status='completed').exists()
+    if not has_access:
+        has_access = Payment.objects.filter(user=request.user, plan__plan_type='academy_bundle', status='completed').exists()
+    if not has_access:
+        messages.error(request, f"Access denied. Please purchase the {course.title} course or the Academy Bundle first.")
+        return redirect('courses:course_detail', course_id=course.id)
     
     # Create completion record
     completion, created = CourseCompletion.objects.get_or_create(user=request.user, course=course)
