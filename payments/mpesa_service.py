@@ -109,12 +109,30 @@ class MpesaClient:
                 'message': str
             }
         """
-        if not self.consumer_key or not self.consumer_secret or not self.passkey or not self.short_code:
+        missing = [
+            name for name, value in (
+                ('MPESA_CONSUMER_KEY', self.consumer_key),
+                ('MPESA_CONSUMER_SECRET', self.consumer_secret),
+                ('MPESA_PASSKEY', self.passkey),
+                ('MPESA_SHORT_CODE', self.short_code),
+            ) if not value
+        ]
+        if missing:
+            logger.error(
+                "M-Pesa config error: server cannot see env vars: %s "
+                "(environment=%s, base_url=%s). Check they are set on the "
+                "correct service and redeploy.",
+                ', '.join(missing), self.environment, self.base_url
+            )
             return {
                 'success': False,
                 'checkout_request_id': None,
                 'response_code': 'CONFIG_ERROR',
-                'message': 'M-Pesa credentials are not configured correctly. Set MPESA_CONSUMER_KEY, MPESA_CONSUMER_SECRET, MPESA_PASSKEY and MPESA_SHORT_CODE.'
+                'message': (
+                    'M-Pesa credentials are not configured correctly. '
+                    f'The server cannot see: {", ".join(missing)}. '
+                    'Set them in the environment and redeploy.'
+                )
             }
 
         token = self.authenticate()

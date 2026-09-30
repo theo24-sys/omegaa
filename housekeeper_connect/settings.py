@@ -241,9 +241,10 @@ def resolve_mpesa_settings(environment=None, env=None):
     requested_environment = (environment or env.get('MPESA_ENVIRONMENT') or ('sandbox' if DEBUG else 'production')).lower()
 
     def pick_value(primary_name, alias_name):
-        if env.get(primary_name):
-            return env.get(primary_name)
-        return env.get(alias_name, '')
+        value = env.get(primary_name) or env.get(alias_name, '')
+        # Guard against pasted values with stray whitespace/newlines —
+        # a trailing space in a passkey causes Safaricom 400 errors.
+        return value.strip() if isinstance(value, str) else value
 
     if requested_environment == 'sandbox':
         settings_env = 'sandbox'
