@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db.models import Count, Avg
 from django.contrib import messages
+from django.http import FileResponse, Http404
 from accounts.models import CustomUser
 from jobs.models import Job, Application
 from payments.models import Payment, PaymentPlan
@@ -11,6 +12,7 @@ from courses.models import Course, CourseCompletion
 from payments.models import MonthlyContribution
 from accounts.models import PlatformDocument
 from functools import wraps
+import os
 import requests
 import json
 from django.conf import settings
@@ -225,6 +227,21 @@ def housekeeper_dashboard(request):
         'agreement_template': agreement_template,
     }
     return render(request, 'dashboard/housekeeper_dashboard.html', context)
+
+
+@login_required
+def download_worker_agreement(request):
+    """Stream the active worker agreement template to any logged-in user."""
+    doc = PlatformDocument.objects.filter(doc_type='worker_agreement', is_active=True).first()
+    if not doc or not doc.document_file:
+        raise Http404("Worker agreement document is not available yet.")
+
+    filename = os.path.basename(doc.document_file.name)
+    return FileResponse(
+        doc.document_file.open('rb'),
+        as_attachment=True,
+        filename=filename,
+    )
 
 
 @login_required

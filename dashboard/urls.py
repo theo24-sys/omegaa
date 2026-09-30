@@ -12,5 +12,6 @@ urlpatterns = [
     path('user/', views.user_dashboard, name='user_dashboard'),
     path('housekeeper/', views.housekeeper_dashboard, name='housekeeper_dashboard'),
     path('housekeeper/sync/', views.force_didit_sync, name='force_didit_sync'),
+    path('agreement/download/', views.download_worker_agreement, name='download_worker_agreement'),
     path('employer/', views.employer_dashboard, name='employer_dashboard'),
 ]
