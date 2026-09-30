@@ -210,6 +210,18 @@ def edit_profile(request):
         form = CustomUserChangeForm(request.POST, request.FILES, instance=request.user)  # FIX 3: added instance
         if form.is_valid():
             form.save()
+
+            # Flip any pending agreement issuance to 'submitted' when the
+            # user uploads a signed agreement copy.
+            if 'agreement_form' in request.FILES:
+                from accounts.models import AgreementIssuance
+                from django.utils import timezone
+                updated = AgreementIssuance.objects.filter(
+                    user=request.user, status='pending'
+                ).update(status='submitted', submitted_at=timezone.now())
+                if updated:
+                    messages.info(request, "Signed agreement received — our team will verify it shortly.")
+
             messages.success(request, "Profile updated successfully!")
             return redirect('dashboard:user_dashboard')  # FIX 4: was 'profile.html', must be URL name
     else:

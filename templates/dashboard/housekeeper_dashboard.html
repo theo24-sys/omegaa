@@ -311,11 +311,28 @@
                         <svg class="w-20 h-20" fill="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zM14 2v6h6M8 13h8M8 17h8M8 9h2"/></svg>
                     </div>
                     <h3 class="text-xl font-bold mb-2 text-slate-900">Work Agreement</h3>
-                    <p class="text-sm text-slate-500 mb-6">Download the official Charlady agreement template to review and sign with your employer.</p>
+                    <p class="text-sm text-slate-500 mb-4">Download the official Charlady agreement template to review and sign with your employer.</p>
+                    {% if latest_agreement %}
+                    <div class="flex items-center gap-3 mb-5 bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 w-fit">
+                        <div>
+                            <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Your Agreement ID</p>
+                            <p class="font-mono font-black text-slate-900">{{ latest_agreement.agreement_id }}</p>
+                        </div>
+                        <span class="px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest
+                            {% if latest_agreement.status == 'verified' %}bg-green-100 text-green-700
+                            {% elif latest_agreement.status == 'submitted' %}bg-amber-100 text-amber-700
+                            {% else %}bg-slate-200 text-slate-600{% endif %}">
+                            {% if latest_agreement.status == 'verified' %}✓ Verified{% elif latest_agreement.status == 'submitted' %}⏳ Under review{% else %}Awaiting signature{% endif %}
+                        </span>
+                    </div>
+                    {% endif %}
                     {% if agreement_template %}
                     <a href="{% url 'dashboard:download_worker_agreement' %}" class="bg-slate-900 text-white px-6 py-2.5 rounded-xl font-bold text-sm inline-block shadow-lg hover:bg-slate-800 transition active:scale-95">
-                        ⬇ Download Agreement
+                        {% if latest_agreement and latest_agreement.status == 'submitted' %}Download Again{% else %}⬇ Download Agreement{% endif %}
                     </a>
+                    {% if latest_agreement and latest_agreement.status == 'pending' %}
+                    <p class="text-xs text-slate-400 mt-3">After signing, upload the signed copy via <a href="{% url 'edit_profile' %}" class="text-primary font-bold underline">Edit Profile → Work Documents</a>.</p>
+                    {% endif %}
                     {% else %}
                     <span class="bg-slate-100 text-slate-400 px-6 py-2.5 rounded-xl font-bold text-sm inline-block cursor-not-allowed">Coming soon</span>
                     {% endif %}

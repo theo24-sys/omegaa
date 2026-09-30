@@ -211,6 +211,7 @@ def housekeeper_dashboard(request):
 
     # Agreements / Templates
     agreement_template = PlatformDocument.objects.filter(doc_type='worker_agreement', is_active=True).first()
+    latest_agreement = request.user.agreement_issuances.first()
 
     context = {
         'applications': applications,
@@ -225,18 +226,29 @@ def housekeeper_dashboard(request):
         'study_tracker_courses': study_tracker_courses,
         'pending_contribution': pending_contribution,
         'agreement_template': agreement_template,
+        'latest_agreement': latest_agreement,
     }
     return render(request, 'dashboard/housekeeper_dashboard.html', context)
 
 
 @login_required
 def download_worker_agreement(request):
-    """Stream the active worker agreement template to any logged-in user."""
+    """Serve the active worker agreement template with a unique, tracked
+    Agreement ID (e.g. CL-HHA-8F4K92) baked into the download filename.
+    The static PDF is never modified; the ID links the signed copy back
+    to this user when they upload it."""
+    from accounts.models import AgreementIssuance
+
     doc = PlatformDocument.objects.filter(doc_type='worker_agreement', is_active=True).first()
     if not doc or not doc.document_file:
         raise Http404("Worker agreement document is not available yet.")
 
-    filename = os.path.basename(doc.document_file.name)
+    # Reuse the pending ID on re-download; mint a fresh one only after
+    # submission or admin verification.
+    issuance, _created = AgreementIssuance.get_or_create_pending(request.user)
+
+    ext = os.path.splitext(doc.document_file.name)[1] or '.pdf'
+    filename = f"CHARLADY_Househelp_Agreement_{issuance.agreement_id}{ext}"
     return FileResponse(
         doc.document_file.open('rb'),
         as_attachment=True,

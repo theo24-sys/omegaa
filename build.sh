@@ -8,3 +8,4 @@ python manage.py migrate --noinput
 python create_admin.py
 python seed_courses.py
 python manage.py seed_coursebox_courses
+python manage.py seed_agreement_template

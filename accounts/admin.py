@@ -10,7 +10,16 @@ class PlatformDocumentAdmin(admin.ModelAdmin):
     list_filter = ('doc_type', 'is_active')
     search_fields = ('name', 'description')
 from .forms import CustomUserCreationForm, CustomUserChangeForm
+from .models import CustomUser, PlatformDocument, AgreementIssuance
 from notifications.utils import create_notification
+
+
+@admin.register(AgreementIssuance)
+class AgreementIssuanceAdmin(admin.ModelAdmin):
+    list_display = ('agreement_id', 'user', 'status', 'created_at', 'submitted_at')
+    list_filter = ('status',)
+    search_fields = ('agreement_id', 'user__username', 'user__phone_number')
+    readonly_fields = ('agreement_id', 'user', 'created_at', 'submitted_at')
 
 
 class CustomUserAdmin(UserAdmin):

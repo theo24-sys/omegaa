@@ -22,6 +22,53 @@ class PlatformDocument(models.Model):
 
     def __str__(self):
         return f"{self.get_doc_type_display()} - {self.name}"
+
+
+class AgreementIssuance(models.Model):
+    """Tracks each download of the agreement template with a unique,
+    human-readable ID (e.g. CL-HHA-8F4K92). The ID is embedded in the
+    download filename so the signed copy can be traced back to its
+    issuance and user — without modifying the static PDF itself."""
+    STATUS_CHOICES = (
+        ('pending', 'Downloaded, awaiting signed copy'),
+        ('submitted', 'Signed copy uploaded'),
+        ('verified', 'Verified by admin'),
+    )
+
+    user = models.ForeignKey('accounts.CustomUser', on_delete=models.CASCADE, related_name='agreement_issuances')
+    agreement_id = models.CharField(max_length=20, unique=True, verbose_name='Agreement ID')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    created_at = models.DateTimeField(auto_now_add=True)
+    submitted_at = models.DateTimeField(blank=True, null=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Agreement Issuance'
+        verbose_name_plural = 'Agreement Issuances'
+
+    def __str__(self):
+        return f"{self.agreement_id} - {self.user.username} ({self.status})"
+
+    @classmethod
+    def generate_id(cls):
+        """CL-HHA-XXXXXX with an unambiguous alphabet, retrying on the
+        (astronomically unlikely) collision."""
+        import secrets
+        alphabet = '23456789ABCDEFGHJKMNPQRSTUVWXYZ'  # no 0/O/1/I/L
+        while True:
+            candidate = 'CL-HHA-' + ''.join(secrets.choice(alphabet) for _ in range(6))
+            if not cls.objects.filter(agreement_id=candidate).exists():
+                return candidate
+
+    @classmethod
+    def get_or_create_pending(cls, user):
+        """One pending issuance per user: re-downloading the same template
+        reuses the same ID instead of minting a new one each click."""
+        pending = cls.objects.filter(user=user, status='pending').first()
+        if pending:
+            return pending, False
+        return cls.objects.create(user=user, agreement_id=cls.generate_id()), True
+
 from django.contrib.auth.models import AbstractUser, UserManager
 
 
