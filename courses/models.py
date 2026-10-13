@@ -2,6 +2,15 @@ from django.db import models
 from django.conf import settings
 
 class Course(models.Model):
+    BADGE_KEY_CHOICES = (
+        ('professional_standards', 'Professional Standards'),
+        ('cleaning', 'Cleaning'),
+        ('childcare', 'Childcare'),
+        ('eldercare', 'Elder Care'),
+        ('kitchen', 'Kitchen'),
+        ('appliance', 'Appliance'),
+    )
+
     title = models.CharField(max_length=255)
     description = models.TextField()
     price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
@@ -12,6 +21,7 @@ class Course(models.Model):
     is_active = models.BooleanField(default=True, help_text="Hidden courses don't appear on the Training page")
     duration = models.CharField(max_length=50, blank=True, null=True, help_text="e.g. 1 week, 2-3 weeks")
     features = models.TextField(blank=True, null=True, help_text="Comma-separated or bullet-point features")
+    badge_key = models.CharField(max_length=40, choices=BADGE_KEY_CHOICES, blank=True, default='')
     is_native = models.BooleanField(default=False)  # True = hosted on Charlady, False = embedded iframe
     created_at = models.DateTimeField(auto_now_add=True)
 

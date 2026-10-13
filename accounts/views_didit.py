@@ -106,23 +106,25 @@ def didit_webhook(request):
     # ─── SECURITY: Webhook Signature Verification ───────────────────────────
     signature = request.headers.get('x-didit-signature') or request.headers.get('X-Signature')
     
-    if DIDIT_WEBHOOK_SECRET and signature:
+    webhook_secret = getattr(settings, 'DIDIT_WEBHOOK_SECRET', DIDIT_WEBHOOK_SECRET)
+
+    if webhook_secret and signature:
         try:
             expected_signature = hmac.new(
-                DIDIT_WEBHOOK_SECRET.encode('utf-8'),
+                webhook_secret.encode('utf-8'),
                 request.body,
                 hashlib.sha256
             ).hexdigest()
             
             if not hmac.compare_digest(expected_signature, signature):
                 logger.error("Invalid Didit webhook signature")
-                if not settings.DEBUG:
-                    return HttpResponse("Invalid signature", status=401)
+                return HttpResponse("Invalid signature", status=401)
         except Exception as e:
             logger.error(f"Didit Webhook: Signature verification error: {e}")
-    elif DIDIT_WEBHOOK_SECRET and not signature:
+            return HttpResponse("Invalid signature", status=401)
+    elif webhook_secret and not signature:
         logger.warning("Didit Webhook: Secret set but signature missing from headers")
-        # Don't block in production if we're debugging connectivity, but log it
+        return HttpResponse("Missing signature", status=401)
     # ────────────────────────────────────────────────────────────────────────
     # ────────────────────────────────────────────────────────────────────────
     
@@ -161,9 +163,10 @@ def didit_webhook(request):
         if status_upper in ['SUCCESS', 'APPROVED', 'COMPLETED']:
             user.didit_verification_status = 'completed'
             user.is_verified = True
+            user.is_identity_verified = True
             user.badge_verified_id = True
             user.has_completed_first_verification = True  # Mark first verification as complete
-            user.save()
+            user.save(update_fields=['didit_verification_status', 'is_verified', 'is_identity_verified', 'badge_verified_id', 'has_completed_first_verification'])
             logger.info(f"User {user.id} verified successfully via Didit (Status: {status_upper})")
         elif status_upper in ['FAILED', 'DECLINED']:
             user.didit_verification_status = 'failed'

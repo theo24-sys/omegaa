@@ -15,8 +15,8 @@ class LessonInline(admin.TabularInline):
 
 @admin.register(Course)
 class CourseAdmin(admin.ModelAdmin):
-    list_display = ('title', 'price', 'is_free', 'is_mandatory', 'is_native')
-    list_filter = ('is_free', 'is_mandatory', 'is_native')
+    list_display = ('title', 'badge_key', 'price', 'is_free', 'is_mandatory', 'is_native')
+    list_filter = ('badge_key', 'is_free', 'is_mandatory', 'is_native')
     search_fields = ('title', 'description')
     inlines = [LessonInline, QuestionInline]
     ordering = ('-is_mandatory', 'price')

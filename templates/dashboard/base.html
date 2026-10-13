@@ -37,31 +37,31 @@
         <nav class="flex-1 p-4">
             <ul class="space-y-1">
                 <li>
-                    <a href="{% url 'dashboard_home' %}"
+                    <a href="{% url 'dashboard:dashboard_home' %}"
                         class="flex items-center px-4 py-3 rounded-xl {% if request.resolver_match.url_name == 'dashboard_home' %}bg-light text-primary font-semibold shadow-sm{% else %}text-gray-700 hover:bg-light hover:text-primary transition{% endif %}">
                         <span class="mr-3 text-lg">🏠</span> Overview
                     </a>
                 </li>
                 <li>
-                    <a href="{% url 'dashboard_users' %}"
+                    <a href="{% url 'dashboard:dashboard_users' %}"
                         class="flex items-center px-4 py-3 rounded-xl {% if 'users' in request.path %}bg-light text-primary font-semibold shadow-sm{% else %}text-gray-700 hover:bg-light hover:text-primary transition{% endif %}">
                         <span class="mr-3 text-lg">👥</span> Users
                     </a>
                 </li>
                 <li>
-                    <a href="{% url 'dashboard_jobs' %}"
+                    <a href="{% url 'dashboard:dashboard_jobs' %}"
                         class="flex items-center px-4 py-3 rounded-xl {% if 'jobs' in request.path %}bg-light text-primary font-semibold shadow-sm{% else %}text-gray-700 hover:bg-light hover:text-primary transition{% endif %}">
                         <span class="mr-3 text-lg">💼</span> Jobs
                     </a>
                 </li>
                 <li>
-                    <a href="{% url 'dashboard_applications' %}"
+                    <a href="{% url 'dashboard:dashboard_applications' %}"
                         class="flex items-center px-4 py-3 rounded-xl {% if 'applications' in request.path %}bg-light text-primary font-semibold shadow-sm{% else %}text-gray-700 hover:bg-light hover:text-primary transition{% endif %}">
                         <span class="mr-3 text-lg">📋</span> Applications
                     </a>
                 </li>
                 <li>
-                    <a href="{% url 'dashboard_stats' %}"
+                    <a href="{% url 'dashboard:dashboard_stats' %}"
                         class="flex items-center px-4 py-3 rounded-xl {% if 'stats' in request.path %}bg-light text-primary font-semibold shadow-sm{% else %}text-gray-700 hover:bg-light hover:text-primary transition{% endif %}">
                         <span class="mr-3 text-lg">📊</span> Statistics
                     </a>
@@ -113,31 +113,31 @@
         <div class="p-4">
             <ul class="space-y-2">
                 <li>
-                    <a href="{% url 'dashboard_home' %}"
+                    <a href="{% url 'dashboard:dashboard_home' %}"
                         class="flex items-center px-4 py-3 rounded-xl {% if request.resolver_match.url_name == 'dashboard_home' %}bg-light text-primary font-semibold shadow-sm{% else %}text-gray-700 hover:bg-light hover:text-primary transition{% endif %}">
                         <span class="mr-3 text-lg">🏠</span> Overview
                     </a>
                 </li>
                 <li>
-                    <a href="{% url 'dashboard_users' %}"
+                    <a href="{% url 'dashboard:dashboard_users' %}"
                         class="flex items-center px-4 py-3 rounded-xl {% if 'users' in request.path %}bg-light text-primary font-semibold shadow-sm{% else %}text-gray-700 hover:bg-light hover:text-primary transition{% endif %}">
                         <span class="mr-3 text-lg">👥</span> Users
                     </a>
                 </li>
                 <li>
-                    <a href="{% url 'dashboard_jobs' %}"
+                    <a href="{% url 'dashboard:dashboard_jobs' %}"
                         class="flex items-center px-4 py-3 rounded-xl {% if 'jobs' in request.path %}bg-light text-primary font-semibold shadow-sm{% else %}text-gray-700 hover:bg-light hover:text-primary transition{% endif %}">
                         <span class="mr-3 text-lg">💼</span> Jobs
                     </a>
                 </li>
                 <li>
-                    <a href="{% url 'dashboard_applications' %}"
+                    <a href="{% url 'dashboard:dashboard_applications' %}"
                         class="flex items-center px-4 py-3 rounded-xl {% if 'applications' in request.path %}bg-light text-primary font-semibold shadow-sm{% else %}text-gray-700 hover:bg-light hover:text-primary transition{% endif %}">
                         <span class="mr-3 text-lg">📋</span> Applications
                     </a>
                 </li>
                 <li>
-                    <a href="{% url 'dashboard_stats' %}"
+                    <a href="{% url 'dashboard:dashboard_stats' %}"
                         class="flex items-center px-4 py-3 rounded-xl {% if 'stats' in request.path %}bg-light text-primary font-semibold shadow-sm{% else %}text-gray-700 hover:bg-light hover:text-primary transition{% endif %}">
                         <span class="mr-3 text-lg">📊</span> Statistics
                     </a>

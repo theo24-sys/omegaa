@@ -28,16 +28,9 @@ app.conf.beat_schedule = {
     },
     
     # Send contribution reminders on 3rd of month (3 days after calculation)
-    'send-contribution-reminders': {
-        'task': 'payments.tasks.send_contribution_reminders',
-        'schedule': crontab(day_of_month=3, hour=9, minute=0),  # 9 AM
-        'options': {'queue': 'default', 'expires': 3600},
-        'kwargs': {}
-    },
-    
-    # Check for membership expiry every day at 11:00 PM UTC
+    # Check paid worker membership expiry every day at 11:00 PM UTC
     'check-membership-expiry': {
-        'task': 'payments.tasks.check_membership_expiry',
+        'task': 'payments.tasks.expire_paid_memberships',
         'schedule': crontab(hour=23, minute=0),  # Daily at 11 PM
         'options': {'queue': 'default', 'expires': 3600},
         'kwargs': {}
@@ -45,7 +38,7 @@ app.conf.beat_schedule = {
     
     # Send membership renewal reminders on 10th-20th of month (2 weeks before expiry)
     'send-membership-renewal-reminder': {
-        'task': 'payments.tasks.send_membership_renewal_reminder',
+        'task': 'payments.tasks.send_membership_renewal_reminders',
         'schedule': crontab(day_of_month='10-20', hour=10, minute=0),
         'options': {'queue': 'default', 'expires': 3600},
         'kwargs': {}

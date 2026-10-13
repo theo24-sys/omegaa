@@ -44,7 +44,8 @@ class CustomUserAdmin(UserAdmin):
         }),
         ('Verification & Badges', {
             'fields': (
-                'is_verified', 'mpesa_code',
+                'is_verified', 'is_identity_verified', 'is_paid_verified',
+                'paid_verification_date', 'paid_verification_expires_at', 'mpesa_code',
                 'badge_verified_id', 'badge_cleaning', 'badge_childcare',
                 'badge_elder_care', 'badge_kitchen', 'badge_professional_standards', 'badge_appliance'
             )
@@ -62,8 +63,8 @@ class CustomUserAdmin(UserAdmin):
                 if title == 'Worker Documents':
                     continue
                 if title == 'Verification & Badges':
-                    # Only keep is_verified and mpesa_code for Employers
-                    info['fields'] = ('is_verified', 'mpesa_code')
+                    # Employers do not use worker identity badges or documents.
+                    info['fields'] = ('is_verified', 'is_paid_verified', 'mpesa_code')
                 new_fieldsets.append((title, info))
             return tuple(new_fieldsets)
         return fieldsets

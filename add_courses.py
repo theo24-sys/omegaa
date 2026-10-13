@@ -22,6 +22,7 @@ def add_courses():
             'iframe_url': 'https://my.coursebox.ai/courses/019d7153-c37e-740c-955f-f5a5f84f694e/about',
             'is_free': True,
             'is_mandatory': False,
+            'badge_key': 'professional_standards',
             'duration': '1-2 weeks',
             'features': 'Professional standards, Workplace ethics, Communication skills, Hygiene protocols'
         },
@@ -33,6 +34,7 @@ def add_courses():
             'iframe_url': 'https://my.coursebox.ai/courses/019d7153-c37f-7363-b5d2-e22a2cd57f4a/about',
             'is_free': False,
             'is_mandatory': False,
+            'badge_key': 'childcare',
             'duration': '2-3 weeks',
             'features': 'Infant care, Child safety, Development milestones, Play & learning'
         },
@@ -44,6 +46,7 @@ def add_courses():
             'iframe_url': 'https://my.coursebox.ai/courses/019d7153-c399-70cf-8afa-9ed53f258018/about',
             'is_free': False,
             'is_mandatory': False,
+            'badge_key': 'eldercare',
             'duration': '2-3 weeks',
             'features': 'Elderly care basics, Health monitoring, Personal care, Mobility assistance'
         },
@@ -55,6 +58,7 @@ def add_courses():
             'iframe_url': 'https://my.coursebox.ai/courses/019d7153-c399-7a98-a651-3528c3666af5/about',
             'is_free': False,
             'is_mandatory': False,
+            'badge_key': 'cleaning',
             'duration': '2-3 weeks',
             'features': 'Home management, Food safety, Nutrition, Kitchen organization'
         },
@@ -66,6 +70,7 @@ def add_courses():
             'iframe_url': 'https://my.coursebox.ai/courses/019d9df0-38f9-7ccd-a446-ee2e274982ff/about',
             'is_free': False,
             'is_mandatory': False,
+            'badge_key': 'appliance',
             'duration': '1-2 weeks',
             'features': 'Appliance safety, Maintenance tips, Troubleshooting, Energy efficiency'
         },
@@ -77,6 +82,7 @@ def add_courses():
             'iframe_url': 'https://my.coursebox.ai/courses/019d7153-c40d-7258-a87d-31b5bd9360a1/about',
             'is_free': False,
             'is_mandatory': False,
+            'badge_key': 'cleaning',
             'duration': '1-2 weeks',
             'features': 'Laundry basics, Stain removal, Fabric care, Garment storage'
         }

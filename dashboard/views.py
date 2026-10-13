@@ -16,6 +16,9 @@ import os
 import requests
 import json
 from django.conf import settings
+import logging
+
+logger = logging.getLogger(__name__)
 
 def is_admin(user):
     return user.is_authenticated and user.is_staff
@@ -148,8 +151,6 @@ def housekeeper_dashboard(request):
     # 2. API Fallback check
     if not request.user.has_completed_first_verification and request.user.didit_session_id:
         session_id = request.user.didit_session_id
-        import logging
-        logger = logging.getLogger(__name__)
         try:
             current_api_key = getattr(settings, 'DIDIT_API_KEY', '')
             headers = {"x-api-key": current_api_key}
@@ -166,9 +167,10 @@ def housekeeper_dashboard(request):
                 if status in ['SUCCESS', 'APPROVED', 'COMPLETED']:
                     request.user.didit_verification_status = 'completed'
                     request.user.is_verified = True
+                    request.user.is_identity_verified = True
                     request.user.badge_verified_id = True
                     request.user.has_completed_first_verification = True
-                    request.user.save()
+                    request.user.save(update_fields=['didit_verification_status', 'is_verified', 'is_identity_verified', 'badge_verified_id', 'has_completed_first_verification'])
                     messages.success(request, "Identity verification successful! Your profile is verified.")
                 elif status in ['FAILED', 'DECLINED', 'EXPIRED']:
                     request.user.didit_verification_status = status.lower()
@@ -349,9 +351,10 @@ def _mark_user_verified(request, status):
     """Helper to mark user as verified and return redirect"""
     request.user.didit_verification_status = 'completed'
     request.user.is_verified = True
+    request.user.is_identity_verified = True
     request.user.badge_verified_id = True
     request.user.has_completed_first_verification = True
-    request.user.save()
+    request.user.save(update_fields=['didit_verification_status', 'is_verified', 'is_identity_verified', 'badge_verified_id', 'has_completed_first_verification'])
     messages.success(request, f"Success! Your identity has been verified (Status: {status}).")
     return redirect('dashboard:housekeeper_dashboard')
 

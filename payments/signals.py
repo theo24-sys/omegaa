@@ -90,12 +90,7 @@ def on_payment_completed(sender, instance, created, update_fields, **kwargs):
         # Case 3: Course payment
         elif instance.course:
             logger.info(f"Recording course enrollment for {user.username}: {instance.course.title}")
-            
-            from courses.models import CourseCompletion
-            # Mark user as having access/completed the course
-            # (In real scenario, you'd have an Enrollment model tracking progress)
-            CourseCompletion.objects.get_or_create(user=user, course=instance.course)
-            
+
             create_notification(
                 recipient=user,
                 notification_type='system',

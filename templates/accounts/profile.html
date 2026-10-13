@@ -110,7 +110,7 @@
                     <h1 class="text-3xl md:text-4xl font-bold text-white drop-shadow-md">
                         {{ user_profile.get_full_name|default:user_profile.username }}
                     </h1>
-                    {% if user_profile.is_verified or user_profile.is_paid_verified %}
+                    {% if user_profile.is_identity_verified or user_profile.is_paid_verified %}
                     <span class="inline-flex items-center justify-center rounded-full bg-white/15 backdrop-blur-md border border-white/30 px-2 py-1 text-white shadow-sm align-middle">
                         {{ user_profile.get_verified_badge|safe }}
                     </span>
@@ -231,7 +231,7 @@
                         {% endif %}
                     {% endfor %}
 
-                    {% if not user_profile.badge_verified_id and not user_profile.badge_cleaning and not user_profile.badge_childcare and not user_profile.badge_professional_standards %}
+                    {% if not user_profile.badge_verified_id and not user_profile.badge_cleaning and not user_profile.badge_childcare and not user_profile.badge_elder_care and not user_profile.badge_kitchen and not user_profile.badge_professional_standards and not user_profile.badge_appliance %}
                     <div
                         class="col-span-full py-12 flex flex-col items-center justify-center text-center bg-white/50 border border-dashed border-pink-200 rounded-3xl">
                         <div
@@ -243,7 +243,7 @@
                         </div>
                         <p class="text-gray-500 font-medium italic">Complete training and verification to earn badges!
                         </p>
-                        <a href="{% url 'course_list' %}" class="mt-4 text-primary font-bold hover:underline">Start
+                        <a href="{% url 'courses:course_list' %}" class="mt-4 text-primary font-bold hover:underline">Start
                             Training →</a>
                     </div>
                     {% endif %}
@@ -313,10 +313,10 @@
 
                     <!-- Identity Verification (Didit) -->
                     <div class="space-y-3">
-                        <div class="flex items-center justify-between p-4 rounded-2xl {% if user_profile.badge_verified_id %}bg-blue-50 border border-blue-100{% elif user_profile.didit_verification_status == 'pending' %}bg-indigo-50 border border-indigo-100{% else %}bg-gray-50 border border-gray-100{% endif %}">
-                            <span class="text-sm font-bold {% if user_profile.badge_verified_id %}text-blue-800{% elif user_profile.didit_verification_status == 'pending' %}text-indigo-800{% else %}text-gray-800{% endif %}">Identity</span>
+                        <div class="flex items-center justify-between p-4 rounded-2xl {% if user_profile.is_identity_verified %}bg-blue-50 border border-blue-100{% elif user_profile.didit_verification_status == 'pending' %}bg-indigo-50 border border-indigo-100{% else %}bg-gray-50 border border-gray-100{% endif %}">
+                            <span class="text-sm font-bold {% if user_profile.is_identity_verified %}text-blue-800{% elif user_profile.didit_verification_status == 'pending' %}text-indigo-800{% else %}text-gray-800{% endif %}">Identity</span>
                             
-                            {% if user_profile.badge_verified_id %}
+                            {% if user_profile.is_identity_verified %}
                                 <svg class="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
                                 </svg>
@@ -327,7 +327,7 @@
                             {% endif %}
                         </div>
 
-                        {% if not user_profile.badge_verified_id and user_profile == request.user %}
+                        {% if not user_profile.is_identity_verified and user_profile == request.user %}
                         <a href="{% url 'initiate_didit_verification' %}" 
                            class="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-black py-4 px-6 rounded-2xl transition-all shadow-lg active:scale-95 group">
                             <svg class="w-5 h-5 group-hover:rotate-12 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -339,7 +339,7 @@
                     </div>
                 </div>
 
-                {% if not user_profile.is_verified or not user_profile.badge_verified_id %}
+                {% if not user_profile.is_identity_verified or not user_profile.badge_verified_id %}
                 <p class="text-xs text-gray-500 mt-6 italic">
                     Identity verification increases employer trust by <span class="text-primary font-bold">85%</span>.
                 </p>

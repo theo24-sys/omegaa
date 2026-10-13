@@ -193,19 +193,16 @@ def complete_course(request, course_id):
     
     if created:
         user = request.user
-        if "Professional Standards" in course.title:
-            user.badge_professional_standards = True
-            user.badge_verified_id = True
-        elif "Childcare" in course.title:
-            user.badge_childcare = True
-        elif "Elderly Care" in course.title:
-            user.badge_elder_care = True
-        elif "Chef" in course.title or "Kitchen" in course.title:
-            user.badge_kitchen = True
-        elif "Cleaning" in course.title or "Home Care" in course.title:
-            user.badge_cleaning = True
-        elif "Appliance" in course.title:
-            user.badge_appliance = True
+        badge_field = {
+            'professional_standards': 'badge_professional_standards',
+            'cleaning': 'badge_cleaning',
+            'childcare': 'badge_childcare',
+            'eldercare': 'badge_elder_care',
+            'kitchen': 'badge_kitchen',
+            'appliance': 'badge_appliance',
+        }.get(course.badge_key)
+        if badge_field:
+            setattr(user, badge_field, True)
         
         user.save()
         messages.success(request, f"Excellent! You've earned the {course.title} badge.")

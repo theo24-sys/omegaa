@@ -99,6 +99,11 @@ class CustomUser(AbstractUser):
     major_town = models.CharField(max_length=50, blank=True, null=True)
     ward = models.CharField(max_length=50, blank=True, null=True)
     is_verified = models.BooleanField(default=False)
+    is_identity_verified = models.BooleanField(
+        default=False,
+        help_text='Identity verified through the Didit verification provider',
+        verbose_name='Identity Verified',
+    )
     is_paid_verified = models.BooleanField(default=False, help_text='User paid 250 KES for annual verification', verbose_name='Paid Verified Member')
     paid_verification_date = models.DateTimeField(blank=True, null=True, verbose_name='Verification Payment Date')
     paid_verification_expires_at = models.DateTimeField(blank=True, null=True, verbose_name='Verification Expiry Date')
@@ -150,7 +155,7 @@ class CustomUser(AbstractUser):
         """Housekeepers must be verified and have a profile picture to apply for jobs."""
         if self.user_type != 'househelp':
             return True
-        return self.is_verified and bool(self.profile_picture)
+        return self.is_identity_verified and bool(self.profile_picture)
 
     def days_until_membership_renewal(self):
         """Return whole days left until the paid verification expires."""
@@ -294,7 +299,7 @@ class CustomUser(AbstractUser):
             
         # Identity Verification (Didit) — pale outlined circle-check with ID-card
         # connotation; visually distinct from the paid purple seal above.
-        if self.is_verified:
+        if self.is_identity_verified:
             badges.append("""
             <span class="inline-flex items-center justify-center ml-1 shrink-0 align-middle" title="Identity Verified via Didit">
                 <svg class="w-4 h-4 md:w-4.5 md:h-4.5 text-[#8a3ab9]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

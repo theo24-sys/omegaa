@@ -115,7 +115,7 @@
                 </div>
 
                 <!-- Verified Status Card -->
-                {% if user.is_verified %}
+                {% if user.is_identity_verified %}
                 <div class="bg-gradient-to-br from-slate-900 to-slate-800 rounded-[2rem] p-8 text-white shadow-2xl relative overflow-hidden">
                     <div class="absolute right-0 top-0 opacity-10">{{ user.get_verified_badge|safe }}</div>
                     <p class="text-[10px] font-black uppercase tracking-[0.2em] text-primary mb-4">Account Status</p>

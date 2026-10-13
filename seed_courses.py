@@ -35,6 +35,7 @@ def seed_courses():
             'duration': "1 week (Self-paced)",
             'features': "Mandatory for all learners; certificate included.",
             'is_native': True,
+            'badge_key': 'professional_standards',
             'iframe_url': "https://www.youtube.com/embed/dQw4w9WgXcQ"
         }
     )
@@ -86,6 +87,7 @@ def seed_courses():
             'duration': "2–3 weeks",
             'features': "Practical exercises, child safety tips, play & learning templates.",
             'is_native': True,
+            'badge_key': 'childcare',
             'iframe_url': "https://www.youtube.com/embed/dQw4w9WgXcQ"
         }
     )
@@ -114,6 +116,7 @@ def seed_courses():
             'duration': "3–4 weeks",
             'features': "Hands-on cooking, menu planning, hygiene guides.",
             'is_native': True,
+            'badge_key': 'kitchen',
             'iframe_url': "https://www.youtube.com/embed/dQw4w9WgXcQ"
         }
     )
@@ -142,6 +145,7 @@ def seed_courses():
             'duration': "3 weeks",
             'features': "Care exercises, emergency guidelines, emotional support strategies.",
             'is_native': True,
+            'badge_key': 'eldercare',
             'iframe_url': "https://www.youtube.com/embed/dQw4w9WgXcQ"
         }
     )

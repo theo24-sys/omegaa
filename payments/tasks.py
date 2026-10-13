@@ -140,6 +140,22 @@ def check_subscription_expiries(self):
 
 
 @shared_task(bind=True, max_retries=3, default_retry_delay=60)
+def expire_paid_memberships(self):
+    """Remove the paid worker badge after its annual membership expires."""
+    try:
+        expired_count = User.objects.filter(
+            user_type='househelp',
+            is_paid_verified=True,
+            paid_verification_expires_at__lte=timezone.now(),
+        ).update(is_paid_verified=False)
+        logger.info(f"Expired {expired_count} paid worker memberships")
+        return expired_count
+    except Exception as exc:
+        logger.error(f"Error expiring paid memberships: {exc}", exc_info=True)
+        raise self.retry(exc=exc, countdown=60)
+
+
+@shared_task(bind=True, max_retries=3, default_retry_delay=60)
 def send_membership_renewal_reminders(self):
     """
     Send notifications to workers about expiring memberships
