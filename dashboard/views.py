@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.http import FileResponse, Http404, HttpResponseForbidden
 from accounts.models import CustomUser
 from jobs.models import Job, Application
-from payments.models import Payment, PaymentPlan
+from payments.models import Payment, PaymentPlan, UserSubscription
 from reviews.models import Review
 from django.db import models
 from courses.models import Course, CourseCompletion
