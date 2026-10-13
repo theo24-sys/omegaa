@@ -35,8 +35,8 @@ class PaymentPlan(models.Model):
 
     class Meta:
         ordering = ['price']
-        # Prevent duplicate plans for same type/group combination
-        unique_together = ('plan_type', 'target_group')
+        # Allow multiple tiers (for example Standard and Gold) in one group.
+        unique_together = ('name', 'target_group')
 
     def __str__(self):
         return f"{self.name} ({self.price} KSh)"
@@ -190,7 +190,12 @@ class UserSubscription(models.Model):
         
         if cached_plan_id:
             try:
-                return cls.objects.get(id=cached_plan_id).plan
+                cached_subscription = cls.objects.select_related('plan').get(
+                    id=cached_plan_id,
+                    status='active',
+                    expires_at__gt=timezone.now(),
+                )
+                return cached_subscription.plan
             except cls.DoesNotExist:
                 cache.delete(cache_key)
         
@@ -218,6 +223,7 @@ class UserSubscription(models.Model):
             
         # 3. Emergency Default (Literal Free logic)
         return type('DefaultPlan', (), {
+            'name': 'Free Tier',
             'job_posting_fee': 250,
             'video_call_limit_mins': 0,
             'can_use_video': False,

@@ -1,6 +1,9 @@
 # accounts/forms.py
+import os
+
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
+from django.core.exceptions import ValidationError
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Fieldset, Div, HTML
 from .models import CustomUser
@@ -279,3 +282,23 @@ class CustomUserChangeForm(UserChangeForm):
             ))
             
         self.helper.layout = Layout(*layout_list)
+
+    def clean_agreement_form(self):
+        agreement = self.cleaned_data.get('agreement_form')
+        if not agreement or not hasattr(agreement, 'size'):
+            return agreement
+
+        max_size = 10 * 1024 * 1024
+        if agreement.size > max_size:
+            raise ValidationError('The signed agreement must be 10 MB or smaller.')
+
+        allowed_extensions = {'.pdf', '.jpg', '.jpeg', '.png'}
+        extension = os.path.splitext(agreement.name)[1].lower()
+        if extension not in allowed_extensions:
+            raise ValidationError('Upload the signed agreement as a PDF, JPG, or PNG file.')
+
+        allowed_types = {'application/pdf', 'image/jpeg', 'image/png'}
+        if getattr(agreement, 'content_type', None) not in allowed_types:
+            raise ValidationError('The uploaded agreement file type is not supported.')
+
+        return agreement

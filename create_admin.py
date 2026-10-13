@@ -31,10 +31,10 @@ print(f"Fallback admin restored. Login with {admin_phone}")
 # 2. Sync Standard Plan (150 KES Subscription, 150 KES Job Fee)
 try:
     standard_plan, created = PaymentPlan.objects.get_or_create(
-        plan_type='verification',
-        target_group='employer',
         name='Standard Plan',
+        target_group='employer',
         defaults={
+            'plan_type': 'verification',
             'price': 150,
             'job_posting_fee': 150,
             'description': 'Standard status, discounted job posts, and 15-minute HD video interviews.',
@@ -54,10 +54,10 @@ except IntegrityError:
 # 3. Sync Gold Plan (350 KES Subscription, FREE Job Fee)
 try:
     gold_plan, created = PaymentPlan.objects.get_or_create(
-        plan_type='verification',
-        target_group='employer',
         name='Gold Plan',
+        target_group='employer',
         defaults={
+            'plan_type': 'verification',
             'price': 350,
             'job_posting_fee': 0,
             'description': "Unlimited job postings, priority matching, and unlimited HD video interviewing.",

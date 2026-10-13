@@ -61,15 +61,16 @@ def chat_detail(request, session_id):
             
     # Handle badges for UI
     features = UserSubscription.get_active_features(request.user)
-    is_gold = features.name == "Gold Plan" if features else False
-    is_standard = features.name == "Standard Plan" if features else False
+    can_use_video = bool(features and features.can_use_video)
+    has_unlimited_video = bool(features and features.can_use_video and features.video_call_limit_mins == 0)
     
     return render(request, 'chat/detail.html', {
         'session': session,
         'chat_messages': chat_messages,
         'other_user': other_user,
-        'is_gold': is_gold,
-        'is_standard': is_standard
+        'can_use_video': can_use_video,
+        'has_unlimited_video': has_unlimited_video,
+        'active_plan_name': features.name if features else 'Free Tier',
     })
 
 @first_time_verification_required
@@ -89,7 +90,7 @@ def video_interview(request, session_id):
 
     # Determine time limit in seconds
     time_limit = features.video_call_limit_mins * 60 if features else 0
-    is_gold = features.name == "Gold Plan" if features else False
+    is_gold = bool(features and features.video_call_limit_mins == 0 and features.can_use_video)
         
     # Mark interview as active
     session.interview_active_until = timezone.now() + timezone.timedelta(minutes=60)

@@ -11,7 +11,7 @@ def update_pricing():
     free_plan, _ = PaymentPlan.objects.get_or_create(
         name='Free Tier',
         target_group='employer',
-        defaults={'price': 0}
+        defaults={'price': 0, 'plan_type': 'verification', 'description': 'Basic access.'}
     )
     free_plan.price = 0
     free_plan.job_posting_fee = 250
@@ -23,7 +23,7 @@ def update_pricing():
     standard_plan, _ = PaymentPlan.objects.get_or_create(
         name='Standard Plan',
         target_group='employer',
-        defaults={'price': 150}
+        defaults={'price': 150, 'plan_type': 'verification', 'description': 'Standard access.'}
     )
     standard_plan.price = 150
     standard_plan.job_posting_fee = 150 # As per screenshot/discussion sync
@@ -39,7 +39,7 @@ def update_pricing():
     gold_plan, _ = PaymentPlan.objects.get_or_create(
         name='Gold Plan',
         target_group='employer',
-        defaults={'price': 350}
+        defaults={'price': 350, 'plan_type': 'verification', 'description': 'Gold access.'}
     )
     gold_plan.price = 350
     gold_plan.job_posting_fee = 0 # Free as per screenshot

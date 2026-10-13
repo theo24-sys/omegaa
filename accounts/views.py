@@ -219,10 +219,13 @@ def edit_profile(request):
             if 'agreement_form' in request.FILES:
                 from accounts.models import AgreementIssuance
                 from django.utils import timezone
-                updated = AgreementIssuance.objects.filter(
-                    user=request.user, status='pending'
-                ).update(status='submitted', submitted_at=timezone.now())
-                if updated:
+                issuance, created = AgreementIssuance.get_or_create_pending(request.user)
+                issuance.status = 'submitted'
+                issuance.submitted_at = timezone.now()
+                issuance.save(update_fields=['status', 'submitted_at'])
+                if created:
+                    messages.info(request, f"Signed agreement received under ID {issuance.agreement_id}.")
+                else:
                     messages.info(request, "Signed agreement received — our team will verify it shortly.")
 
             messages.success(request, "Profile updated successfully!")

@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db.models import Count, Avg
 from django.contrib import messages
-from django.http import FileResponse, Http404
+from django.http import FileResponse, Http404, HttpResponseForbidden
 from accounts.models import CustomUser
 from jobs.models import Job, Application
 from payments.models import Payment, PaymentPlan
@@ -16,6 +16,7 @@ import os
 import requests
 import json
 from django.conf import settings
+from django.utils import timezone
 import logging
 
 logger = logging.getLogger(__name__)
@@ -241,6 +242,9 @@ def download_worker_agreement(request):
     to this user when they upload it."""
     from accounts.models import AgreementIssuance
 
+    if request.user.user_type != 'househelp':
+        return HttpResponseForbidden('Worker agreements are available to housekeepers only.')
+
     doc = PlatformDocument.objects.filter(doc_type='worker_agreement', is_active=True).first()
     if not doc or not doc.document_file:
         raise Http404("Worker agreement document is not available yet.")
@@ -271,6 +275,7 @@ def employer_dashboard(request):
         models.Q(applicant__profile_picture='') | models.Q(applicant__profile_picture__isnull=True)
     ).select_related('applicant').order_by('-created_at')
     payment_plans = PaymentPlan.objects.filter(is_active=True)
+    active_plan = UserSubscription.get_active_features(request.user)
 
     reviews = Review.objects.filter(reviewed_user=request.user)
     avg_rating = reviews.aggregate(Avg('rating'))['rating__avg'] or 0
@@ -281,6 +286,10 @@ def employer_dashboard(request):
         'applications': applications,
         'user': request.user,
         'payment_plans': payment_plans,
+        'active_plan': active_plan,
+        'active_subscription': request.user.subscriptions.filter(
+            status='active', expires_at__gt=timezone.now()
+        ).select_related('plan').first(),
         'avg_rating': round(avg_rating, 1),
         'review_count': review_count,
     }

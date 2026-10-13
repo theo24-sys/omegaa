@@ -126,10 +126,18 @@ def check_subscription_expiries(self):
     try:
         logger.info("Checking subscription expiries...")
         
-        expired_count = UserSubscription.objects.filter(
+        expired_subscriptions = UserSubscription.objects.filter(
             status='active',
             expires_at__lt=timezone.now()
-        ).update(status='expired')
+        )
+        expired_user_ids = list(expired_subscriptions.values_list('user_id', flat=True))
+        expired_count = expired_subscriptions.update(status='expired')
+
+        User.objects.filter(
+            id__in=expired_user_ids,
+            is_premium=True,
+            premium_until__lte=timezone.now(),
+        ).update(is_premium=False)
         
         logger.info(f"Marked {expired_count} subscriptions as expired")
         return expired_count

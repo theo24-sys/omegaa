@@ -205,6 +205,7 @@ STORAGES = {
 AWS_S3_LOCATION = os.getenv('AWS_S3_LOCATION', 'media')
 if not AWS_ACCESS_KEY_ID:
     STORAGES["default"]["BACKEND"] = "django.core.files.storage.FileSystemStorage"
+    STORAGES["default"]["OPTIONS"] = {}
     MEDIA_URL = '/media/'
     MEDIA_ROOT = BASE_DIR / 'media'
 else:

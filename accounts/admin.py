@@ -16,10 +16,18 @@ from notifications.utils import create_notification
 
 @admin.register(AgreementIssuance)
 class AgreementIssuanceAdmin(admin.ModelAdmin):
-    list_display = ('agreement_id', 'user', 'status', 'created_at', 'submitted_at')
+    list_display = ('agreement_id', 'user', 'status', 'signed_file_link', 'created_at', 'submitted_at')
     list_filter = ('status',)
     search_fields = ('agreement_id', 'user__username', 'user__phone_number')
     readonly_fields = ('agreement_id', 'user', 'created_at', 'submitted_at')
+
+    def signed_file_link(self, obj):
+        signed_file = obj.user.agreement_form
+        if not signed_file:
+            return '-'
+        return format_html('<a href="{}" target="_blank" rel="noopener">View signed copy</a>', signed_file.url)
+
+    signed_file_link.short_description = 'Signed copy'
 
 
 class CustomUserAdmin(UserAdmin):

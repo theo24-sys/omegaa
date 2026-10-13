@@ -45,6 +45,13 @@ class AgreementIssuance(models.Model):
         ordering = ['-created_at']
         verbose_name = 'Agreement Issuance'
         verbose_name_plural = 'Agreement Issuances'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user'],
+                condition=models.Q(status='pending'),
+                name='one_pending_agreement_per_user',
+            ),
+        ]
 
     def __str__(self):
         return f"{self.agreement_id} - {self.user.username} ({self.status})"
@@ -64,10 +71,11 @@ class AgreementIssuance(models.Model):
     def get_or_create_pending(cls, user):
         """One pending issuance per user: re-downloading the same template
         reuses the same ID instead of minting a new one each click."""
-        pending = cls.objects.filter(user=user, status='pending').first()
-        if pending:
-            return pending, False
-        return cls.objects.create(user=user, agreement_id=cls.generate_id()), True
+        return cls.objects.get_or_create(
+            user=user,
+            status='pending',
+            defaults={'agreement_id': cls.generate_id()},
+        )
 
 from django.contrib.auth.models import AbstractUser, UserManager
 

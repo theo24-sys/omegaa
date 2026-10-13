@@ -1,8 +1,9 @@
 """
-Purge document files 24 hours after admin verification.
+Purge identity documents 24 hours after admin verification.
 Run daily via cron: python manage.py purge_verified_docs
 
-Files are deleted from storage to save space; documents_verified stays True.
+ID and police-clearance files are deleted from storage to save space;
+signed agreements are retained for audit purposes.
 """
 from django.core.management.base import BaseCommand
 from django.utils import timezone
@@ -12,7 +13,7 @@ from accounts.models import CustomUser
 
 
 class Command(BaseCommand):
-    help = 'Delete document files (ID, Agreement, Police Clearance) 24h after verification to save storage'
+    help = 'Delete ID and police-clearance files 24h after verification'
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -27,7 +28,7 @@ class Command(BaseCommand):
             documents_verified=True,
             documents_verified_at__lt=cutoff,
         ))
-        users = [u for u in users if u.id_document or u.agreement_form or u.police_clearance]
+        users = [u for u in users if u.id_document or u.police_clearance]
 
         if not users:
             self.stdout.write(self.style.SUCCESS('No documents to purge.'))
@@ -42,7 +43,7 @@ class Command(BaseCommand):
         purged = 0
         for user in users:
             deleted_any = False
-            for field in ('id_document', 'agreement_form', 'police_clearance'):
+            for field in ('id_document', 'police_clearance'):
                 f = getattr(user, field)
                 if f:
                     try:
@@ -52,9 +53,8 @@ class Command(BaseCommand):
                         self.stdout.write(self.style.WARNING(f'  Could not delete {field} for {user.username}: {e}'))
             if deleted_any:
                 user.id_document = None
-                user.agreement_form = None
                 user.police_clearance = None
-                user.save(update_fields=['id_document', 'agreement_form', 'police_clearance'])
+                user.save(update_fields=['id_document', 'police_clearance'])
                 purged += 1
                 self.stdout.write(f'  Purged docs for {user.username}')
 
