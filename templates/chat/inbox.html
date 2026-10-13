@@ -3,7 +3,7 @@
 {% block title %}My Messages | Charlady{% endblock %}
 
 {% block content %}
-<div class="bg-slate-50 min-h-screen py-10">
+<div class="page-inbox min-h-screen py-4 md:py-10">
     <div class="max-w-4xl mx-auto px-4">
         
         <div class="flex items-center justify-between mb-8">
@@ -21,7 +21,7 @@
         </div>
         {% endif %}
 
-        <div class="bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden divide-y divide-slate-100">
+        <div class="page-panel overflow-hidden divide-y divide-slate-100">
             {% for session in sessions %}
                 {% with other_user=session.participants.all|first %}
                 <!-- Simple logic to pick the other user in template just for display purposes if not passed from view -->

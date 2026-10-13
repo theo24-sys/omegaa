@@ -1,0 +1,227 @@
+:root {
+    --charlady-ink: #172033;
+    --charlady-muted: #667085;
+    --charlady-pink: #d72b83;
+    --charlady-magenta: #b733c8;
+    --charlady-lilac: #f8f1fb;
+    --charlady-line: #eadfea;
+    --charlady-surface: #ffffff;
+    --charlady-radius: 18px;
+    --charlady-shadow: 0 14px 35px rgba(35, 24, 49, 0.08);
+}
+
+html {
+    background: #f8f9fc;
+}
+
+body.site-shell {
+    color: var(--charlady-ink);
+    background:
+        radial-gradient(circle at 100% 0, rgba(235, 187, 235, 0.18), transparent 34rem),
+        #f8f9fc;
+    font-family: "DM Sans", "Segoe UI", sans-serif;
+}
+
+.site-header {
+    background: rgba(255, 255, 255, 0.94);
+    border-bottom: 1px solid rgba(215, 43, 131, 0.12);
+    box-shadow: 0 4px 18px rgba(35, 24, 49, 0.05);
+}
+
+.site-header nav {
+    min-height: 76px;
+}
+
+.site-header .brand-name {
+    color: var(--charlady-magenta);
+    font-family: "Fraunces", Georgia, serif;
+    font-size: clamp(1.45rem, 4vw, 2rem);
+    letter-spacing: -0.03em;
+}
+
+.site-header .brand-mark {
+    width: 46px;
+    height: 46px;
+    box-shadow: 0 5px 14px rgba(35, 24, 49, 0.12);
+}
+
+.site-main {
+    width: 100%;
+    max-width: 1440px;
+    padding-top: 2.5rem;
+    padding-bottom: 4rem;
+}
+
+.site-footer {
+    background: #fff;
+    border-top: 1px solid var(--charlady-line);
+}
+
+.whatsapp-fab {
+    width: 58px;
+    height: 58px;
+    right: max(1rem, env(safe-area-inset-right));
+    bottom: max(1rem, env(safe-area-inset-bottom));
+    background: #20bd62;
+    border: 4px solid #fff;
+    box-shadow: 0 10px 25px rgba(16, 93, 50, 0.22);
+}
+
+.whatsapp-fab svg {
+    width: 29px;
+    height: 29px;
+}
+
+.page-panel,
+.page-form,
+.page-empty-state {
+    background: var(--charlady-surface);
+    border: 1px solid var(--charlady-line);
+    border-radius: var(--charlady-radius);
+    box-shadow: var(--charlady-shadow);
+}
+
+.page-form input,
+.page-form textarea,
+.page-form select,
+.login-form input {
+    border-color: #d9c9da;
+    border-radius: 12px;
+    color: var(--charlady-ink);
+    transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.page-form input:focus,
+.page-form textarea:focus,
+.page-form select:focus,
+.login-form input:focus {
+    border-color: var(--charlady-magenta);
+    box-shadow: 0 0 0 4px rgba(183, 51, 200, 0.12);
+    outline: none;
+}
+
+.employer-dashboard .employer-hero {
+    border-radius: 28px;
+    box-shadow: var(--charlady-shadow);
+}
+
+.employer-dashboard .employer-avatar {
+    width: 128px;
+    height: 128px;
+    border-width: 7px;
+}
+
+.employer-dashboard .employer-hero h1 {
+    font-size: clamp(2rem, 6vw, 3.5rem);
+}
+
+.employer-dashboard .theme-card {
+    border-radius: 18px;
+    box-shadow: 0 8px 22px rgba(35, 24, 49, 0.05);
+}
+
+.employer-dashboard .theme-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 16px 30px rgba(183, 51, 200, 0.12);
+}
+
+.page-inbox h1,
+.login-page h1,
+.pricing-page h1,
+.page-form h1 {
+    letter-spacing: -0.035em;
+}
+
+.page-inbox .page-panel {
+    box-shadow: var(--charlady-shadow);
+}
+
+.page-inbox .page-panel > a,
+.page-inbox .page-panel > div {
+    transition: background-color 160ms ease;
+}
+
+.pricing-page .glow-card {
+    border-radius: 22px;
+    box-shadow: var(--charlady-shadow);
+}
+
+.pricing-page .glow-card:hover {
+    transform: translateY(-4px);
+}
+
+.pricing-page .glow-card > a {
+    min-height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.home-hero {
+    border-bottom: 1px solid rgba(183, 51, 200, 0.08);
+}
+
+.home-hero h1 {
+    letter-spacing: -0.045em;
+}
+
+.home-hero a,
+.home-section a {
+    min-height: 52px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.home-trust-card {
+    border: 1px solid rgba(183, 51, 200, 0.08);
+    box-shadow: 0 10px 26px rgba(35, 24, 49, 0.04);
+}
+
+@media (max-width: 767px) {
+    .site-header nav {
+        min-height: 68px;
+    }
+
+    .site-main {
+        padding-top: 1.5rem;
+        padding-bottom: 3rem;
+    }
+
+    .site-header .brand-mark {
+        width: 40px;
+        height: 40px;
+    }
+
+    .whatsapp-fab {
+        width: 52px;
+        height: 52px;
+        right: 0.75rem;
+        bottom: max(0.75rem, env(safe-area-inset-bottom));
+    }
+
+    .employer-dashboard .employer-hero {
+        border-radius: 22px;
+        padding: 1.5rem 1rem;
+    }
+
+    .employer-dashboard .employer-avatar {
+        width: 104px;
+        height: 104px;
+    }
+
+    .employer-dashboard .theme-card {
+        border-radius: 16px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+    }
+}
