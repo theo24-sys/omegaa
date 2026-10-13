@@ -1,4 +1,4 @@
-# Charlady – Deployment steps (Railway)
+# Charlady – Deployment steps (Render)
 
 ## 1. Commit and push your code
 
@@ -12,9 +12,9 @@ git push origin main
 
 ---
 
-## 2. Set environment variables on Railway
+## 2. Set environment variables on Render
 
-In your **Railway project** → select your **Django app service** → **Variables** tab.
+In your **Render web service** → **Environment** tab.
 
 Add these (required):
 
@@ -32,13 +32,13 @@ Optional (for full functionality):
 | `EMAIL_HOST_PASSWORD` | App password for that email. |
 | `MPESA_TILL_NUMBER` | If you use M-Pesa; defaults in code if not set. |
 
-Save; Railway will redeploy if needed.
+Save; Render will redeploy if needed.
 
 ---
 
-## 3. Build and run (Railway)
+## 3. Build and run (Render)
 
-- **Build:** Railway will use your repo and install deps (`pip install -r requirements.txt`).
+- **Build:** Render uses `./build.sh`, which installs dependencies and runs migrations.
 - **Release (if using Procfile):** `release` runs:  
   `python manage.py migrate && python manage.py collectstatic --noinput`
 - **Start:** Either:
@@ -51,9 +51,9 @@ No extra step needed if one of these is active.
 
 ## 4. Create admin user on production (one-time)
 
-If you haven’t already created a superuser **on the Railway/Postgres database**:
+If you haven’t already created a superuser **on the Render/Postgres database**:
 
-**Option A – Railway shell (if available)**  
+**Option A – Render shell (if available)**
 Open a shell for your app and run:
 
 ```bash
@@ -62,7 +62,7 @@ python manage.py createsuperuser
 Enter username, email, **phone number** (unique), and password.
 
 **Option B – One-off run**  
-In Railway, run a one-off command:
+In Render, run a one-off command:
 
 ```bash
 python manage.py createsuperuser --noinput --username Admin --email your@email.com
@@ -78,15 +78,15 @@ python manage.py shell -c "from accounts.models import CustomUser; u=CustomUser.
 
 ## 5. After deploy
 
-1. Open your app URL (e.g. `https://omega-production-734f.up.railway.app`).
+1. Open your Render service URL.
 2. Test: home, signup, login, admin (`/admin/`).
-3. If you use a custom domain (e.g. charlady.online), add it in Railway and set DNS as instructed.
+3. If you use a custom domain, add it in Render and set DNS as instructed.
 
 ---
 
 ## Quick checklist
 
-- [ ] Code pushed to the branch Railway deploys from
+- [ ] Code pushed to the branch Render deploys from
 - [ ] `DATABASE_URL` set (Postgres)
 - [ ] `SECRET_KEY` set
 - [ ] `DEBUG=False` in production

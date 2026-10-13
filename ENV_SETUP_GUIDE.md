@@ -94,12 +94,18 @@ psql postgresql://charlady:your_password@localhost:5432/charlady_db -c "SELECT 1
 MPESA_ENVIRONMENT=sandbox  # Change to 'production' when ready
 
 # Get these from Daraja dashboard
-MPESA_CONSUMER_KEY_SANDBOX=DU68PrjYY2nEYvXA5Eq2GyoL4c7LQwN8i8X01aGyRQp6zGjD
+MPESA_CONSUMER_KEY_SANDBOX=your_sandbox_consumer_key
 MPESA_CONSUMER_SECRET_SANDBOX=your_sandbox_consumer_secret_here
-MPESA_PASSKEY_SANDBOX=bfb279f9ba9b9d8c25f1c0e1c5f54987b51e1dd45e2c6c0e4f4f8c1f8f9b9e8c
+MPESA_PASSKEY_SANDBOX=your_sandbox_passkey
 MPESA_SHORT_CODE_SANDBOX=4564139
 
 MPESA_CALLBACK_URL=https://your-domain.com/payments/mpesa-callback/
+
+# Didit identity verification
+DIDIT_APP_ID=your_didit_app_id
+DIDIT_API_KEY=your_didit_api_key
+DIDIT_WORKFLOW_ID=your_didit_workflow_id
+DIDIT_WEBHOOK_SECRET=your_didit_webhook_secret
 ```
 
 **Verify with test script:**

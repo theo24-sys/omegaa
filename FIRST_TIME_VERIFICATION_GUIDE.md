@@ -15,13 +15,9 @@ first_time_verification_required decorator
     ↓
 Has user completed verification?
     ├─ YES → Allow dashboard access
-    └─ NO → Redirect to verification page
+    └─ NO → Redirect to initiate_didit_verification
     ↓
-Display first_verification_required.html
-    ├─ User clicks "Start Verification"
-    └─ User clicks "Return Home"
-    ↓ (if Start Verification clicked)
-POST to initiate_didit_verification
+initiate_didit_verification creates a Didit session
     ↓
 _create_didit_session()
     ├─ Create Didit session
@@ -75,7 +71,7 @@ def first_time_verification_required(view_func):
         if request.user.is_authenticated and request.user.user_type == 'househelp':
             if not request.user.has_completed_first_verification:
                 messages.warning(request, 'Please complete identity verification to access your dashboard.')
-                return redirect('accounts:initiate_didit_verification')
+                return redirect('initiate_didit_verification')
         return view_func(request, *args, **kwargs)
     return wrapper
 ```
@@ -92,7 +88,7 @@ Modified `login()` function to check verification status:
 # After successful login, check if househelp needs verification
 if user.user_type == 'househelp' and not user.has_completed_first_verification:
     messages.info(request, 'Please complete identity verification to continue.')
-    return redirect('accounts:initiate_didit_verification')
+    return redirect('initiate_didit_verification')
 ```
 
 ### 4. Didit Integration Views
@@ -100,9 +96,7 @@ if user.user_type == 'househelp' and not user.has_completed_first_verification:
 **File**: `accounts/views_didit.py`
 
 #### `initiate_didit_verification(request)`
-- Two-step flow:
-  - GET/initial access: Display template
-  - POST: Create Didit session
+- Creates a Didit session and redirects directly to Didit's hosted verification UI
 - Validates user is housekeeper
 - Checks if already verified
 - Error handling with user-friendly messages
@@ -119,20 +113,10 @@ if user.user_type == 'househelp' and not user.has_completed_first_verification:
 - Updates user status based on verification result
 - Sets `has_completed_first_verification = True` on success
 
-### 5. Verification Template
+### 5. Verification UI
 
-**File**: `templates/accounts/first_verification_required.html`
-
-Features:
-- Beautiful gradient UI with animations
-- 3 feature cards (Quick & Easy, Secure & Safe, Build Trust)
-- Requirements checklist
-- Trust indicators section
-- Form POST button for "Start Verification"
-- Responsive design
-- Didit branding
-
-The form POSTs back to `initiate_didit_verification` which then creates the Didit session.
+There is no intermediate verification template. Authenticated housekeepers are
+redirected directly to Didit's hosted verification UI.
 
 ### 6. URL Routing
 

@@ -120,6 +120,9 @@ def login(request):
             if user.is_active:
                 auth_login(request, user)
                 if user.user_type == 'househelp':
+                    if not user.has_completed_first_verification:
+                        messages.info(request, 'Please complete identity verification to continue.')
+                        return redirect('initiate_didit_verification')
                     return redirect('dashboard:housekeeper_dashboard')
                 else:
                     return redirect('dashboard:employer_dashboard')

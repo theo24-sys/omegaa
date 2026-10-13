@@ -3,6 +3,7 @@ import sys
 from pathlib import Path
 import dj_database_url
 from dotenv import load_dotenv
+from django.core.exceptions import ImproperlyConfigured
 
 # ─── Paths & Env ────────────────────────────────────────────────────────────────
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -11,9 +12,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / '.env')
 
 # ─── Core Settings ──────────────────────────────────────────────────────────────
-SECRET_KEY = os.getenv('SECRET_KEY')
+DEBUG = os.getenv('DEBUG', 'True') == 'True'  # Default True locally; disable in production
 
-DEBUG = os.getenv('DEBUG', 'True') == 'True'  # Default True for local, set False in Railway vars
+SECRET_KEY = os.getenv('SECRET_KEY')
+if not SECRET_KEY:
+    if DEBUG:
+        SECRET_KEY = 'development-only-secret-key-change-in-production'
+    else:
+        raise ImproperlyConfigured('SECRET_KEY must be set when DEBUG=False')
 
 ALLOWED_HOSTS = [
     'charlady.co.ke',
@@ -25,7 +31,7 @@ ALLOWED_HOSTS = [
     '127.0.0.1',
 ]
 
-# Add Railway dynamic preview/deploy domain if present
+# Add optional Railway dynamic preview/deploy domain if present
 railway_domain = os.getenv('RAILWAY_PUBLIC_DOMAIN')
 if railway_domain:
     ALLOWED_HOSTS.append(railway_domain)
@@ -48,9 +54,6 @@ if render_domain:
     CSRF_TRUSTED_ORIGINS.append(f'https://{render_domain}')
 
 APPEND_SLASH = True
-
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-SECURE_SSL_REDIRECT     = False   # Important — Railway handles SSL
 
 # ─── Email Configuration ────────────────────────────────────────────────────────
 if DEBUG:
@@ -216,19 +219,19 @@ else:
 CRISPY_ALLOWED_TEMPLATE_PACKS = "tailwind"
 CRISPY_TEMPLATE_PACK = "tailwind"
 
-# ─── Security (Railway-specific – good setup!) ──────────────────────────────────
-SECURE_SSL_REDIRECT = False  # Railway handles SSL → do NOT enable
+# ─── Security ──────────────────────────────────────────────────────────────────
+SECURE_SSL_REDIRECT = os.getenv('SECURE_SSL_REDIRECT', 'False') == 'True'
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
-SESSION_COOKIE_SECURE = not DEBUG
+SESSION_COOKIE_SECURE = os.getenv('SESSION_COOKIE_SECURE', str(not DEBUG)) == 'True'
 SESSION_COOKIE_SAMESITE = 'Lax'
-CSRF_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_SECURE = os.getenv('CSRF_COOKIE_SECURE', str(not DEBUG)) == 'True'
 CSRF_COOKIE_SAMESITE = 'Lax'
 CSRF_USE_SESSIONS = False  # Standard CSRF cookies are more reliable for unauthenticated forms
 
-SECURE_HSTS_SECONDS = 31536000 if not DEBUG else 0
-SECURE_HSTS_INCLUDE_SUBDOMAINS = not DEBUG
-SECURE_HSTS_PRELOAD = not DEBUG
+SECURE_HSTS_SECONDS = int(os.getenv('SECURE_HSTS_SECONDS', '31536000' if not DEBUG else '0'))
+SECURE_HSTS_INCLUDE_SUBDOMAINS = os.getenv('SECURE_HSTS_INCLUDE_SUBDOMAINS', str(not DEBUG)) == 'True'
+SECURE_HSTS_PRELOAD = os.getenv('SECURE_HSTS_PRELOAD', str(not DEBUG)) == 'True'
 
 SECURE_CONTENT_TYPE_NOSNIFF = True
 SECURE_BROWSER_XSS_FILTER = True

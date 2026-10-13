@@ -136,6 +136,7 @@ def notification_permission_analytics(request):
 
 @login_required
 @require_http_methods(["POST"])
+@csrf_exempt
 def notification_event_analytics(request):
     """Track notification events (click, close, etc)"""
     try:

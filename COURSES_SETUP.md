@@ -131,7 +131,7 @@ for course in Course.objects.all():
 The courses are now available at:
 - **Courses page:** `/courses/`
 - **Individual course:** `/courses/<course-id>/`
-- **Checkout:** `/payments/checkout/<plan-id>/`
+- **Checkout:** `/payments/course-checkout/<course-id>/`
 
 Students can:
 1. View course descriptions

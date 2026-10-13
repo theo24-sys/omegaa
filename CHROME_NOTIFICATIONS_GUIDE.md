@@ -296,9 +296,10 @@ INFO: Didit verification completed - User: 123
 ## Security
 
 ### CSRF Protection
-- All POST requests include CSRF token
-- Token obtained from Django cookies
-- Validated on backend
+- Permission analytics requests include a CSRF token obtained from Django cookies
+- Notification click/close analytics are authenticated but CSRF-exempt because
+    service-worker `sendBeacon` requests cannot attach Django's CSRF header
+- Analytics endpoints accept no user-controlled state changes beyond notification preferences
 
 ### Signature Verification
 - Service Worker validates push events

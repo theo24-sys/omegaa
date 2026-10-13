@@ -9,6 +9,10 @@ from . import views  # import your views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.home, name='home'),  # ← changed to use the function view
+    path('health/', views.health, name='health'),
+    path('health/payments/', views.health_payments, name='health_payments'),
+    path('health/database/', views.health_database, name='health_database'),
+    path('health/celery/', views.health_celery, name='health_celery'),
     path('accounts/', include('accounts.urls')),
     path('jobs/', include('jobs.urls')),
     path('dashboard/', include(('dashboard.urls', 'dashboard'), namespace='dashboard')),

@@ -1,6 +1,18 @@
 # MONITORING AND DEBUGGING GUIDE
 # M-Pesa Payment Integration - Production Operations
 
+## Application Health Endpoints
+
+```bash
+curl https://your-domain.example/health/
+curl https://your-domain.example/health/payments/
+curl https://your-domain.example/health/database/
+curl https://your-domain.example/health/celery/
+```
+
+The Celery endpoint returns `503` when no worker responds. The other endpoints
+return only operational status and non-sensitive payment counts.
+
 ## Quick Diagnostics
 
 ### 1. Payment Status Health Check
@@ -153,9 +165,9 @@ stuck = Payment.objects.filter(
 for payment in stuck:
     print(f"Payment {payment.id}:")
     print(f"  Amount: {payment.amount} KES")
-    print(f"  Phone: {payment.phone}")
+    print(f"  Phone: {payment.phone_number}")
     print(f"  Initiated: {payment.stk_initiated_at}")
-    print(f"  Last callback: {payment.last_callback_at}")
+    print(f"  Last verified: {payment.payment_verified_at}")
     print(f"  M-Pesa ID: {payment.mpesa_transaction_id}")
     print()
 
@@ -177,7 +189,7 @@ payment = Payment.objects.get(id=123)  # Use stuck payment ID
 
 # Option A: Mark as failed if truly stuck
 payment.status = 'failed'
-payment.failure_reason = 'M-Pesa callback not received after 10 minutes'
+payment.verification_notes = 'M-Pesa callback not received after 10 minutes'
 payment.save()
 
 # Option B: Retry callback from M-Pesa callback with test data
@@ -303,10 +315,10 @@ else:
     print(f"User: {payment.user.email}")
     print(f"User badge status: {payment.user.is_paid_verified}")
     
-    # Check if badge should be granted
-    payment_plan = payment.payment_plan
-    if payment_plan and payment_plan.grants_badge:
-        print(f"Plan grants badge: True")
+    # Verification membership payments grant the paid badge.
+    payment_plan = payment.plan
+    if payment_plan and payment_plan.plan_type == 'verification':
+        print(f"Verification plan: True")
         if not payment.user.is_paid_verified:
             print("⚠️  ERROR: Badge not granted despite plan requiring it!")
     
@@ -527,8 +539,9 @@ from accounts.models import CustomUser
 
 # Find all users who should have badge
 should_have_badge = CustomUser.objects.filter(
-    payment__status='completed',
-    payment__payment_plan__grants_badge=True
+    payments__status='completed',
+    payments__plan__plan_type='verification',
+    payments__plan__target_group='worker',
 ).distinct()
 
 updated = 0
