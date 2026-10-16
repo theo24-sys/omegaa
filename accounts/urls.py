@@ -11,6 +11,8 @@ urlpatterns = [
     path('profile/', views.profile, name='profile'),
     path('profile/<int:user_id>/', views.profile_detail, name='profile_detail'),
     path('edit-profile/', views.edit_profile, name='edit_profile'),
+    path('delete-account/', views.delete_account, name='delete_account'),
+    path('onboarding/', views.onboarding, name='onboarding'),
     path('verify-email/<uidb64>/<token>/', views.verify_email, name='verify_email'),
 
     # Didit Identity Verification

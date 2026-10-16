@@ -32,7 +32,7 @@
         </div>
     </div>
 
-    <form method="post" class="login-form page-panel space-y-6 p-5 md:p-8">
+    <form method="post" data-submit-state data-loading-text="Signing in..." class="login-form page-panel space-y-6 p-5 md:p-8">
         {% csrf_token %}
 
         <div class="space-y-5">

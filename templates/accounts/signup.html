@@ -21,7 +21,7 @@
     </div>
     {% endif %}
 
-    <form method="post" enctype="multipart/form-data"
+    <form method="post" data-submit-state data-loading-text="Creating account..." enctype="multipart/form-data"
     class="space-y-6 bg-white p-8 rounded-2xl shadow-xl border border-pink-100">
     
     {% csrf_token %}

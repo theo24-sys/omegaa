@@ -4,6 +4,7 @@ import json
 
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase, override_settings
+from django.core import mail
 
 from .forms import CustomUserChangeForm
 from .models import AgreementIssuance, CustomUser, PlatformDocument
@@ -47,6 +48,43 @@ class DiditWebhookTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue(user.is_identity_verified)
         self.assertTrue(user.badge_verified_id)
+
+
+@override_settings(
+    EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend',
+    STORAGES={
+        'default': {'BACKEND': 'django.core.files.storage.FileSystemStorage'},
+        'staticfiles': {'BACKEND': 'django.contrib.staticfiles.storage.StaticFilesStorage'},
+    },
+)
+class AccountLifecycleTests(TestCase):
+    def test_signup_requires_email_verification(self):
+        response = self.client.post('/accounts/signup/', {
+            'first_name': 'New', 'last_name': 'User', 'email': 'new@example.com',
+            'user_type': 'employer', 'phone_number': '+254711111111',
+            'password1': 'A-strong-password-123', 'password2': 'A-strong-password-123',
+        })
+        self.assertRedirects(response, '/accounts/login/')
+        user = CustomUser.objects.get(email='new@example.com')
+        self.assertFalse(user.is_active)
+        self.assertEqual(len(mail.outbox), 1)
+
+    def test_password_reset_page_exists(self):
+        response = self.client.get('/accounts/password_reset/')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Reset your password')
+
+    def test_delete_account_requires_correct_password(self):
+        user = CustomUser.objects.create_user(
+            username='0712345678', email='delete@example.com', phone_number='+254712345678',
+            user_type='employer', password='correct-password', is_active=True,
+        )
+        self.client.force_login(user)
+        response = self.client.post('/accounts/delete-account/', {'password': 'wrong'})
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(CustomUser.objects.filter(pk=user.pk).exists())
+        self.client.post('/accounts/delete-account/', {'password': 'correct-password'})
+        self.assertFalse(CustomUser.objects.filter(pk=user.pk).exists())
 
 
 @override_settings(SECRET_KEY='test-secret-key')

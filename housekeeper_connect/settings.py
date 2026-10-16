@@ -5,6 +5,14 @@ import dj_database_url
 from dotenv import load_dotenv
 from django.core.exceptions import ImproperlyConfigured
 
+if os.getenv('SENTRY_DSN'):
+    import sentry_sdk
+    sentry_sdk.init(
+        dsn=os.getenv('SENTRY_DSN'),
+        traces_sample_rate=float(os.getenv('SENTRY_TRACES_SAMPLE_RATE', '0.1')),
+        send_default_pii=False,
+    )
+
 # ─── Paths & Env ────────────────────────────────────────────────────────────────
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -85,6 +93,12 @@ DATABASES = {
         conn_health_checks=True,
     )
 }
+
+CACHE_URL = os.getenv('CACHE_URL') or os.getenv('REDIS_URL')
+if CACHE_URL:
+    CACHES = {'default': {'BACKEND': 'django.core.cache.backends.redis.RedisCache', 'LOCATION': CACHE_URL}}
+else:
+    CACHES = {'default': {'BACKEND': 'django.core.cache.backends.locmem.LocMemCache', 'LOCATION': 'charlady-local-cache'}}
 
 # Override for tests
 if 'test' in sys.argv:
@@ -233,6 +247,15 @@ CSRF_USE_SESSIONS = False  # Standard CSRF cookies are more reliable for unauthe
 SECURE_HSTS_SECONDS = int(os.getenv('SECURE_HSTS_SECONDS', '31536000' if not DEBUG else '0'))
 SECURE_HSTS_INCLUDE_SUBDOMAINS = os.getenv('SECURE_HSTS_INCLUDE_SUBDOMAINS', str(not DEBUG)) == 'True'
 SECURE_HSTS_PRELOAD = os.getenv('SECURE_HSTS_PRELOAD', str(not DEBUG)) == 'True'
+
+PASSWORD_RESET_TIMEOUT = int(os.getenv('PASSWORD_RESET_TIMEOUT', '86400'))
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {'console': {'class': 'logging.StreamHandler'}},
+    'root': {'handlers': ['console'], 'level': os.getenv('LOG_LEVEL', 'INFO')},
+}
 
 SECURE_CONTENT_TYPE_NOSNIFF = True
 SECURE_BROWSER_XSS_FILTER = True

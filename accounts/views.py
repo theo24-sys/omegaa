@@ -7,6 +7,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth import login as auth_login, logout as auth_logout, authenticate
 from django.contrib.auth.decorators import login_required
+from django.core.cache import cache
 from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
@@ -19,6 +20,19 @@ from .forms import CustomUserCreationForm, CustomUserChangeForm
 from .models import CustomUser
 
 logger = logging.getLogger(__name__)
+
+
+def _client_ip(request):
+    return request.META.get('REMOTE_ADDR', 'unknown')
+
+
+def _throttled(request, action, identifier, limit, window):
+    key = f'account-throttle:{action}:{_client_ip(request)}:{(identifier or "").lower()[:120]}'
+    attempts = cache.get(key, 0)
+    if attempts >= limit:
+        return True
+    cache.set(key, attempts + 1, window)
+    return False
 
 
 def kenya_locations_json(request):
@@ -77,11 +91,13 @@ def _find_user_by_identifier(identifier):
 
 def signup(request):
     if request.method == 'POST':
+        if _throttled(request, 'signup', request.POST.get('email'), 10, 3600):
+            messages.error(request, 'Too many signup attempts. Please try again later.')
+            return render(request, 'accounts/signup.html', {'form': CustomUserCreationForm(request.POST, request.FILES)})
         form = CustomUserCreationForm(request.POST, request.FILES)
         if form.is_valid():
             user = form.save(commit=False)
-            # Allow login even if email sending fails; keep email verification as an extra layer only
-            user.is_active = True
+            user.is_active = False
             user.set_password(form.cleaned_data['password1'])
             user.save()
             try:
@@ -89,7 +105,7 @@ def signup(request):
                 messages.success(request, 'Account created! Check your email to verify.')
             except Exception as e:
                 logger.error(f"Email sending failed for {user.email}: {e}")
-                messages.success(request, 'Account created! You can now log in.')
+                messages.warning(request, 'Account created, but we could not send the verification email. Use the resend link to try again.')
             return redirect('login')
     else:
         form = CustomUserCreationForm()
@@ -107,6 +123,10 @@ def login(request):
         identifier = request.POST.get('username', '').strip()
         password = request.POST.get('password', '').strip()
 
+        if _throttled(request, 'login', identifier, 10, 900):
+            messages.error(request, 'Too many login attempts. Please try again in a few minutes.')
+            return render(request, 'accounts/login.html')
+
         user = authenticate(request, username=identifier, password=password)
         if user is None:
             # authenticate() only matches the username (the phone number the
@@ -117,12 +137,12 @@ def login(request):
                 user = authenticate(request, username=matched.username, password=password)
 
         if user is not None:
+            cache.delete(f'account-throttle:login:{_client_ip(request)}:{identifier.lower()[:120]}')
             if user.is_active:
                 auth_login(request, user)
                 if user.user_type == 'househelp':
                     if not user.has_completed_first_verification:
-                        messages.info(request, 'Please complete identity verification to continue.')
-                        return redirect('initiate_didit_verification')
+                        return redirect('onboarding')
                     return redirect('dashboard:housekeeper_dashboard')
                 else:
                     return redirect('dashboard:employer_dashboard')
@@ -141,6 +161,10 @@ def resend_verification(request):
         now = time.time()
         if now - request.session.get('last_verification_email', 0) < 60:
             messages.error(request, 'Please wait a minute before requesting another email.')
+            return redirect('login')
+
+        if user.is_active:
+            messages.info(request, 'That account is already verified. You can log in.')
             return redirect('login')
 
         user = _find_user_by_identifier(identifier)
@@ -205,6 +229,37 @@ def verify_email(request, uidb64, token):
     else:
         messages.error(request, 'Verification link invalid or expired.')
         return redirect('signup')
+
+
+@login_required
+def delete_account(request):
+    if request.method == 'POST':
+        if not request.user.check_password(request.POST.get('password', '')):
+            messages.error(request, 'The password was incorrect. Your account was not deleted.')
+            return render(request, 'accounts/delete_account.html')
+        user = request.user
+        auth_logout(request)
+        user.delete()
+        messages.success(request, 'Your account and personal data have been deleted.')
+        return redirect('home')
+    return render(request, 'accounts/delete_account.html')
+
+
+@login_required
+def onboarding(request):
+    if request.user.user_type == 'househelp':
+        steps = [
+            ('Profile', bool(request.user.first_name and request.user.profile_picture), 'edit_profile'),
+            ('Identity verification', request.user.has_completed_first_verification, 'initiate_didit_verification'),
+        ]
+    else:
+        steps = [
+            ('Profile', bool(request.user.first_name and request.user.phone_number), 'edit_profile'),
+            ('Post your first job', False, 'jobs:job_create'),
+        ]
+    if all(complete for _, complete, _ in steps):
+        return redirect('dashboard:user_dashboard')
+    return render(request, 'accounts/onboarding.html', {'steps': steps})
 
 
 @login_required

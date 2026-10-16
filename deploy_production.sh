@@ -14,7 +14,8 @@ NC='\033[0m' # No Color
 
 # Configuration
 PROJECT_DIR="/home/charlady/housekeeper_connect"
-BACKUP_DIR="/backups/charlady"
+BACKUP_DIR="${BACKUP_DIR:-/backups/charlady}"
+BACKUP_RETENTION_DAYS="${BACKUP_RETENTION_DAYS:-30}"
 LOG_DIR="/var/log/charlady"
 APP_USER="charlady"
 VENV_PATH="/home/charlady/venv"
@@ -48,11 +49,16 @@ backup_database() {
     
     mkdir -p "$BACKUP_DIR"
     
-    # PostgreSQL backup
-    pg_dump -U charlady charlady_db | gzip > "$BACKUP_FILE"
+    # PostgreSQL backup; DATABASE_URL is preferred on managed platforms.
+    if [ -n "${DATABASE_URL:-}" ]; then
+        pg_dump "$DATABASE_URL" | gzip > "$BACKUP_FILE"
+    else
+        pg_dump -U "${DB_USER:-charlady}" "${DB_NAME:-charlady_db}" | gzip > "$BACKUP_FILE"
+    fi
     
     if [ -f "$BACKUP_FILE" ]; then
         log_success "Database backup created: $BACKUP_FILE"
+        find "$BACKUP_DIR" -type f -name 'charlady_db_*.sql.gz' -mtime +"$BACKUP_RETENTION_DAYS" -delete
         echo "$(du -h $BACKUP_FILE | cut -f1) backup saved"
         return 0
     else

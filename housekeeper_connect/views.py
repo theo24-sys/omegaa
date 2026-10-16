@@ -26,6 +26,10 @@ def privacy(request):
     return render(request, 'pages/privacy.html')
 
 
+def page_not_found(request, exception):
+    return render(request, '404.html', status=404)
+
+
 def health(request):
     """Return a lightweight liveness/readiness response for deployment probes."""
     try:

@@ -3,7 +3,6 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
-from django.views.decorators.csrf import csrf_exempt
 import json
 import logging
 from .models import Notification
@@ -136,13 +135,15 @@ def notification_permission_analytics(request):
 
 @login_required
 @require_http_methods(["POST"])
-@csrf_exempt
 def notification_event_analytics(request):
     """Track notification events (click, close, etc)"""
     try:
         data = json.loads(request.body)
         action = data.get('action')
         title = data.get('title', 'Unknown')
+        if action not in {'click', 'close', 'open', 'dismiss'}:
+            return JsonResponse({'status': 'error', 'message': 'Unsupported event'}, status=400)
+        title = str(title)[:200]
         
         logger.info(f"Notification event - User: {request.user.id}, Action: {action}, Title: {title}")
         
