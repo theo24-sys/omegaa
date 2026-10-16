@@ -73,6 +73,8 @@ class AccountLifecycleTests(TestCase):
         response = self.client.get('/accounts/password_reset/')
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Reset your password')
+        self.assertContains(response, 'id="id_email"')
+        self.assertContains(response, 'border-pink-300')
 
     def test_delete_account_requires_correct_password(self):
         user = CustomUser.objects.create_user(
